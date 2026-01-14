@@ -1,0 +1,237 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://caremap.ai/schema/caremap.schema.json",
+    "title": "CareMap Canonical Input Schema",
+    "description": "Canonical, PHI-minimized input schema for CareMap. Sources like CCDA and FHIR should be mapped into this structure before generating the one-page caregiver fridge sheet.",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "patient": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "nickname": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 64,
+                    "description": "Optional nickname or first name. Avoid full legal names."
+                },
+                "age_range": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 16,
+                    "pattern": "^(\\d{1,3}s|\\d{1,3}\\+|child|teen|adult|older adult)?$",
+                    "description": "Coarse age range (e.g., '70s', '80s', '65+')."
+                },
+                "conditions": {
+                    "type": "array",
+                    "description": "List of key chronic conditions in plain language. Keep short; CareMap will output up to 3.",
+                    "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                    },
+                    "minItems": 0,
+                    "maxItems": 25,
+                    "uniqueItems": true
+                }
+            },
+            "required": [],
+            "description": "Optional patient orientation fields for caregivers."
+        },
+        "medications": {
+            "type": "array",
+            "description": "Medication list. Dosage fields are intentionally excluded in v1.0.",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                    },
+                    "timing": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 160,
+                        "description": "Optional timing instructions (e.g., 'Morning and evening, with food'). If empty, CareMap will display 'As prescribed'."
+                    },
+                    "notes": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 200,
+                        "description": "Optional caregiver-safe notes. Avoid dosages and medical directives."
+                    }
+                },
+                "required": [
+                    "name"
+                ]
+            },
+            "minItems": 0,
+            "maxItems": 50
+        },
+        "labs": {
+            "type": "array",
+            "description": "High-level lab/test items. Numeric values and reference ranges are intentionally excluded in v1.0.",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 120
+                    },
+                    "flag": {
+                        "type": "string",
+                        "enum": [
+                            "high",
+                            "low",
+                            "normal",
+                            "unknown"
+                        ],
+                        "description": "Qualitative result flag only."
+                    },
+                    "note": {
+                        "type": "string",
+                        "minLength": 0,
+                        "maxLength": 240,
+                        "description": "Optional note. Do not include numeric values."
+                    }
+                },
+                "required": [
+                    "name",
+                    "flag"
+                ]
+            },
+            "minItems": 0,
+            "maxItems": 100
+        },
+        "pending": {
+            "type": "array",
+            "description": "Pending care items (care gaps) phrased for caregivers, each with a next step.",
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "item": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 140
+                    },
+                    "next_step": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60,
+                        "pattern": "^(Call|Schedule|Ask|Check)\\b.*$",
+                        "description": "Verb-first caregiver action. Must start with Call, Schedule, Ask, or Check."
+                    }
+                },
+                "required": [
+                    "item",
+                    "next_step"
+                ]
+            },
+            "minItems": 0,
+            "maxItems": 50
+        },
+        "contacts": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "clinic": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 120
+                        },
+                        "phone": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 32,
+                            "pattern": "^[0-9+()\\- .]{0,32}$",
+                            "description": "Phone number (best-effort validation)."
+                        }
+                    },
+                    "required": [],
+                    "description": "Primary clinic contact."
+                },
+                "pharmacy": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 120
+                        },
+                        "phone": {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 32,
+                            "pattern": "^[0-9+()\\- .]{0,32}$",
+                            "description": "Phone number (best-effort validation)."
+                        }
+                    },
+                    "required": [],
+                    "description": "Pharmacy contact."
+                }
+            },
+            "required": [],
+            "description": "Optional contact information. If missing, CareMap will output 'Not available'."
+        }
+    },
+    "required": [],
+    "examples": [
+        {
+            "patient": {
+                "nickname": "Maa",
+                "age_range": "70s",
+                "conditions": [
+                    "Diabetes",
+                    "High blood pressure",
+                    "Kidney issues"
+                ]
+            },
+            "medications": [
+                {
+                    "name": "Metformin",
+                    "timing": "Morning and evening, with food",
+                    "notes": ""
+                },
+                {
+                    "name": "Insulin glargine",
+                    "timing": "Nightly",
+                    "notes": ""
+                }
+            ],
+            "labs": [
+                {
+                    "name": "A1c",
+                    "flag": "high",
+                    "note": ""
+                }
+            ],
+            "pending": [
+                {
+                    "item": "Eye exam overdue",
+                    "next_step": "Call clinic"
+                }
+            ],
+            "contacts": {
+                "clinic": {
+                    "name": "Riverside Primary Care",
+                    "phone": "555-0100"
+                },
+                "pharmacy": {
+                    "name": "Main Street Pharmacy",
+                    "phone": "555-0199"
+                }
+            }
+        }
+    ]
+}
