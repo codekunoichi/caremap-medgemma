@@ -1,0 +1,76 @@
+{
+    "patient": {
+        "nickname": "Ma",
+        "age_range": "70s",
+        "conditions": [
+            "Alzheimer’s disease",
+            "Diabetes",
+            "High blood pressure",
+            "High cholesterol",
+            "Anemia"
+        ]
+    },
+    "medications": [
+        {
+            "name": "Donepezil",
+            "timing": "Nightly",
+            "notes": ""
+        },
+        {
+            "name": "Metformin",
+            "timing": "Morning and evening, with food",
+            "notes": ""
+        },
+        {
+            "name": "Atorvastatin",
+            "timing": "Nightly",
+            "notes": ""
+        },
+        {
+            "name": "Amlodipine",
+            "timing": "Morning",
+            "notes": ""
+        },
+        {
+            "name": "Iron supplement",
+            "timing": "Morning",
+            "notes": "Confirm timing with clinician if stomach upset occurs."
+        }
+    ],
+    "labs": [
+        {
+            "name": "Hemoglobin",
+            "flag": "low",
+            "note": ""
+        },
+        {
+            "name": "A1c",
+            "flag": "unknown",
+            "note": "Checked every three months."
+        }
+    ],
+    "pending": [
+        {
+            "item": "Blood tests due",
+            "next_step": "Schedule lab"
+        },
+        {
+            "item": "Physical therapy ongoing for balance and strength",
+            "next_step": "Attend sessions"
+        },
+        {
+            "item": "Fall risk review",
+            "next_step": "Ask clinician"
+        }
+    ],
+    "contacts": {
+        "clinic": {
+            "name": "",
+            "phone": ""
+        },
+        "pharmacy": {
+            "name": "",
+            "phone": ""
+        }
+    }
+}
