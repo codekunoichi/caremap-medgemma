@@ -109,6 +109,191 @@ Future work (out of scope for initial submission):
 - `ROADMAP.md` – scoped future directions
 
 ---
+---
+
+## One‑Time Setup: Hugging Face Access for MedGemma
+
+MedGemma models are **license‑gated** on Hugging Face.  
+You must complete the following steps **once** before running CareMap with MedGemma.
+
+### 1) Create / sign in to a Hugging Face account
+- Go to: https://huggingface.co
+- Sign in (or create an account)
+
+(Optional but recommended)
+- Link your GitHub account under **Settings → Linked Accounts**
+  - This helps with identity verification for gated models
+
+---
+
+### 2) Generate a Hugging Face access token
+
+1. Visit: https://huggingface.co/settings/tokens  
+2. Click **New token**
+3. Select **Read** access (this is sufficient)
+4. Create the token and **copy it** (you won’t see it again)
+
+---
+
+### 3) Log in from the command line (inside your virtual environment)
+
+With the virtual environment activated:
+
+```bash
+huggingface-cli login
+```
+
+Paste your access token when prompted.
+
+If `huggingface-cli` is not on your PATH, use:
+
+```bash
+python -m huggingface_hub.cli login
+```
+
+To verify login:
+
+```bash
+python -c "from huggingface_hub import whoami; print(whoami())"
+```
+
+---
+
+### 4) Accept the MedGemma model license
+
+While logged in on Hugging Face, visit the MedGemma model page:
+
+- https://huggingface.co/google/medgemma-4b-it
+
+If prompted, click **“Agree and access”** to accept the license.
+
+> Without accepting the license, downloads will fail with a `403` or
+> “You are trying to access a gated repo” error.
+
+---
+
+### 5) Run the MedGemma demo
+
+After login and license acceptance:
+
+```bash
+python src/hello_world_medgemma.py --mode med --name "Metformin"
+```
+
+The first run will download model weights and may take several minutes,
+especially on Apple Silicon.
+
+---
+
+### Notes
+
+- MedGemma 4B is a large model; expect high memory usage and slower startup.
+- If you encounter memory issues:
+  - Close other applications
+  - Reduce `--max-new-tokens`
+  - Consider CPU execution for testing
+
+This setup is required **once per machine**. Subsequent runs will use the
+cached model files.
+
+---
+
+
+## Quickstart: Install + Run MedGemma Hello World
+
+Follow these steps **in order**.  
+Changing the order may cause pip to fail on macOS/Homebrew Python with an
+`externally-managed-environment` error.
+
+These steps run the minimal MedGemma demo script located at
+`src/hello_world_medgemma.py`.
+
+### 1) Create a virtual environment (one time)
+
+From the root of the repo:
+
+```bash
+python3 -m venv .venv
+```
+
+### 2) Activate the virtual environment (required)
+
+```bash
+source .venv/bin/activate
+```
+
+You should now see `(.venv)` in your shell prompt.  
+If you **do not** see this, stop — pip installs will fail.
+
+### 3) Upgrade pip *inside* the virtual environment
+
+Once the virtual environment is active:
+
+```bash
+python -m pip install --upgrade pip
+```
+
+> On macOS, Homebrew-managed Python blocks global pip installs.  
+> Upgrading pip is only allowed **inside** a virtual environment.
+
+### 4) Install Python dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+> Note: `torch` installation can vary by OS/GPU.  
+> If Torch fails to install, install it using the official PyTorch selector
+> for your machine, then re-run the command above.
+
+### 5) Run the MedGemma hello world script
+
+Medication explanation:
+
+```bash
+python src/hello_world_medgemma.py --mode med --name "Metformin"
+```
+
+Lab explanation:
+
+```bash
+python src/hello_world_medgemma.py --mode lab --name "Hemoglobin" --flag low
+```
+
+### 6) (Optional) Set the MedGemma model id
+
+If you need to use a different MedGemma model id, set it once:
+
+```bash
+export MEDGEMMA_MODEL_ID="google/medgemma-2b-it"
+```
+
+Or pass it directly:
+
+```bash
+python src/hello_world_medgemma.py --model "google/medgemma-2b-it" --mode med --name "Metformin"
+```
+
+### Troubleshooting
+
+If you see this error:
+
+```
+error: externally-managed-environment
+```
+
+It means the virtual environment is **not activated**.  
+Activate it with:
+
+```bash
+source .venv/bin/activate
+```
+
+Then retry the command.
+
+
+
+---
 
 ## License
 
@@ -117,3 +302,5 @@ This project is released under the **Apache License 2.0**.
 ---
 
 CareMap is built with the belief that **clarity is care**.
+
+---
