@@ -1,0 +1,84 @@
+{
+    "patient": {
+        "nickname": "Maa",
+        "age_range": "70s",
+        "conditions": [
+            "Diabetes",
+            "High blood pressure",
+            "Kidney issues"
+        ]
+    },
+    "medications": [
+        {
+            "name": "Metformin",
+            "timing": "Morning and evening, with food",
+            "notes": ""
+        },
+        {
+            "name": "Insulin glargine",
+            "timing": "Nightly",
+            "notes": ""
+        },
+        {
+            "name": "Lisinopril",
+            "timing": "",
+            "notes": ""
+        },
+        {
+            "name": "Furosemide",
+            "timing": "Morning",
+            "notes": ""
+        },
+        {
+            "name": "Atorvastatin",
+            "timing": "Nightly",
+            "notes": ""
+        },
+        {
+            "name": "Aspirin",
+            "timing": "",
+            "notes": ""
+        },
+        {
+            "name": "Levothyroxine",
+            "timing": "Morning",
+            "notes": ""
+        },
+        {
+            "name": "Omeprazole",
+            "timing": "",
+            "notes": ""
+        }
+    ],
+    "labs": [
+        {
+            "name": "A1c",
+            "flag": "high",
+            "note": ""
+        }
+    ],
+    "pending": [
+        {
+            "item": "Eye exam overdue",
+            "next_step": "Call clinic"
+        },
+        {
+            "item": "A1c lab due",
+            "next_step": "Schedule lab"
+        },
+        {
+            "item": "Follow-up appointment",
+            "next_step": "Call clinic"
+        }
+    ],
+    "contacts": {
+        "clinic": {
+            "name": "Riverside Primary Care",
+            "phone": "555-0100"
+        },
+        "pharmacy": {
+            "name": "Main Street Pharmacy",
+            "phone": "555-0199"
+        }
+    }
+}
