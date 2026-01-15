@@ -291,7 +291,100 @@ source .venv/bin/activate
 
 Then retry the command.
 
+---
 
+## Running the Jupyter Notebook (Local)
+
+This repository includes a Jupyter Notebook intended for interactive exploration and as a Kaggle-style, judge-facing artifact.
+
+Follow these steps to run the notebook locally.
+
+### 1) Activate the virtual environment
+
+From the project root:
+
+```bash
+source .venv/bin/activate
+```
+
+Verify that Python points to the virtual environment:
+
+```bash
+which python
+```
+
+You should see a path ending in `.venv/bin/python`.
+
+---
+
+### 2) Register the virtual environment as a Jupyter kernel (one time)
+
+Run this **once** to make the virtual environment selectable inside Jupyter:
+
+```bash
+python -m ipykernel install --user \
+  --name caremap-medgemma \
+  --display-name "CareMap (venv)"
+```
+
+---
+
+### 3) Start the Jupyter server
+
+You may use either interface:
+
+**JupyterLab (recommended):**
+```bash
+jupyter lab
+```
+
+**Classic Notebook:**
+```bash
+jupyter notebook
+```
+
+Your browser will open with a file explorer. Open the `.ipynb` notebook from there.
+
+---
+
+### 4) Select the correct kernel inside the notebook
+
+In the notebook UI:
+- Click the kernel selector (top-right), or
+- Use **Kernel → Change Kernel**
+
+Choose:
+
+**`CareMap (venv)`**
+
+---
+
+### 5) Sanity check (optional but recommended)
+
+Run the following cell to confirm the kernel is correct:
+
+```python
+import sys
+print(sys.executable)
+```
+
+Expected output should point to `.venv/bin/python`.
+
+You can also verify PyTorch and Apple Silicon support:
+
+```python
+import torch
+print(torch.__version__)
+print(torch.backends.mps.is_available())
+```
+
+---
+
+### Notes
+
+- Kernel setup is required **only for local use**.
+- Kaggle Notebooks manage kernels automatically; you do not need to perform these steps on Kaggle.
+- Always ensure the correct kernel is selected to avoid missing-package or model-loading errors.
 
 ---
 
