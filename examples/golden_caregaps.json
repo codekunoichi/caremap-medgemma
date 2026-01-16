@@ -1,0 +1,174 @@
+{
+  "_description": "Golden test case: Care gap scenarios for various chronic conditions",
+  "_purpose": "Test MedGemma's ability to explain care gaps and next steps in actionable, plain language",
+
+  "meta": {
+    "test_case_id": "GOLDEN-CAREGAPS-001",
+    "focus": "Care Gap Plain Language Interpretation"
+  },
+
+  "caregap_scenarios": [
+    {
+      "scenario_id": "GAP-001",
+      "category": "Preventive Screening",
+      "item_text": "Diabetic retinopathy screening overdue - last exam 18 months ago",
+      "clinical_context": "Patient with Type 2 diabetes requires annual dilated eye exam to screen for diabetes-related eye damage",
+      "raw_next_step": "Schedule comprehensive dilated fundus examination with ophthalmology",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain why diabetic eye exam is important and how to schedule it",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Schedule an eye exam with an eye doctor (ophthalmologist) - overdue by 6 months.",
+        "plain_language_why": "Diabetes can slowly damage the tiny blood vessels in the back of the eyes. This happens without any pain or vision changes at first. A yearly eye exam can catch problems early when they're easiest to treat. The exam uses drops to widen the pupils so the doctor can see the back of the eye clearly."
+      }
+    },
+    {
+      "scenario_id": "GAP-002",
+      "category": "Medication Monitoring",
+      "item_text": "INR check overdue - on warfarin therapy",
+      "clinical_context": "Patient on warfarin for AFib requires regular INR monitoring to ensure therapeutic anticoagulation",
+      "raw_next_step": "Schedule PT/INR blood draw at anticoagulation clinic",
+      "time_bucket": "Today",
+      "_medgemma_input": "Explain why INR blood test is urgent for someone on blood thinners",
+      "_expected_output": {
+        "time_bucket": "Today",
+        "action_item": "Call the clinic to schedule a blood test for the blood thinner level.",
+        "plain_language_why": "The blood thinner (warfarin) needs regular blood tests to make sure the dose is right. Too little means the medicine isn't protecting against blood clots. Too much increases the risk of bleeding. This test should be done on schedule - if it's overdue, call today to get it scheduled as soon as possible."
+      }
+    },
+    {
+      "scenario_id": "GAP-003",
+      "category": "Immunization",
+      "item_text": "Pneumococcal vaccination incomplete - needs PCV20 or PPSV23",
+      "clinical_context": "Elderly patient with diabetes and CKD at high risk for pneumococcal disease",
+      "raw_next_step": "Administer PCV20 or PPSV23 if not received in past 5 years",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain pneumonia vaccine need for high-risk elderly patient",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Ask the doctor or pharmacy about getting the pneumonia vaccine.",
+        "plain_language_why": "Pneumonia can be very serious for older adults, especially those with diabetes or kidney problems. There's a vaccine that helps protect against the most common type of bacterial pneumonia. If it's been more than 5 years since the last one (or never received), now is a good time to get protected."
+      }
+    },
+    {
+      "scenario_id": "GAP-004",
+      "category": "Chronic Disease Management",
+      "item_text": "A1c not checked in 4 months - diabetes monitoring overdue",
+      "clinical_context": "Patient with poorly controlled diabetes needs quarterly A1c monitoring",
+      "raw_next_step": "Order HbA1c lab, fasting not required",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain A1c monitoring schedule for diabetic patient",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Schedule a blood test to check the 3-month blood sugar average (A1c).",
+        "plain_language_why": "The A1c blood test shows how well blood sugar has been controlled over the past 2-3 months. When diabetes control is being adjusted, this test is usually done every 3 months. It doesn't require fasting - you can eat before this blood draw. Regular testing helps the doctor know if medicines or lifestyle changes are working."
+      }
+    },
+    {
+      "scenario_id": "GAP-005",
+      "category": "Heart Failure Management",
+      "item_text": "Daily weight monitoring not documented",
+      "clinical_context": "CHF patient requires daily weights to detect early fluid retention",
+      "raw_next_step": "Implement daily weight log, report gain >3 lbs/day or >5 lbs/week",
+      "time_bucket": "Today",
+      "_medgemma_input": "Explain daily weight monitoring for heart failure patient",
+      "_expected_output": {
+        "time_bucket": "Today",
+        "action_item": "Start weighing daily and writing it down - same time each morning, after using the bathroom, before eating.",
+        "plain_language_why": "For someone with heart failure, sudden weight gain often means fluid is building up in the body before other symptoms appear. Catching this early lets the doctor adjust medicines before things get worse. Call the doctor if weight goes up more than 3 pounds in one day or more than 5 pounds in one week."
+      }
+    },
+    {
+      "scenario_id": "GAP-006",
+      "category": "Cancer Screening",
+      "item_text": "Colon cancer screening overdue - last colonoscopy 12 years ago",
+      "clinical_context": "Patient age 75 with no prior polyps, needs shared decision-making about continued screening",
+      "raw_next_step": "Discuss colonoscopy vs FIT testing vs cessation of screening given age and comorbidities",
+      "time_bucket": "Later",
+      "_medgemma_input": "Explain colon cancer screening options for elderly patient",
+      "_expected_output": {
+        "time_bucket": "Later",
+        "action_item": "Talk to the doctor about colon cancer screening options at the next visit.",
+        "plain_language_why": "Colon cancer screening is usually recommended every 10 years with colonoscopy, but there are also simpler stool tests that can be done yearly. At a certain age, the doctor will discuss whether continuing screening makes sense based on overall health. This isn't urgent but should be discussed at the next regular appointment."
+      }
+    },
+    {
+      "scenario_id": "GAP-007",
+      "category": "Medication Safety",
+      "item_text": "Fall risk assessment needed - on multiple sedating medications",
+      "clinical_context": "Patient on gabapentin, trazodone, and oxycodone with recent fall history",
+      "raw_next_step": "Complete fall risk assessment, consider medication reconciliation to reduce CNS depressants",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain fall risk review for patient on multiple medicines",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Schedule a visit to review medicines that might increase fall risk.",
+        "plain_language_why": "Some medicines can cause dizziness, drowsiness, or balance problems, especially when taken together. After a fall, it's important to review all medicines to see if any could be adjusted to reduce the risk of falling again. The doctor can check if doses can be lowered or if safer alternatives exist."
+      }
+    },
+    {
+      "scenario_id": "GAP-008",
+      "category": "Kidney Disease Management",
+      "item_text": "Nephrology referral pending - eGFR declined to Stage 3b",
+      "clinical_context": "CKD progression warrants specialist evaluation for management optimization",
+      "raw_next_step": "Expedite nephrology referral, ensure updated labs sent to specialist",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain kidney specialist referral for CKD patient",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Call to confirm the kidney specialist (nephrologist) appointment is scheduled.",
+        "plain_language_why": "When kidney function drops to a certain level, a kidney specialist can help make sure everything is being done to protect the kidneys. They may suggest diet changes, medicine adjustments, or other steps to slow down any further decline. It's important to get this appointment scheduled so the specialist can review recent lab results."
+      }
+    },
+    {
+      "scenario_id": "GAP-009",
+      "category": "Advance Care Planning",
+      "item_text": "Advance directive not on file",
+      "clinical_context": "Elderly patient with multiple comorbidities, no documented healthcare proxy or living will",
+      "raw_next_step": "Discuss goals of care, offer advance directive documentation",
+      "time_bucket": "Later",
+      "_medgemma_input": "Explain advance care planning discussion sensitively",
+      "_expected_output": {
+        "time_bucket": "Later",
+        "action_item": "Consider talking to the doctor about advance care planning at an upcoming visit.",
+        "plain_language_why": "Advance care planning means making sure your wishes for medical care are known and written down, just in case you ever can't speak for yourself. This includes choosing someone to make decisions for you and sharing what kinds of treatment you would or wouldn't want. Having this conversation now, while healthy, takes pressure off family later. The doctor's office can help with the paperwork."
+      }
+    },
+    {
+      "scenario_id": "GAP-010",
+      "category": "Mental Health",
+      "item_text": "Depression screening positive - PHQ-9 score 14",
+      "clinical_context": "Caregiver burnout and chronic illness associated depression in elderly patient",
+      "raw_next_step": "Schedule follow-up for depression evaluation, consider counseling referral and/or medication",
+      "time_bucket": "This Week",
+      "_medgemma_input": "Explain positive depression screening result with compassion",
+      "_expected_output": {
+        "time_bucket": "This Week",
+        "action_item": "Schedule a follow-up visit to talk about mood and how things are going emotionally.",
+        "plain_language_why": "A recent questionnaire suggested that mood might be lower than usual. This is common when dealing with ongoing health issues - managing chronic conditions can be exhausting for both patients and caregivers. The doctor wants to check in and talk about what might help, which could include counseling, a support group, medicine, or other resources. There's no shame in getting support."
+      }
+    }
+  ],
+
+  "_medgemma_instructions": {
+    "output_requirements": [
+      "Time bucket must be clear: Today, This Week, or Later",
+      "Action item must be specific and start with a verb",
+      "Plain language explanation should answer 'why does this matter?'",
+      "Keep explanations to 2-3 sentences maximum",
+      "6th grade reading level",
+      "Empathetic tone for sensitive topics (mental health, advance directives)"
+    ],
+    "output_structure": {
+      "time_bucket": "Today | This Week | Later",
+      "action_item": "Specific action starting with verb",
+      "plain_language_why": "2-3 sentences explaining importance"
+    },
+    "forbidden_content": [
+      "Medical abbreviations (PHQ-9, eGFR, A1c) without explanation",
+      "Urgency escalation beyond clinical recommendation",
+      "Diagnostic conclusions",
+      "Specific numeric values"
+    ]
+  }
+}

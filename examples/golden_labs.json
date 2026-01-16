@@ -1,0 +1,160 @@
+{
+  "_description": "Golden test case: Lab result interpretation scenarios",
+  "_purpose": "Test MedGemma's ability to explain lab results in plain language without numbers or medical jargon",
+
+  "meta": {
+    "test_case_id": "GOLDEN-LABS-001",
+    "focus": "Lab Result Plain Language Interpretation"
+  },
+
+  "lab_scenarios": [
+    {
+      "scenario_id": "LAB-001",
+      "test_name": "Hemoglobin A1c",
+      "common_names": ["A1c", "Glycated hemoglobin", "HbA1c"],
+      "what_it_measures": "Average blood sugar control over the past 2-3 months",
+      "result_context": {
+        "value": "8.4%",
+        "reference_range": "< 7.0% for most diabetics",
+        "flag": "high",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Indicates suboptimal glucose control. Each 1% increase associated with ~30% increased risk of microvascular complications.",
+      "_medgemma_input": "Explain A1c test result that is above goal for a diabetic patient",
+      "_expected_output": "The A1c test shows how well blood sugar has been controlled over the past 2-3 months. Think of it like a report card for diabetes. This result shows blood sugar has been running higher than the goal. This doesn't mean anything bad happened - it means there's room to improve. Your doctor may want to talk about diet, exercise, or medicine adjustments.",
+      "_forbidden_in_output": ["8.4%", "microvascular", "glycated", "percentage points"]
+    },
+    {
+      "scenario_id": "LAB-002",
+      "test_name": "eGFR (Estimated Glomerular Filtration Rate)",
+      "common_names": ["Kidney function", "GFR", "Renal function"],
+      "what_it_measures": "How well the kidneys filter waste from blood",
+      "result_context": {
+        "value": "42 mL/min/1.73m²",
+        "reference_range": "> 60 mL/min/1.73m²",
+        "flag": "low",
+        "meaning_category": "Slightly off",
+        "staging": "Stage 3a CKD"
+      },
+      "clinical_significance": "Moderate kidney function reduction. May require medication dose adjustments. Monitor for progression.",
+      "_medgemma_input": "Explain kidney function test showing Stage 3 CKD to a caregiver",
+      "_expected_output": "This test checks how well the kidneys are cleaning the blood. The kidneys are working at a lower level than normal, but they're still doing their job. Many people live well with kidneys working at this level. It's important to: protect the kidneys by controlling blood pressure and blood sugar, avoid certain medicines that can stress the kidneys, and get this test checked regularly to make sure things stay stable.",
+      "_forbidden_in_output": ["42", "mL/min", "GFR", "Stage 3", "CKD", "glomerular"]
+    },
+    {
+      "scenario_id": "LAB-003",
+      "test_name": "INR (International Normalized Ratio)",
+      "common_names": ["Protime", "PT/INR", "Coag panel"],
+      "what_it_measures": "How long it takes blood to clot - used to monitor blood thinner (warfarin)",
+      "result_context": {
+        "value": "3.6",
+        "reference_range": "2.0-3.0 for AFib",
+        "flag": "high",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Supratherapeutic anticoagulation. Increased bleeding risk. May need warfarin dose reduction.",
+      "_medgemma_input": "Explain INR result that is too high for a patient on warfarin",
+      "_expected_output": "The INR test shows how well the blood thinner (warfarin) is working. The goal is to find a balance - thin enough to prevent clots, but not so thin that bleeding becomes a risk. This result shows the blood is a bit thinner than the target range. This means there's a slightly higher chance of bleeding or bruising. The doctor will likely adjust the warfarin dose. Watch for unusual bruising, bleeding gums, or blood in urine/stool and report these right away.",
+      "_forbidden_in_output": ["3.6", "supratherapeutic", "INR", "2.0-3.0", "anticoagulation"]
+    },
+    {
+      "scenario_id": "LAB-004",
+      "test_name": "BNP (B-type Natriuretic Peptide)",
+      "common_names": ["Heart failure marker", "NT-proBNP"],
+      "what_it_measures": "A hormone released when the heart is under strain",
+      "result_context": {
+        "value": "890 pg/mL",
+        "reference_range": "< 100 pg/mL",
+        "flag": "high",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Significantly elevated, suggesting heart failure exacerbation. Correlate with symptoms (dyspnea, edema, weight gain).",
+      "_medgemma_input": "Explain elevated BNP in a patient with known heart failure",
+      "_expected_output": "This blood test measures a signal the heart sends out when it's working harder than usual. In someone with heart failure, this test helps show how the heart is doing. The result is higher than ideal, which means the heart is under more strain right now. This could be from extra fluid in the body, missed medicines, eating too much salt, or other reasons. Watch for: swelling in ankles or feet, trouble breathing, sudden weight gain, or feeling more tired. Report these to the doctor.",
+      "_forbidden_in_output": ["890", "pg/mL", "BNP", "natriuretic", "exacerbation"]
+    },
+    {
+      "scenario_id": "LAB-005",
+      "test_name": "Potassium (K+)",
+      "common_names": ["K", "Serum potassium", "Electrolytes"],
+      "what_it_measures": "Level of potassium mineral in the blood",
+      "result_context": {
+        "value": "5.8 mEq/L",
+        "reference_range": "3.5-5.0 mEq/L",
+        "flag": "high",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Hyperkalemia - can cause cardiac arrhythmias. May be medication-related (ACE inhibitor, K-sparing diuretic) or dietary.",
+      "_medgemma_input": "Explain high potassium level and its importance",
+      "_expected_output": "Potassium is a mineral your body needs, but the level needs to stay in a safe range. This test shows potassium is a bit higher than it should be. Too much potassium can affect how the heart beats. Some medicines and foods (like bananas, oranges, potatoes, and salt substitutes) can raise potassium. The doctor may: recheck the test, adjust medicines, or suggest limiting certain foods. Don't stop any medicines on your own - wait for the doctor's instructions.",
+      "_forbidden_in_output": ["5.8", "mEq/L", "hyperkalemia", "arrhythmias", "K+"]
+    },
+    {
+      "scenario_id": "LAB-006",
+      "test_name": "TSH (Thyroid Stimulating Hormone)",
+      "common_names": ["Thyroid test", "Thyroid function"],
+      "what_it_measures": "How well the thyroid gland is working",
+      "result_context": {
+        "value": "0.2 mIU/L",
+        "reference_range": "0.4-4.0 mIU/L",
+        "flag": "low",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Suppressed TSH suggests overreplacement with levothyroxine or hyperthyroidism. Risk of bone loss and AFib with prolonged suppression.",
+      "_medgemma_input": "Explain low TSH in patient taking thyroid medicine",
+      "_expected_output": "The TSH test checks if the thyroid medicine dose is right. When TSH is low like this, it usually means the thyroid medicine dose might be a little too high. Think of it like a thermostat - when there's plenty of thyroid hormone, the body turns down the signal asking for more. The doctor may lower the thyroid medicine dose slightly. Symptoms of too much thyroid medicine can include: feeling hot, fast heartbeat, trouble sleeping, or feeling jittery. Let your doctor know if you have any of these.",
+      "_forbidden_in_output": ["0.2", "mIU/L", "suppressed", "hyperthyroidism", "levothyroxine"]
+    },
+    {
+      "scenario_id": "LAB-007",
+      "test_name": "Hemoglobin/Hematocrit",
+      "common_names": ["H&H", "Blood count", "Anemia test"],
+      "what_it_measures": "Amount of red blood cells and their oxygen-carrying protein",
+      "result_context": {
+        "value": "Hgb 9.8 g/dL",
+        "reference_range": "12-16 g/dL for women, 14-18 g/dL for men",
+        "flag": "low",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Moderate anemia. May be due to chronic kidney disease (reduced EPO), iron deficiency, or chronic disease. Causes fatigue.",
+      "_medgemma_input": "Explain low hemoglobin in elderly patient with CKD",
+      "_expected_output": "This test measures the part of blood that carries oxygen through the body. The result is lower than normal, which is called anemia. Anemia can make a person feel tired, weak, or short of breath with activity. In someone with kidney problems, anemia is common because the kidneys help make a hormone that tells the body to produce red blood cells. The doctor may check iron levels or talk about treatments to help. Getting enough rest and not overdoing activities can help manage tiredness.",
+      "_forbidden_in_output": ["9.8", "g/dL", "hemoglobin", "hematocrit", "EPO", "erythropoietin"]
+    },
+    {
+      "scenario_id": "LAB-008",
+      "test_name": "Lipid Panel",
+      "common_names": ["Cholesterol test", "Lipids", "Fasting lipids"],
+      "what_it_measures": "Levels of different types of fats in the blood",
+      "result_context": {
+        "LDL": "145 mg/dL",
+        "HDL": "38 mg/dL",
+        "triglycerides": "210 mg/dL",
+        "total_cholesterol": "220 mg/dL",
+        "flag": "abnormal",
+        "meaning_category": "Needs follow-up"
+      },
+      "clinical_significance": "Elevated LDL, low HDL, elevated triglycerides - atherogenic profile. Increased cardiovascular risk.",
+      "_medgemma_input": "Explain abnormal cholesterol panel to caregiver",
+      "_expected_output": "The cholesterol test looks at different fats in the blood. Some fats (like LDL, the 'bad' cholesterol) can build up in arteries. Other fats (like HDL, the 'good' cholesterol) help clean arteries. This test shows the bad cholesterol is higher than goal and the good cholesterol is lower than ideal. This means the heart has to work against more buildup in the blood vessels. Diet changes, exercise, and sometimes medicine can help improve these numbers and protect the heart.",
+      "_forbidden_in_output": ["145", "38", "210", "mg/dL", "atherogenic", "LDL", "HDL"]
+    }
+  ],
+
+  "_medgemma_instructions": {
+    "output_requirements": [
+      "Never include numeric values or reference ranges",
+      "Avoid medical abbreviations",
+      "Explain what the test checks in one simple sentence",
+      "Explain what the result means without diagnosis",
+      "Provide practical next steps or things to watch for",
+      "6th grade reading level",
+      "Reassuring tone even for abnormal results"
+    ],
+    "output_structure": {
+      "what_was_checked": "1 sentence - what body function this test looks at",
+      "what_it_means": "1-2 sentences - plain language interpretation without numbers",
+      "what_to_ask_doctor": "1 question the caregiver can ask at next visit"
+    }
+  }
+}

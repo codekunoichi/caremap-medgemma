@@ -1,76 +1,113 @@
 {
-    "patient": {
-        "nickname": "Ma",
-        "age_range": "70s",
-        "conditions": [
-            "Alzheimer’s disease",
-            "Diabetes",
-            "High blood pressure",
-            "High cholesterol",
-            "Anemia"
-        ]
+  "meta": {
+    "source": "CCDA",
+    "generated_on": "2026-01-15",
+    "language": "en"
+  },
+  "patient": {
+    "nickname": "Ma",
+    "age_range": "70s",
+    "sex": "F",
+    "conditions_display": ["Alzheimer's disease", "Diabetes", "High blood pressure", "High cholesterol", "Anemia"]
+  },
+  "medications": [
+    {
+      "medication_name": "Donepezil",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "dose": "10 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "at bedtime",
+      "status": "Active",
+      "clinician_notes": "",
+      "interaction_notes": ""
     },
-    "medications": [
-        {
-            "name": "Donepezil",
-            "timing": "Nightly",
-            "notes": ""
-        },
-        {
-            "name": "Metformin",
-            "timing": "Morning and evening, with food",
-            "notes": ""
-        },
-        {
-            "name": "Atorvastatin",
-            "timing": "Nightly",
-            "notes": ""
-        },
-        {
-            "name": "Amlodipine",
-            "timing": "Morning",
-            "notes": ""
-        },
-        {
-            "name": "Iron supplement",
-            "timing": "Morning",
-            "notes": "Confirm timing with clinician if stomach upset occurs."
-        }
-    ],
-    "labs": [
-        {
-            "name": "Hemoglobin",
-            "flag": "low",
-            "note": ""
-        },
-        {
-            "name": "A1c",
-            "flag": "unknown",
-            "note": "Checked every three months."
-        }
-    ],
-    "pending": [
-        {
-            "item": "Blood tests due",
-            "next_step": "Schedule lab"
-        },
-        {
-            "item": "Physical therapy ongoing for balance and strength",
-            "next_step": "Attend sessions"
-        },
-        {
-            "item": "Fall risk review",
-            "next_step": "Ask clinician"
-        }
-    ],
-    "contacts": {
-        "clinic": {
-            "name": "",
-            "phone": ""
-        },
-        "pharmacy": {
-            "name": "",
-            "phone": ""
-        }
+    {
+      "medication_name": "Metformin",
+      "sig_text": "Take 1 tablet by mouth twice daily with meals",
+      "dose": "500 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening, with food",
+      "status": "Active",
+      "clinician_notes": "",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Atorvastatin",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "dose": "20 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "at bedtime",
+      "status": "Active",
+      "clinician_notes": "",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Amlodipine",
+      "sig_text": "Take 1 tablet by mouth daily in the morning",
+      "dose": "5 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Iron supplement",
+      "sig_text": "Take 1 tablet by mouth daily in the morning",
+      "dose": "325 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "Confirm timing with clinician if stomach upset occurs.",
+      "interaction_notes": ""
     }
+  ],
+  "results": [
+    {
+      "test_name": "Hemoglobin",
+      "meaning_category": "Needs follow-up",
+      "flag": "low",
+      "result_date": "2026-01-10",
+      "source_note": "Flagged low in portal"
+    },
+    {
+      "test_name": "A1c",
+      "meaning_category": "Normal",
+      "flag": "unknown",
+      "result_date": "",
+      "source_note": "Checked every three months"
+    }
+  ],
+  "care_gaps": [
+    {
+      "item_text": "Blood tests due",
+      "next_step": "Schedule lab",
+      "time_bucket": "Today",
+      "source": "Health Maintenance"
+    },
+    {
+      "item_text": "Physical therapy ongoing for balance and strength",
+      "next_step": "Attend sessions",
+      "time_bucket": "This Week",
+      "source": "Care Plan"
+    },
+    {
+      "item_text": "Fall risk review",
+      "next_step": "Ask clinician",
+      "time_bucket": "This Week",
+      "source": "After Visit Summary"
+    }
+  ],
+  "contacts": {
+    "clinic_name": "",
+    "clinic_phone": "",
+    "pharmacy_name": "",
+    "pharmacy_phone": "",
+    "pharmacy_address": ""
+  }
 }

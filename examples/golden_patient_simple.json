@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "source": "CCDA",
+    "generated_on": "2026-01-16",
+    "language": "en"
+  },
+  "patient": {
+    "nickname": "Nani",
+    "age_range": "60s",
+    "sex": "F",
+    "conditions_display": [
+      "Type 2 Diabetes",
+      "High Blood Pressure"
+    ]
+  },
+  "problem_list": [
+    { "display": "Type 2 diabetes mellitus", "status": "Active", "onset_date": "2018-06-01" },
+    { "display": "Essential hypertension", "status": "Active", "onset_date": "2015-03-15" },
+    { "display": "Hyperlipidemia", "status": "Active", "onset_date": "2019-01-10" }
+  ],
+  "medications": [
+    {
+      "medication_name": "Metformin",
+      "sig_text": "Take 500mg by mouth twice daily with meals",
+      "dose": "500 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening, with food",
+      "status": "Active",
+      "clinician_notes": "Take with food to reduce stomach upset.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Lisinopril",
+      "sig_text": "Take 10mg by mouth daily",
+      "dose": "10 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "For blood pressure control.",
+      "interaction_notes": "May cause dry cough - this is a known side effect, not dangerous."
+    },
+    {
+      "medication_name": "Atorvastatin",
+      "sig_text": "Take 20mg by mouth daily at bedtime",
+      "dose": "20 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "at bedtime",
+      "status": "Active",
+      "clinician_notes": "For cholesterol control.",
+      "interaction_notes": "Avoid grapefruit juice - it can increase medicine levels in blood."
+    }
+  ],
+  "results": [
+    {
+      "test_name": "Hemoglobin A1c (3-Month Blood Sugar Average)",
+      "meaning_category": "Slightly off",
+      "flag": "high",
+      "result_date": "2026-01-10",
+      "source_note": "Slightly above goal - continue current plan"
+    },
+    {
+      "test_name": "Blood Pressure",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-10",
+      "source_note": "Well controlled on current medication"
+    },
+    {
+      "test_name": "Cholesterol Panel",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-05",
+      "source_note": "Improved since starting statin"
+    }
+  ],
+  "care_gaps": [
+    {
+      "item_text": "Annual diabetic eye exam due",
+      "next_step": "Schedule appointment with eye doctor",
+      "time_bucket": "This Week",
+      "source": "Health Maintenance"
+    },
+    {
+      "item_text": "Flu shot recommended",
+      "next_step": "Ask pharmacy about flu shot",
+      "time_bucket": "This Week",
+      "source": "Immunizations"
+    }
+  ],
+  "care_team": {
+    "primary_clinician": "Primary Care",
+    "specialists": [],
+    "notes": ""
+  },
+  "contacts": {
+    "clinic_name": "Community Health Center",
+    "clinic_phone": "555-0123",
+    "pharmacy_name": "Neighborhood Pharmacy",
+    "pharmacy_phone": "555-0456",
+    "pharmacy_address": "789 Main Street, Anytown, CA"
+  }
+}

@@ -173,22 +173,35 @@ Example:
 
 ---
 
-### Section 5 — Lab & Test Insights
+### Section 5 — Lab & Test Insights (High-Level Only)
 
-**Inputs used**
-- lab/test names
-- qualitative flags (if available)
+**Purpose:**  
+Provide calm, high-level interpretation without creating clinical risk.
 
-**Mapping**
-MedGemma may generate:
-- high-level meaning (normal / slightly off / needs follow-up)
-- one caregiver-appropriate question
+**Structure (per item)**  
+For each lab or test insight, generate **exactly these three fields**:
+
+- **What was checked:**  
+  - Plain-language description of the test  
+  - No clinical jargon  
+  - One short sentence maximum
+
+- **What it means:**  
+  - One of: **Normal / Slightly off / Needs follow-up**  
+  - Followed by a brief plain-language explanation  
+  - No numeric values, thresholds, or reference ranges
+
+- **What to ask the doctor:**  
+  - Exactly one caregiver-appropriate question  
+  - Framed to support clarification, not diagnosis
 
 **Rules**
-- Max 3 lab insights
-- No numeric values or reference ranges
-- No urgency escalation unless explicitly stated in input
-- Use uncertainty-aware language
+- Maximum **3** lab/test items total
+- No raw numeric values
+- No reference ranges
+- No urgency escalation unless explicitly provided by source data
+- Must include uncertainty-aware wording when appropriate  
+  (e.g., “You may want to ask the clinician…”)
 
 ---
 

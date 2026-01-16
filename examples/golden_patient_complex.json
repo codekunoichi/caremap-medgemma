@@ -1,0 +1,204 @@
+{
+  "meta": {
+    "source": "CCDA",
+    "generated_on": "2026-01-16",
+    "language": "en"
+  },
+  "patient": {
+    "nickname": "Dadu",
+    "age_range": "80s",
+    "sex": "M",
+    "conditions_display": [
+      "Type 2 Diabetes with kidney complications",
+      "Congestive Heart Failure",
+      "Atrial Fibrillation"
+    ]
+  },
+  "problem_list": [
+    { "display": "Type 2 diabetes mellitus with chronic kidney disease", "status": "Active", "onset_date": "2015-03-01" },
+    { "display": "Congestive heart failure, systolic", "status": "Active", "onset_date": "2020-06-15" },
+    { "display": "Atrial fibrillation", "status": "Active", "onset_date": "2019-11-20" },
+    { "display": "Chronic kidney disease, stage 3b", "status": "Active", "onset_date": "2018-08-10" },
+    { "display": "Essential hypertension", "status": "Active", "onset_date": "2010-01-01" },
+    { "display": "Hypothyroidism", "status": "Active", "onset_date": "2012-05-01" },
+    { "display": "Osteoarthritis of knee", "status": "Active", "onset_date": "2017-09-01" }
+  ],
+  "medications": [
+    {
+      "medication_name": "Metformin",
+      "sig_text": "Take 500mg by mouth twice daily with meals",
+      "dose": "500 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening, with food",
+      "status": "Active",
+      "clinician_notes": "Monitor kidney function. Hold if eGFR drops below 30.",
+      "interaction_notes": "Hold 48 hours before and after CT scan with contrast dye."
+    },
+    {
+      "medication_name": "Warfarin",
+      "sig_text": "Take as directed based on INR results",
+      "dose": "Variable",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "evening, same time each day",
+      "status": "Active",
+      "clinician_notes": "Target INR 2.0-3.0 for AFib. Weekly INR checks required.",
+      "interaction_notes": "Avoid NSAIDs (ibuprofen, aspirin). Keep vitamin K intake consistent - don't suddenly increase or decrease leafy greens."
+    },
+    {
+      "medication_name": "Furosemide",
+      "sig_text": "Take 40mg by mouth twice daily",
+      "dose": "40 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and early afternoon, not after 4pm",
+      "status": "Active",
+      "clinician_notes": "For heart failure fluid management. Weigh daily.",
+      "interaction_notes": "Can cause low potassium. Take potassium supplement as prescribed."
+    },
+    {
+      "medication_name": "Potassium Chloride",
+      "sig_text": "Take 20mEq by mouth daily with food",
+      "dose": "20 mEq",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "with breakfast",
+      "status": "Active",
+      "clinician_notes": "To replace potassium lost from Lasix.",
+      "interaction_notes": "Take with food to avoid stomach upset. Do not crush tablets."
+    },
+    {
+      "medication_name": "Carvedilol",
+      "sig_text": "Take 12.5mg by mouth twice daily with food",
+      "dose": "12.5 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening, with food",
+      "status": "Active",
+      "clinician_notes": "Beta-blocker for heart failure and heart rate control.",
+      "interaction_notes": "May cause dizziness. Rise slowly from sitting or lying down. Do not stop suddenly."
+    },
+    {
+      "medication_name": "Lisinopril",
+      "sig_text": "Take 10mg by mouth daily",
+      "dose": "10 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "ACE inhibitor for heart and kidney protection.",
+      "interaction_notes": "May cause dry cough. Can raise potassium levels - monitored with blood tests."
+    },
+    {
+      "medication_name": "Levothyroxine",
+      "sig_text": "Take 75mcg by mouth daily on empty stomach",
+      "dose": "75 mcg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "first thing in morning, 60 minutes before food or other medicines",
+      "status": "Active",
+      "clinician_notes": "For hypothyroidism. Take on empty stomach.",
+      "interaction_notes": "Separate from calcium, iron, and antacids by at least 4 hours - they block absorption."
+    },
+    {
+      "medication_name": "Acetaminophen",
+      "sig_text": "Take 650mg by mouth every 6 hours as needed for pain",
+      "dose": "650 mg",
+      "route": "PO",
+      "frequency": "Q6H PRN",
+      "timing": "as needed for arthritis pain",
+      "status": "Active",
+      "clinician_notes": "Preferred pain reliever - safe with warfarin.",
+      "interaction_notes": "Do NOT exceed 3000mg per day. Do NOT take ibuprofen, naproxen, or aspirin - dangerous with warfarin."
+    }
+  ],
+  "results": [
+    {
+      "test_name": "INR (Blood Thinner Level)",
+      "meaning_category": "Needs follow-up",
+      "flag": "high",
+      "result_date": "2026-01-10",
+      "source_note": "Above target range - warfarin dose may need adjustment"
+    },
+    {
+      "test_name": "Kidney Function (eGFR)",
+      "meaning_category": "Slightly off",
+      "flag": "low",
+      "result_date": "2026-01-10",
+      "source_note": "Stable from previous - continue monitoring"
+    },
+    {
+      "test_name": "Potassium Level",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-10",
+      "source_note": "Within normal range"
+    },
+    {
+      "test_name": "Hemoglobin A1c (3-Month Blood Sugar Average)",
+      "meaning_category": "Needs follow-up",
+      "flag": "high",
+      "result_date": "2026-01-05",
+      "source_note": "Above goal - discuss at next visit"
+    },
+    {
+      "test_name": "BNP (Heart Strain Marker)",
+      "meaning_category": "Slightly off",
+      "flag": "high",
+      "result_date": "2026-01-10",
+      "source_note": "Elevated - watch for fluid buildup symptoms"
+    },
+    {
+      "test_name": "TSH (Thyroid Function)",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-05",
+      "source_note": "Thyroid well controlled on current dose"
+    }
+  ],
+  "care_gaps": [
+    {
+      "item_text": "INR recheck needed - last result was high",
+      "next_step": "Call clinic to schedule INR blood draw",
+      "time_bucket": "This Week",
+      "source": "Lab Follow-up"
+    },
+    {
+      "item_text": "Diabetic eye exam overdue by 8 months",
+      "next_step": "Schedule appointment with eye doctor",
+      "time_bucket": "This Week",
+      "source": "Health Maintenance"
+    },
+    {
+      "item_text": "Annual flu shot not received",
+      "next_step": "Ask pharmacy about flu shot availability",
+      "time_bucket": "Today",
+      "source": "Immunizations"
+    },
+    {
+      "item_text": "Daily weight check for fluid monitoring",
+      "next_step": "Weigh daily - call if gain more than 3 lbs in a day or 5 lbs in a week",
+      "time_bucket": "Today",
+      "source": "CHF Management"
+    },
+    {
+      "item_text": "Cardiology follow-up appointment due",
+      "next_step": "Call heart doctor's office to schedule 3-month check",
+      "time_bucket": "This Week",
+      "source": "After Visit Summary"
+    }
+  ],
+  "care_team": {
+    "primary_clinician": "Primary Care",
+    "specialists": ["Cardiology", "Endocrinology", "Nephrology"],
+    "notes": ""
+  },
+  "contacts": {
+    "clinic_name": "Riverside Internal Medicine",
+    "clinic_phone": "555-0100",
+    "pharmacy_name": "Care Plus Pharmacy",
+    "pharmacy_phone": "555-0200",
+    "pharmacy_address": "456 Health Ave, Riverside, CA"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "_description": "Golden test case: Drug interaction scenarios requiring plain-language explanation",
+  "_purpose": "Test MedGemma's ability to explain complex drug interactions in caregiver-friendly terms without causing alarm",
+
+  "meta": {
+    "test_case_id": "GOLDEN-INTERACTIONS-001",
+    "focus": "Drug-Drug and Drug-Food Interactions"
+  },
+
+  "interaction_scenarios": [
+    {
+      "scenario_id": "INT-001",
+      "title": "Warfarin + Vitamin K Foods",
+      "severity": "moderate",
+      "drugs_involved": ["Warfarin"],
+      "interacting_substance": "Vitamin K rich foods (leafy greens, broccoli, Brussels sprouts)",
+      "clinical_description": "Vitamin K antagonizes warfarin's anticoagulant effect. Inconsistent intake of vitamin K rich foods causes INR fluctuations.",
+      "what_happens": "Eating lots of green leafy vegetables can make the blood thinner work less well. Eating very little can make it work too much.",
+      "_medgemma_input": "Patient takes warfarin for atrial fibrillation. Explain the interaction with vitamin K foods.",
+      "_expected_output_tone": "Practical guidance without forbidding healthy foods",
+      "_expected_output_example": "Warfarin and green vegetables: You don't need to avoid salads and broccoli. The key is to eat about the same amount each week. Big changes in how many greens you eat can affect how well your blood thinner works. Pick a pattern and stick with it."
+    },
+    {
+      "scenario_id": "INT-002",
+      "title": "Metformin + Contrast Dye (CT Scan)",
+      "severity": "high",
+      "drugs_involved": ["Metformin"],
+      "interacting_substance": "Iodinated contrast dye used in CT scans",
+      "clinical_description": "Contrast dye can temporarily affect kidney function. In patients taking metformin, this can rarely lead to lactic acidosis. Standard protocol is to hold metformin 48 hours before and after contrast.",
+      "what_happens": "The dye used in some CT scans can stress the kidneys. When combined with metformin, this can rarely cause a serious problem.",
+      "_medgemma_input": "Patient with diabetes on metformin is scheduled for CT scan with contrast. Explain what to do with metformin.",
+      "_expected_output_tone": "Clear instructions without excessive worry",
+      "_expected_output_example": "CT scan coming up? If you take metformin for diabetes, you'll need to stop it for a few days around your scan. Stop 2 days before the scan and don't restart until 2 days after. This protects your kidneys. Your doctor will tell you exactly when to stop and start again."
+    },
+    {
+      "scenario_id": "INT-003",
+      "title": "Warfarin + NSAIDs (Ibuprofen, Aspirin)",
+      "severity": "critical",
+      "drugs_involved": ["Warfarin"],
+      "interacting_substance": "NSAIDs (ibuprofen/Advil/Motrin, naproxen/Aleve, aspirin)",
+      "clinical_description": "NSAIDs increase bleeding risk through multiple mechanisms: GI irritation, platelet inhibition, and potential warfarin displacement. Concurrent use significantly increases GI and intracranial bleeding risk.",
+      "what_happens": "Taking common pain relievers like ibuprofen or aspirin with warfarin greatly increases the chance of dangerous bleeding.",
+      "_medgemma_input": "Patient on warfarin has arthritis pain. Explain why they cannot take ibuprofen and what they can take instead.",
+      "_expected_output_tone": "Firm but not frightening, with safe alternative",
+      "_expected_output_example": "Important: Do not take ibuprofen (Advil, Motrin), naproxen (Aleve), or aspirin while on warfarin. These pain medicines can cause serious bleeding when mixed with your blood thinner. For pain, Tylenol (acetaminophen) is safe - just don't take more than 3000mg per day. Ask your doctor before trying any new pain medicine."
+    },
+    {
+      "scenario_id": "INT-004",
+      "title": "Levothyroxine + Calcium/Iron/Antacids",
+      "severity": "moderate",
+      "drugs_involved": ["Levothyroxine"],
+      "interacting_substance": "Calcium supplements, iron supplements, antacids (Tums, Maalox)",
+      "clinical_description": "Divalent and trivalent cations bind levothyroxine in the GI tract, reducing absorption by up to 40%. Requires 4-hour separation.",
+      "what_happens": "Calcium, iron, and antacids block the body from absorbing thyroid medicine properly.",
+      "_medgemma_input": "Patient takes levothyroxine for hypothyroidism and also takes calcium and Tums. Explain the timing requirements.",
+      "_expected_output_tone": "Practical scheduling guidance",
+      "_expected_output_example": "Your thyroid medicine (levothyroxine) needs special timing. Take it first thing in the morning on an empty stomach - at least 1 hour before eating. Wait at least 4 hours before taking calcium pills, iron pills, or antacids like Tums. These block your thyroid medicine from working. Many people take thyroid medicine right when they wake up, then calcium with lunch or dinner."
+    },
+    {
+      "scenario_id": "INT-005",
+      "title": "ACE Inhibitor + Potassium Supplements + Potassium-Sparing Diuretic",
+      "severity": "high",
+      "drugs_involved": ["Lisinopril", "Potassium Chloride", "Spironolactone"],
+      "interacting_substance": "Multiple potassium-elevating medications",
+      "clinical_description": "ACE inhibitors reduce aldosterone, decreasing potassium excretion. Combined with potassium supplements and potassium-sparing diuretics, severe hyperkalemia can result, causing cardiac arrhythmias.",
+      "what_happens": "Several of these medicines can raise potassium levels. Too much potassium is dangerous for the heart.",
+      "_medgemma_input": "Patient takes lisinopril, potassium supplements, and spironolactone. Explain why potassium monitoring is important.",
+      "_expected_output_tone": "Explain monitoring need without alarm",
+      "_expected_output_example": "You take several medicines that affect potassium levels in your blood. Lisinopril and spironolactone both raise potassium, and you also take a potassium supplement. Your body needs potassium, but too much can cause heart problems. That's why your doctor checks your potassium level with blood tests regularly. Don't take extra potassium supplements or use salt substitutes (they contain potassium) without asking your doctor first."
+    },
+    {
+      "scenario_id": "INT-006",
+      "title": "Furosemide + NSAIDs",
+      "severity": "moderate",
+      "drugs_involved": ["Furosemide"],
+      "interacting_substance": "NSAIDs (ibuprofen, naproxen)",
+      "clinical_description": "NSAIDs inhibit prostaglandin synthesis, reducing renal blood flow and sodium excretion. This blunts diuretic efficacy and can worsen heart failure and kidney function.",
+      "what_happens": "Common pain medicines like ibuprofen can stop the water pill from working properly and make heart failure worse.",
+      "_medgemma_input": "Patient with CHF takes furosemide. Explain why they should avoid ibuprofen.",
+      "_expected_output_tone": "Clear guidance with reason",
+      "_expected_output_example": "Your water pill (furosemide/Lasix) helps remove extra fluid to ease strain on your heart. Pain medicines like ibuprofen (Advil) and naproxen (Aleve) can stop your water pill from working well. This can cause fluid to build up and make your heart work harder. Use Tylenol for pain instead - it's safe with your heart medicines."
+    },
+    {
+      "scenario_id": "INT-007",
+      "title": "Beta-Blocker + Diabetes (Masking Hypoglycemia)",
+      "severity": "moderate",
+      "drugs_involved": ["Carvedilol", "Metformin", "Insulin"],
+      "interacting_substance": "Beta-blockers in diabetic patients",
+      "clinical_description": "Beta-blockers can mask tachycardia and tremor - classic hypoglycemia warning signs. Sweating is preserved. Patients may not recognize low blood sugar until severe.",
+      "what_happens": "Heart medicine can hide some warning signs of low blood sugar. You might not feel the fast heartbeat that usually warns you.",
+      "_medgemma_input": "Diabetic patient on insulin starts carvedilol. Explain the hypoglycemia masking effect.",
+      "_expected_output_tone": "Awareness without excessive worry",
+      "_expected_output_example": "Your heart medicine (carvedilol) can hide some signs of low blood sugar. Normally, low blood sugar makes your heart race and hands shake. This medicine blocks those feelings. You'll still sweat if blood sugar drops, but you might not notice other warning signs. Check your blood sugar more often, especially when starting this medicine. Keep glucose tablets or juice handy."
+    }
+  ],
+
+  "_medgemma_instructions": {
+    "input_format": "Provide drug names, patient context, and interaction concern",
+    "output_requirements": [
+      "6th grade reading level",
+      "No medical jargon without explanation",
+      "Practical action steps",
+      "Reassuring but honest tone",
+      "Include safe alternatives when relevant"
+    ],
+    "forbidden_content": [
+      "Specific dosage recommendations",
+      "Diagnostic conclusions",
+      "Severity escalation beyond source",
+      "Medical abbreviations without explanation"
+    ]
+  }
+}

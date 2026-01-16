@@ -19,7 +19,7 @@
       "frequency": "BID",
       "timing": "morning and evening, with food",
       "status": "Active",
-      "clinician_notes": "",
+      "clinician_notes": "Take with food to reduce stomach upset",
       "interaction_notes": ""
     },
     {
@@ -30,7 +30,7 @@
       "frequency": "Daily",
       "timing": "at bedtime",
       "status": "Active",
-      "clinician_notes": "",
+      "clinician_notes": "Store in refrigerator. Do not freeze.",
       "interaction_notes": ""
     },
     {
@@ -83,14 +83,14 @@
       "dose": "50 mcg",
       "route": "PO",
       "frequency": "Daily",
-      "timing": "morning",
+      "timing": "morning, 30-60 minutes before breakfast",
       "status": "Active",
-      "clinician_notes": "",
+      "clinician_notes": "Take on empty stomach. Separate from calcium and iron by 4 hours.",
       "interaction_notes": ""
     },
     {
       "medication_name": "Omeprazole",
-      "sig_text": "Take 1 capsule by mouth daily",
+      "sig_text": "Take 1 capsule by mouth daily before breakfast",
       "dose": "20 mg",
       "route": "PO",
       "frequency": "Daily",
@@ -102,31 +102,51 @@
   ],
   "results": [
     {
-      "test_name": "A1c",
+      "test_name": "Hemoglobin A1c",
       "meaning_category": "Needs follow-up",
       "flag": "high",
       "result_date": "2026-01-05",
       "source_note": "Above target range"
+    },
+    {
+      "test_name": "Kidney function (eGFR)",
+      "meaning_category": "Slightly off",
+      "flag": "low",
+      "result_date": "2026-01-05",
+      "source_note": "Mild decrease noted"
+    },
+    {
+      "test_name": "Cholesterol panel",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-05",
+      "source_note": "LDL within goal"
     }
   ],
   "care_gaps": [
     {
       "item_text": "Eye exam overdue",
-      "next_step": "Call clinic",
+      "next_step": "Call clinic to schedule diabetic eye exam",
       "time_bucket": "This Week",
       "source": "Health Maintenance"
     },
     {
       "item_text": "A1c lab due",
-      "next_step": "Schedule lab",
+      "next_step": "Schedule lab visit",
       "time_bucket": "Today",
       "source": "After Visit Summary"
     },
     {
       "item_text": "Follow-up appointment",
-      "next_step": "Call clinic",
-      "time_bucket": "Later",
+      "next_step": "Call clinic to schedule",
+      "time_bucket": "This Week",
       "source": "After Visit Summary"
+    },
+    {
+      "item_text": "Flu shot recommended",
+      "next_step": "Ask pharmacy about availability",
+      "time_bucket": "Later",
+      "source": "Health Maintenance"
     }
   ],
   "contacts": {
@@ -134,6 +154,6 @@
     "clinic_phone": "555-0100",
     "pharmacy_name": "Main Street Pharmacy",
     "pharmacy_phone": "555-0199",
-    "pharmacy_address": "456 Main Street, Riverdale, CA"
+    "pharmacy_address": "123 Main St, Riverdale, CA"
   }
 }

@@ -1,0 +1,124 @@
+{
+  "_description": "Golden test case: CT scan report interpretation scenarios",
+  "_purpose": "Test MedGemma's ability to simplify radiology CT reports for caregivers without diagnosis or alarm",
+
+  "meta": {
+    "test_case_id": "GOLDEN-CT-001",
+    "focus": "CT Scan Plain Language Interpretation"
+  },
+
+  "ct_scenarios": [
+    {
+      "scenario_id": "CT-001",
+      "study_type": "CT Chest with Contrast",
+      "clinical_indication": "Shortness of breath, rule out pulmonary embolism",
+      "radiology_report": {
+        "findings": "No pulmonary embolism identified. Mild cardiomegaly. Small bilateral pleural effusions, greater on the right. Scattered ground-glass opacities in bilateral lower lobes, likely atelectasis vs early infectious process. No suspicious pulmonary nodules. Coronary artery calcifications noted.",
+        "impression": "1. No pulmonary embolism. 2. Small bilateral pleural effusions with bibasilar atelectasis. 3. Cardiomegaly. Clinical correlation recommended."
+      },
+      "flag": "needs_follow_up",
+      "_medgemma_input": "Simplify this CT chest report for a caregiver of elderly CHF patient",
+      "_expected_output": {
+        "study_type": "CT Chest (detailed X-ray pictures of the chest area)",
+        "what_was_done": "This scan took detailed pictures of the lungs and heart to look for blood clots and other problems.",
+        "key_finding": "Good news: no blood clots were found in the lungs. The scan did show some fluid around the lungs and that the heart is working hard. These findings fit with the heart condition already known about.",
+        "what_to_ask_doctor": "Is the fluid around the lungs something we need to treat, or will the current medicines take care of it?"
+      },
+      "_forbidden_in_output": ["pulmonary embolism", "pleural effusions", "atelectasis", "cardiomegaly", "ground-glass", "opacities"]
+    },
+    {
+      "scenario_id": "CT-002",
+      "study_type": "CT Abdomen/Pelvis with Contrast",
+      "clinical_indication": "Abdominal pain, elevated liver enzymes",
+      "radiology_report": {
+        "findings": "Liver demonstrates heterogeneous enhancement with multiple hypodense lesions, largest measuring 2.3 cm in segment 6, indeterminate. Recommend MRI for further characterization. Gallbladder is surgically absent. Mild splenomegaly. Bilateral simple renal cysts, largest 3.1 cm on right. No hydronephrosis. No free fluid. No lymphadenopathy.",
+        "impression": "1. Multiple indeterminate hepatic lesions - MRI recommended for further evaluation. 2. Mild splenomegaly. 3. Bilateral renal cysts, benign appearing."
+      },
+      "flag": "needs_follow_up",
+      "_medgemma_input": "Simplify this CT abdomen report - patient is anxious about liver findings",
+      "_expected_output": {
+        "study_type": "CT Abdomen (detailed pictures of the belly area)",
+        "what_was_done": "This scan looked at the organs in the belly including the liver, spleen, and kidneys.",
+        "key_finding": "The scan found some spots on the liver that need a closer look with a different type of scan (MRI). Finding spots doesn't tell us what they are - many liver spots turn out to be harmless. The scan also found simple cysts on the kidneys, which are very common and usually not a concern.",
+        "what_to_ask_doctor": "When can we schedule the MRI to get a clearer picture of the liver spots?"
+      },
+      "_forbidden_in_output": ["hypodense", "lesions", "2.3 cm", "hepatic", "indeterminate", "splenomegaly", "segment 6"]
+    },
+    {
+      "scenario_id": "CT-003",
+      "study_type": "CT Head without Contrast",
+      "clinical_indication": "Fall, confusion, on anticoagulation",
+      "radiology_report": {
+        "findings": "No acute intracranial hemorrhage. No midline shift. Chronic microvascular ischemic changes in periventricular white matter, stable compared to prior. Mild generalized cerebral atrophy appropriate for age. No acute territorial infarct. Paranasal sinuses clear.",
+        "impression": "1. No acute intracranial hemorrhage or infarct. 2. Stable chronic microvascular disease. 3. Age-appropriate cerebral atrophy."
+      },
+      "flag": "normal",
+      "_medgemma_input": "Explain CT head results to caregiver of patient who fell while on blood thinners",
+      "_expected_output": {
+        "study_type": "CT Head (pictures of the brain)",
+        "what_was_done": "This scan checked the brain for any bleeding or injury after the fall, especially important for someone on blood thinners.",
+        "key_finding": "The results look reassuring. No bleeding was found in the brain. The scan shows some normal age-related changes that were already there before the fall and haven't changed. The brain looks appropriate for someone this age.",
+        "what_to_ask_doctor": "Are there any signs I should watch for over the next few days after this fall?"
+      },
+      "_forbidden_in_output": ["hemorrhage", "infarct", "atrophy", "microvascular", "ischemic", "periventricular"]
+    },
+    {
+      "scenario_id": "CT-004",
+      "study_type": "CT Chest Low-Dose (Lung Cancer Screening)",
+      "clinical_indication": "Annual lung cancer screening, 40 pack-year smoking history",
+      "radiology_report": {
+        "findings": "6mm solid nodule in right upper lobe, new since prior exam. Calcified granuloma in left lower lobe, stable. Mild centrilobular emphysema. No pleural effusion. No lymphadenopathy. Coronary artery calcifications.",
+        "impression": "1. New 6mm solid pulmonary nodule RUL - recommend follow-up CT in 3 months per Lung-RADS 3. 2. Stable calcified granuloma LLL. 3. Mild emphysema."
+      },
+      "flag": "needs_follow_up",
+      "_medgemma_input": "Explain lung screening CT with new nodule to anxious ex-smoker",
+      "_expected_output": {
+        "study_type": "CT Chest - Lung Screening (special low-radiation scan to check the lungs)",
+        "what_was_done": "This yearly screening scan looks for any changes in the lungs.",
+        "key_finding": "The scan found a small spot in the lung that wasn't there before. Finding a small spot is common - most turn out to be harmless things like old infections or scars. To be safe, the doctor wants to recheck it with another scan in about 3 months to make sure it's not growing. There's also an old healed spot that hasn't changed, which is reassuring.",
+        "what_to_ask_doctor": "What are the chances this spot is something serious, and what will you look for on the follow-up scan?"
+      },
+      "_forbidden_in_output": ["6mm", "nodule", "Lung-RADS", "centrilobular", "emphysema", "granuloma", "RUL", "LLL"]
+    },
+    {
+      "scenario_id": "CT-005",
+      "study_type": "CT Spine Lumbar without Contrast",
+      "clinical_indication": "Chronic low back pain, radiculopathy",
+      "radiology_report": {
+        "findings": "Multilevel degenerative changes. L4-L5: Moderate disc bulge with bilateral facet arthropathy causing moderate bilateral neural foraminal stenosis. L5-S1: Mild disc bulge with left paracentral disc protrusion contacting the traversing left S1 nerve root. Mild central canal stenosis at L4-L5. No fracture or listhesis.",
+        "impression": "1. L4-L5 moderate bilateral foraminal stenosis. 2. L5-S1 left paracentral disc protrusion with S1 nerve root contact. 3. Multilevel degenerative changes without acute fracture."
+      },
+      "flag": "needs_follow_up",
+      "_medgemma_input": "Explain lumbar spine CT to caregiver of elderly patient with back and leg pain",
+      "_expected_output": {
+        "study_type": "CT Spine (detailed pictures of the lower back bones and discs)",
+        "what_was_done": "This scan looked at the bones and cushioning discs in the lower back to understand what might be causing pain.",
+        "key_finding": "The scan shows wear-and-tear changes in the lower back, which is very common with age. In a couple of spots, the cushioning discs are bulging and pressing on the space where nerves pass through. This can cause pain that goes down into the legs. There are no broken bones or anything that slipped out of place.",
+        "what_to_ask_doctor": "What treatment options might help with the nerve pressure - physical therapy, injections, or something else?"
+      },
+      "_forbidden_in_output": ["stenosis", "foraminal", "disc bulge", "protrusion", "radiculopathy", "L4-L5", "S1", "listhesis"]
+    }
+  ],
+
+  "_medgemma_instructions": {
+    "safety_rules": [
+      "Never diagnose (don't say 'this means you have cancer')",
+      "Never interpret findings clinically beyond the report",
+      "Never minimize concerning findings",
+      "Never escalate urgency beyond what radiologist stated",
+      "Always suggest asking the doctor for details"
+    ],
+    "output_structure": {
+      "study_type": "Plain name with brief explanation in parentheses",
+      "what_was_done": "1 sentence - what body part was scanned and why",
+      "key_finding": "2-3 sentences - main results in plain language, acknowledge both reassuring and concerning elements",
+      "what_to_ask_doctor": "1 practical question for the next appointment"
+    },
+    "tone_guidance": [
+      "Calm and reassuring where appropriate",
+      "Honest about need for follow-up",
+      "Never use words like 'concerning', 'worrisome', 'suspicious' even if in report",
+      "Frame follow-up as 'to get more information' not 'because something is wrong'"
+    ]
+  }
+}
