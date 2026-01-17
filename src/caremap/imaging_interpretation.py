@@ -66,8 +66,9 @@ def interpret_imaging_report(
     require_exact_keys(obj, IMAGING_OUT_KEYS)
 
     # Safety constraints
+    # Note: Golden specs allow 2-3 sentences for key_finding in imaging reports
     require_max_sentences(obj.get("what_was_done", ""), "what_was_done", max_sentences=1)
-    require_max_sentences(obj.get("key_finding", ""), "key_finding", max_sentences=2)
+    require_max_sentences(obj.get("key_finding", ""), "key_finding", max_sentences=3)
     require_one_question(obj.get("what_to_ask_doctor", ""), "what_to_ask_doctor")
 
     return obj
@@ -138,7 +139,7 @@ The flag for this result is: {flag}
         # Validate output
         require_exact_keys(obj, IMAGING_OUT_KEYS)
         require_max_sentences(obj.get("what_was_done", ""), "what_was_done", max_sentences=1)
-        require_max_sentences(obj.get("key_finding", ""), "key_finding", max_sentences=2)
+        require_max_sentences(obj.get("key_finding", ""), "key_finding", max_sentences=3)
         require_one_question(obj.get("what_to_ask_doctor", ""), "what_to_ask_doctor")
 
         return obj

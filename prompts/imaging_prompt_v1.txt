@@ -44,43 +44,107 @@ what_was_done:
 - ONE sentence only.
 - Plain language (6th grade reading level).
 - Explain WHAT the test looks at, not how it works technically.
-- No jargon like "axial" or "sagittal" or "contrast enhancement".
 
 key_finding:
-- TWO sentences maximum.
-- Start with the qualitative flag interpretation:
-  - If flag is "normal": "The results look normal."
+- LIMIT: 2-3 sentences maximum. No more than 3.
+- Sentence 1: State the overall result based on the flag:
+  - If flag is "normal": "The results look normal." or "No serious problems were found."
   - If flag is "needs_follow_up": "There are some findings that need follow-up."
   - If flag is "urgent": "There are findings that need prompt attention."
-- Add ONE sentence of plain-language context if helpful.
-- Do NOT diagnose.
-- Do NOT interpret specific findings clinically.
-- Do NOT mention specific measurements or technical terms.
-- When uncertain, say: "Your doctor will explain the details."
+- Sentence 2-3: Add 1-2 sentences summarizing what was found in plain language.
+- CRITICAL: After writing 3 sentences, STOP. Do NOT write a 4th sentence.
 
 what_to_ask_doctor:
 - Exactly ONE question.
 - Framed as something the caregiver can ask the doctor.
 - Should help clarify next steps, not request diagnosis.
-- Examples:
-  - "What do these results mean for our care plan?"
-  - "Do we need any follow-up tests?"
-  - "Is there anything we should watch for at home?"
 
 ----------------------------------------------------------------
-FORBIDDEN CONTENT
+ABSOLUTELY FORBIDDEN CONTENT
 ----------------------------------------------------------------
-- No diagnosis language ("this shows cancer", "this indicates disease")
-- No prognosis or outcomes ("this is serious", "this is concerning")
-- No treatment recommendations
-- No specific measurements or reference ranges
-- No medical abbreviations without explanation
-- No urgency escalation beyond the provided flag
+You MUST NOT include any of the following in your output:
+
+1. MEASUREMENTS AND NUMBERS:
+   - No sizes: "6mm", "2.3 cm", "9mm"
+   - No percentages: "25%", "40%"
+   - No counts: "3 lesions", "multiple nodules"
+   - Instead say: "a small spot", "some areas", "a few places"
+
+2. ANATOMICAL LOCATION CODES:
+   - No spine levels: "L4-L5", "L5-S1", "C5-C6", "T10"
+   - No lung segments: "RUL", "LLL", "right upper lobe"
+   - No liver segments: "segment 6", "segment 8"
+   - No brain regions: "periventricular", "hippocampal"
+   - Instead say: "in the lower back", "in the lung", "in the liver", "in the brain"
+
+3. MEDICAL TERMINOLOGY:
+   - No radiology terms: "nodule", "lesion", "mass", "opacity", "effusion"
+   - No pathology terms: "stenosis", "atrophy", "hypertrophy", "ischemic"
+   - No procedure terms: "enhancement", "hyperintense", "hypodense"
+   - No abbreviations: "LI-RADS", "ACL", "MCL", "HCC", "FLAIR"
+   - No knee terms: "meniscus", "anterior cruciate ligament", "medial collateral ligament"
+   - No heart terms: "ejection fraction", "ventricle", "infarct", "cardiomyopathy"
+   - Instead use: "spot", "area", "change", "narrowing", "shrinkage", "finding"
+   - For knee: say "stabilizing band" instead of ACL/MCL, "cushioning pad" instead of meniscus
+   - For heart: say "pumping strength" instead of ejection fraction
+
+4. DIAGNOSIS LANGUAGE:
+   - NEVER use the word "cancer" - even if the report mentions it
+   - NEVER say "could be cancer", "might be cancer", "suggests cancer"
+   - No disease names: "tumor", "Alzheimer's", "cardiomyopathy", "malignancy", "HCC", "hepatocellular"
+   - No clinical interpretations: "consistent with malignancy", "suggestive of", "diagnostic for"
+   - For suspicious findings, say: "the specialists will evaluate this further" or "the medical team will review these findings carefully"
+   - For liver spots: say "spots that need specialist evaluation" NOT "spots that could be cancer"
+
+5. SPECIFIC NUMBERS:
+   - NEVER include percentages like "25%", "40%", "15%"
+   - For heart pumping: say "weaker than normal" NOT "25% ejection fraction" or "pumping strength of 25%"
+   - For sizes: say "small", "larger", "significant" NOT exact measurements
+
+----------------------------------------------------------------
+PLAIN LANGUAGE TRANSLATIONS (USE THESE)
+----------------------------------------------------------------
+- nodule/lesion/mass -> "spot" or "area"
+- stenosis -> "narrowing"
+- effusion -> "fluid"
+- atrophy -> "smaller than expected" or "shrinkage"
+- disc bulge/herniation/extrusion -> "disc pushing out" or "cushion pushing out"
+- nerve compression -> "pressure on a nerve"
+- fracture -> "break"
+- granuloma -> "old healed spot" or "scar from old infection"
+- ACL/anterior cruciate ligament -> "main stabilizing band in the knee"
+- MCL/medial collateral ligament -> "stabilizing band on the inside of the knee"
+- meniscus -> "cushioning pad in the knee"
+- ejection fraction 25% -> "heart is pumping much weaker than normal" (NO percentages)
+- ventricle -> "chamber of the heart"
+- infarct/infarction -> "area of damage" or "past heart event"
+- LI-RADS 5/diagnostic for HCC -> "spots that need specialist evaluation" (NEVER say cancer)
+- hepatocellular carcinoma -> "liver findings the specialists need to evaluate"
+
+----------------------------------------------------------------
+EXAMPLES OF CORRECT OUTPUT
+----------------------------------------------------------------
+
+GOOD key_finding (2-3 sentences, plain language):
+"There are some findings that need follow-up. The scan found a small spot that the doctors want to check again in a few months. This is a routine follow-up to make sure everything stays stable."
+
+GOOD key_finding (shorter is also fine):
+"The results look normal. No serious problems were found in this scan."
+
+BAD key_finding (too long, has forbidden terms):
+"There are some findings that need follow-up. A 6mm nodule was found in the right upper lobe. The radiologist recommends follow-up in 3 months. There is also a granuloma in the left lower lobe. This could indicate previous infection."
+
+GOOD key_finding for spine:
+"There are some findings that need follow-up. The scan shows some wear-and-tear changes in the lower back where a cushion is pushing out and pressing on a nerve."
+
+BAD key_finding for spine (has forbidden terms):
+"L4-L5 disc extrusion with stenosis causing nerve root compression."
 
 ----------------------------------------------------------------
 FINAL INSTRUCTION
 ----------------------------------------------------------------
-Now generate the JSON object for the following imaging report:
+Now generate the JSON object for the following imaging report.
+Remember: key_finding must be EXACTLY 2 sentences, and use ONLY plain everyday words.
 
 study_type: "{{STUDY_TYPE}}"
 report_text: "{{REPORT_TEXT}}"
