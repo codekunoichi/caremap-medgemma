@@ -172,3 +172,129 @@ def get_plain_study_type(study_type: str) -> str:
     """Convert medical study type to plain language."""
     normalized = study_type.strip()
     return STUDY_TYPE_PLAIN_LANGUAGE.get(normalized, f"{normalized} scan")
+
+
+IMAGING_V2_OUT_KEYS = [
+    "study_type",
+    "what_this_scan_does",
+    "what_was_found",
+    "what_this_means",
+    "questions_for_doctor",
+]
+
+
+def interpret_imaging_v2_experimental(
+    client: MedGemmaClient,
+    study_type: str,
+    report_text: str,
+    flag: str = "normal",
+    debug: bool = False,
+) -> Dict[str, Any]:
+    """
+    EXPERIMENTAL: Unconstrained imaging interpretation.
+
+    This version removes sentence limits to see what MedGemma
+    can produce when given freedom to explain and translate medical imaging.
+
+    Args:
+        debug: If True, print raw output and return it even if JSON parsing fails
+    """
+    template = load_prompt("imaging_prompt_v2_experimental.txt")
+
+    prompt = fill_prompt(
+        template,
+        {
+            "STUDY_TYPE": (study_type or "").strip(),
+            "REPORT_TEXT": (report_text or "").strip(),
+            "FLAG": (flag or "normal").strip(),
+        },
+    )
+
+    raw = client.generate(prompt)
+
+    if debug:
+        print(f"\n{'='*60}")
+        print("RAW MEDGEMMA OUTPUT:")
+        print(f"{'='*60}")
+        print(raw)
+        print(f"{'='*60}")
+
+    try:
+        obj = parse_json_strict(raw)
+        # Strict schema (but no sentence limits!)
+        require_exact_keys(obj, IMAGING_V2_OUT_KEYS)
+        return obj
+    except Exception as e:
+        if debug:
+            print(f"\nJSON parsing failed: {e}")
+            print("Returning raw output as 'raw_response' field")
+            return {"raw_response": raw, "error": str(e)}
+        raise
+
+
+if __name__ == "__main__":
+    import json
+    from pathlib import Path
+
+    # Usage: PYTHONPATH=src .venv/bin/python -m caremap.imaging_interpretation
+
+    # Sample imaging report (since golden_patient_complex doesn't have imaging)
+    sample_study = {
+        "study_type": "Chest CT",
+        "report_text": """IMPRESSION:
+1. 8mm ground-glass nodule in the right lower lobe, recommend follow-up CT in 3 months.
+2. Mild cardiomegaly with trace pericardial effusion.
+3. Atherosclerotic calcifications of the coronary arteries and thoracic aorta.
+4. No pleural effusion or pneumothorax.""",
+        "flag": "needs_follow_up",
+    }
+
+    print(f"{'='*60}")
+    print("INPUT (sample imaging report):")
+    print(f"{'='*60}")
+    print(f"study_type: {sample_study['study_type']}")
+    print(f"flag: {sample_study['flag']}")
+    print(f"report_text:\n{sample_study['report_text']}")
+
+    # Initialize the MedGemma client
+    print(f"\n{'='*60}")
+    print("Initializing MedGemma client...")
+    print(f"{'='*60}")
+
+    client = MedGemmaClient()
+
+    # Run V1 (constrained) interpretation
+    print(f"\n{'='*60}")
+    print("V1 CONSTRAINED (sentence limits):")
+    print(f"{'='*60}")
+    result_v1 = interpret_imaging_report(
+        client=client,
+        study_type=sample_study["study_type"],
+        report_text=sample_study["report_text"],
+        flag=sample_study["flag"],
+    )
+    print(json.dumps(result_v1, indent=2))
+
+    # Run V2 (experimental, unconstrained) interpretation with debug=True
+    print(f"\n{'='*60}")
+    print("V2 EXPERIMENTAL (no sentence limits, debug=True):")
+    print(f"{'='*60}")
+    result_v2 = interpret_imaging_v2_experimental(
+        client=client,
+        study_type=sample_study["study_type"],
+        report_text=sample_study["report_text"],
+        flag=sample_study["flag"],
+        debug=True,
+    )
+    if "raw_response" not in result_v2:
+        print(json.dumps(result_v2, indent=2))
+
+    # Summary comparison
+    print(f"\n{'='*60}")
+    print("COMPARISON SUMMARY:")
+    print(f"{'='*60}")
+    v1_total = sum(len(str(v)) for v in result_v1.values())
+    v2_total = sum(len(str(v)) for v in result_v2.values())
+    print(f"V1 total content: {v1_total} chars")
+    print(f"V2 total content: {v2_total} chars")
+    print(f"V2 provides {v2_total / v1_total:.1f}x more information")
