@@ -71,8 +71,9 @@ class GenerationConfig:
       - The 'probability tensor contains inf/nan' error you saw is often triggered by
         sampling on some backends (especially MPS) with certain temperature/top_p values.
       - For v1, default to greedy decoding (do_sample=False).
+      - max_new_tokens increased to 512 to support richer V2 experimental outputs.
     """
-    max_new_tokens: int = 220
+    max_new_tokens: int = 512
     do_sample: bool = False
     temperature: float = 0.0
     top_p: float = 1.0
