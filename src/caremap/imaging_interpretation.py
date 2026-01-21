@@ -232,6 +232,68 @@ def interpret_imaging_v2_experimental(
         raise
 
 
+IMAGING_V3_OUT_KEYS = [
+    "study_type",
+    "what_this_scan_does",
+    "what_was_found",
+    "what_this_means",
+    "questions_for_doctor",
+]
+
+
+def interpret_imaging_v3_grounded(
+    client: MedGemmaClient,
+    study_type: str,
+    report_text: str,
+    flag: str = "normal",
+    debug: bool = False,
+) -> tuple:
+    """
+    V3 GROUNDED: Chain-of-thought prompting with explicit reasoning.
+
+    This version uses few-shot examples and asks the model to reason
+    step-by-step before generating JSON, which may improve grounding
+    and reduce hallucination.
+
+    Args:
+        debug: If True, print raw output and return it even if JSON parsing fails
+
+    Returns:
+        tuple: (parsed_json, raw_output)
+    """
+    template = load_prompt("imaging_prompt_v3_grounded.txt")
+
+    prompt = fill_prompt(
+        template,
+        {
+            "STUDY_TYPE": (study_type or "").strip(),
+            "REPORT_TEXT": (report_text or "").strip(),
+            "FLAG": (flag or "normal").strip(),
+        },
+    )
+
+    raw = client.generate(prompt)
+
+    if debug:
+        print(f"\n{'='*60}")
+        print("RAW MEDGEMMA OUTPUT (includes reasoning):")
+        print(f"{'='*60}")
+        print(raw)
+        print(f"{'='*60}")
+
+    try:
+        obj = parse_json_strict(raw)
+        # Strict schema (same as V2)
+        require_exact_keys(obj, IMAGING_V3_OUT_KEYS)
+        return obj, raw
+    except Exception as e:
+        if debug:
+            print(f"\nJSON parsing failed: {e}")
+            print("Returning raw output as 'raw_response' field")
+            return {"raw_response": raw, "error": str(e)}, raw
+        raise
+
+
 if __name__ == "__main__":
     import json
     from pathlib import Path
@@ -275,26 +337,59 @@ if __name__ == "__main__":
     )
     print(json.dumps(result_v1, indent=2))
 
-    # Run V2 (experimental, unconstrained) interpretation with debug=True
+    # Run V2 (experimental, unconstrained) interpretation
     print(f"\n{'='*60}")
-    print("V2 EXPERIMENTAL (no sentence limits, debug=True):")
+    print("V2 EXPERIMENTAL (no sentence limits):")
     print(f"{'='*60}")
     result_v2 = interpret_imaging_v2_experimental(
         client=client,
         study_type=sample_study["study_type"],
         report_text=sample_study["report_text"],
         flag=sample_study["flag"],
-        debug=True,
+        debug=False,
     )
     if "raw_response" not in result_v2:
         print(json.dumps(result_v2, indent=2))
+
+    # Run V3 (grounded, chain-of-thought) interpretation
+    print(f"\n{'='*60}")
+    print("V3 GROUNDED (chain-of-thought with reasoning):")
+    print(f"{'='*60}")
+    result_v3, raw_v3 = interpret_imaging_v3_grounded(
+        client=client,
+        study_type=sample_study["study_type"],
+        report_text=sample_study["report_text"],
+        flag=sample_study["flag"],
+        debug=True,
+    )
+    if "raw_response" not in result_v3:
+        print("\nPARSED JSON:")
+        print(json.dumps(result_v3, indent=2))
 
     # Summary comparison
     print(f"\n{'='*60}")
     print("COMPARISON SUMMARY:")
     print(f"{'='*60}")
+
     v1_total = sum(len(str(v)) for v in result_v1.values())
-    v2_total = sum(len(str(v)) for v in result_v2.values())
-    print(f"V1 total content: {v1_total} chars")
-    print(f"V2 total content: {v2_total} chars")
-    print(f"V2 provides {v2_total / v1_total:.1f}x more information")
+    v2_total = sum(len(str(v)) for v in result_v2.values()) if "raw_response" not in result_v2 else 0
+    v3_total = sum(len(str(v)) for v in result_v3.values()) if "raw_response" not in result_v3 else 0
+
+    print(f"{'Metric':<30} {'V1':<10} {'V2':<10} {'V3':<10}")
+    print("-" * 60)
+    print(f"{'Total content (chars)':<30} {v1_total:<10} {v2_total:<10} {v3_total:<10}")
+
+    # Check for forbidden terms
+    def has_forbidden(obj):
+        text = " ".join(str(v) for v in obj.values()).lower()
+        forbidden = ["nodule", "lesion", "mm", "effusion", "cardiomegaly", "atherosclerotic"]
+        return [f for f in forbidden if f in text]
+
+    v1_forbidden = has_forbidden(result_v1)
+    v2_forbidden = has_forbidden(result_v2) if "raw_response" not in result_v2 else []
+    v3_forbidden = has_forbidden(result_v3) if "raw_response" not in result_v3 else []
+
+    print(f"\n{'Forbidden medical terms found:'}")
+    print(f"  V1: {v1_forbidden if v1_forbidden else 'None ✓'}")
+    print(f"  V2: {v2_forbidden if v2_forbidden else 'None ✓'}")
+    print(f"  V3: {v3_forbidden if v3_forbidden else 'None ✓'}")
