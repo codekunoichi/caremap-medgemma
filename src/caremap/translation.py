@@ -26,8 +26,26 @@ LANGUAGE_CODES = {
     "bengali": "ben_Beng",
     "spanish": "spa_Latn",
     "hindi": "hin_Deva",
+    "portuguese": "por_Latn",  # Brazil, Portugal
     "chinese_traditional": "zho_Hant",
     "chinese_simplified": "zho_Hans",
+    "tamil": "tam_Taml",  # South India, Sri Lanka
+    "telugu": "tel_Telu",  # South India
+    "marathi": "mar_Deva",  # Western India
+}
+
+# Language display names for UI
+LANGUAGE_NAMES = {
+    "eng_Latn": "English",
+    "ben_Beng": "বাংলা (Bengali)",
+    "spa_Latn": "Español (Spanish)",
+    "hin_Deva": "हिन्दी (Hindi)",
+    "por_Latn": "Português (Portuguese)",
+    "zho_Hant": "繁體中文 (Traditional Chinese)",
+    "zho_Hans": "简体中文 (Simplified Chinese)",
+    "tam_Taml": "தமிழ் (Tamil)",
+    "tel_Telu": "తెలుగు (Telugu)",
+    "mar_Deva": "मराठी (Marathi)",
 }
 
 # Fields that should NOT be translated (preserve verbatim)
