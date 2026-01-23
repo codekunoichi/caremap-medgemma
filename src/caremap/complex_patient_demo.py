@@ -23,6 +23,7 @@ from .medication_interpretation import (
     interpret_medication_v3_grounded,
     MED_V3_OUT_KEYS,
 )
+from .safety_validator import SafetyValidator, ValidationResult
 
 
 def load_patient_data() -> Dict[str, Any]:
@@ -270,6 +271,84 @@ def print_safety_report(report: Dict[str, Any]) -> None:
     print(f"{'='*70}")
 
 
+def run_safety_validation(
+    medications: List[Dict],
+    results: List[Dict],
+) -> Dict[str, Any]:
+    """
+    Run safety validator on all medication outputs.
+    """
+    validator = SafetyValidator(strict_mode=True)
+    validation_results = []
+
+    for med, output in zip(medications, results):
+        if "error" in output:
+            validation_results.append({
+                "medication": med["medication_name"],
+                "skipped": True,
+                "reason": output.get("error"),
+            })
+            continue
+
+        input_data = {
+            "medication_name": med["medication_name"],
+            "sig_text": med["sig_text"],
+            "clinician_notes": med["clinician_notes"],
+            "interaction_notes": med["interaction_notes"],
+        }
+
+        result = validator.validate_medication_output(input_data, output)
+
+        validation_results.append({
+            "medication": med["medication_name"],
+            "is_safe": result.is_safe,
+            "errors": result.errors,
+            "warnings": result.warnings,
+            "checks_passed": result.checks_passed,
+            "confidence": result.confidence_score,
+        })
+
+    # Summary
+    safe_count = sum(1 for r in validation_results if r.get("is_safe", False))
+    total = len([r for r in validation_results if not r.get("skipped", False)])
+
+    return {
+        "safe_count": safe_count,
+        "total": total,
+        "safety_rate": safe_count / total if total > 0 else 0,
+        "details": validation_results,
+    }
+
+
+def print_safety_validation_report(validation: Dict[str, Any]) -> None:
+    """Print the safety validation report."""
+    print(f"\n{'='*70}")
+    print("SAFETY VALIDATOR REPORT (Forbidden Terms, Jargon, Measurements)")
+    print(f"{'='*70}")
+
+    print(f"\nOverall: {validation['safe_count']}/{validation['total']} outputs passed safety checks")
+    print(f"Safety Rate: {validation['safety_rate']*100:.0f}%")
+
+    for item in validation["details"]:
+        if item.get("skipped"):
+            print(f"\n⏭️  {item['medication']}: Skipped ({item['reason']})")
+            continue
+
+        status = "✅" if item["is_safe"] else "❌"
+        print(f"\n{status} {item['medication']}:")
+
+        if item["errors"]:
+            for error in item["errors"]:
+                print(f"   ❌ {error}")
+
+        if item["warnings"]:
+            for warning in item["warnings"]:
+                print(f"   ⚠️  {warning}")
+
+        if item["is_safe"] and not item["warnings"]:
+            print(f"   ✓ All checks passed: {', '.join(item['checks_passed'])}")
+
+
 def generate_fridge_sheet(
     patient: Dict,
     results: List[Dict],
@@ -325,9 +404,13 @@ def main():
     print(f"{'='*70}")
     results = process_all_medications(client, data["medications"])
 
-    # Validate safety coverage
+    # Validate safety coverage (keyword-based)
     report = validate_safety_coverage(results, data["medications"])
     print_safety_report(report)
+
+    # Run safety validator (forbidden terms, jargon, measurements)
+    validation = run_safety_validation(data["medications"], results)
+    print_safety_validation_report(validation)
 
     # Generate fridge sheet
     print(f"\n{'='*70}")
