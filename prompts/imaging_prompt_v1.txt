@@ -55,7 +55,8 @@ key_finding:
 - CRITICAL: After writing 3 sentences, STOP. Do NOT write a 4th sentence.
 
 what_to_ask_doctor:
-- Exactly ONE question.
+- Exactly ONE question ending with a question mark (?).
+- Must be phrased as a direct question (e.g., "What should I watch for?" or "When is the follow-up?").
 - Framed as something the caregiver can ask the doctor.
 - Should help clarify next steps, not request diagnosis.
 
@@ -139,6 +140,15 @@ GOOD key_finding for spine:
 
 BAD key_finding for spine (has forbidden terms):
 "L4-L5 disc extrusion with stenosis causing nerve root compression."
+
+GOOD what_to_ask_doctor (ends with question mark):
+"What should I watch for before the follow-up appointment?"
+"When will we know more about these findings?"
+"Is there anything I can do to help while we wait for the next steps?"
+
+BAD what_to_ask_doctor (missing question mark):
+"Ask the doctor about the follow-up plan"
+"Discuss the next steps with the care team"
 
 ----------------------------------------------------------------
 FINAL INSTRUCTION
