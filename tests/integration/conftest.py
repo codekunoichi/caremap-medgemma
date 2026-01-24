@@ -1,39 +1,41 @@
-"""Fixtures for integration tests with real MedGemma client.
+"""
+Pytest fixtures for CareMap integration tests.
 
-These tests use the actual MedGemma model to validate that the interpretation
-functions produce outputs that meet golden specifications.
+These fixtures provide a real MedGemma client for testing
+against golden specifications.
 """
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
 import pytest
-
-# Add src to path so caremap module can be imported
-_SRC_DIR = Path(__file__).parent.parent.parent / "src"
-if str(_SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(_SRC_DIR))
-
-# Add tests to path so helpers can be imported
-_TESTS_DIR = Path(__file__).parent.parent
-if str(_TESTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_TESTS_DIR))
 
 
 @pytest.fixture(scope="session")
 def medgemma_client():
-    """Create a real MedGemma client for integration tests.
+    """
+    Real MedGemma client - created once per test session.
 
-    This fixture is session-scoped to avoid reinitializing the model
-    for each test (model loading is expensive).
+    This loads the actual google/medgemma-4b-it model.
+    Scope is "session" to avoid reloading the model for each test.
 
-    Returns:
-        MedGemmaClient instance with auto-detected device
+    Requirements:
+    - HuggingFace authentication (for gated model access)
+    - GPU recommended (CPU works but is slow)
+    - ~8GB VRAM or ~16GB RAM
     """
     from caremap.llm_client import MedGemmaClient
 
-    # Create client with automatic device detection
-    # Will use CUDA if available, then MPS, then CPU
+    print("\n[FIXTURE] Loading MedGemma client (session-scoped)...")
     client = MedGemmaClient()
+    print(f"[FIXTURE] MedGemma loaded on device: {client.device}")
+
     return client
+
+
+@pytest.fixture(scope="session")
+def safety_validator():
+    """
+    SafetyValidator instance for checking outputs.
+    """
+    from caremap.safety_validator import SafetyValidator
+
+    return SafetyValidator(strict_mode=True)

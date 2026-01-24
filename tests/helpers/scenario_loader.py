@@ -1,84 +1,135 @@
-"""Scenario loader for golden specification tests.
+"""
+Scenario loader for CareMap golden specification tests.
 
-Loads golden specification files and extracts scenarios for pytest parametrization.
-Also provides input builders to map scenario fields to interpretation function parameters.
+Loads golden spec JSON files and provides helper functions to
+extract test scenarios with their inputs and expected validations.
 """
 from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
-
-GOLDEN_SPECS_DIR = Path(__file__).parent.parent.parent / "examples"
+from typing import Any, Dict, List, Tuple
 
 
-def load_golden_spec(spec_name: str) -> dict[str, Any]:
-    """Load a golden specification file by name.
+def get_examples_dir() -> Path:
+    """Get the path to the examples directory."""
+    # Try relative to this file
+    tests_dir = Path(__file__).parent.parent
+    project_root = tests_dir.parent
+    examples_dir = project_root / "examples"
+
+    if examples_dir.exists():
+        return examples_dir
+
+    raise FileNotFoundError(f"Examples directory not found at {examples_dir}")
+
+
+def load_golden_spec(filename: str) -> Dict[str, Any]:
+    """
+    Load a golden specification JSON file.
 
     Args:
-        spec_name: Filename (e.g., "golden_labs.json")
+        filename: Name of the file in examples/ directory
 
     Returns:
-        Parsed JSON specification
+        Parsed JSON as dictionary
     """
-    spec_path = GOLDEN_SPECS_DIR / spec_name
-    with open(spec_path) as f:
+    filepath = get_examples_dir() / filename
+    with open(filepath) as f:
         return json.load(f)
 
 
-def extract_lab_scenarios(
-    spec: dict[str, Any],
-) -> list[tuple[str, dict[str, Any]]]:
-    """Extract lab scenarios from specification for pytest.mark.parametrize.
+def get_lab_scenarios() -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Get lab test scenarios from golden_labs.json.
 
     Returns:
-        List of (scenario_id, scenario_data) tuples
+        List of (scenario_id, scenario_dict) tuples for pytest parametrize
     """
-    scenarios = spec.get("lab_scenarios", [])
-    return [(s["scenario_id"], s) for s in scenarios]
+    spec = load_golden_spec("golden_labs.json")
+    scenarios = []
+
+    for scenario in spec.get("lab_scenarios", []):
+        scenario_id = scenario.get("scenario_id", "unknown")
+        scenarios.append((scenario_id, scenario))
+
+    return scenarios
 
 
-def extract_ct_scenarios(
-    spec: dict[str, Any],
-) -> list[tuple[str, dict[str, Any]]]:
-    """Extract CT imaging scenarios from specification."""
-    scenarios = spec.get("ct_scenarios", [])
-    return [(s["scenario_id"], s) for s in scenarios]
+def get_imaging_scenarios(modality: str = "ct") -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Get imaging test scenarios from golden spec files.
+
+    Args:
+        modality: "ct" or "mri"
+
+    Returns:
+        List of (scenario_id, scenario_dict) tuples
+    """
+    if modality == "ct":
+        spec = load_golden_spec("golden_imaging_ct.json")
+        key = "ct_scenarios"
+    elif modality == "mri":
+        spec = load_golden_spec("golden_imaging_mri.json")
+        key = "mri_scenarios"
+    else:
+        raise ValueError(f"Unknown modality: {modality}")
+
+    scenarios = []
+    for scenario in spec.get(key, []):
+        scenario_id = scenario.get("scenario_id", "unknown")
+        scenarios.append((scenario_id, scenario))
+
+    return scenarios
 
 
-def extract_mri_scenarios(
-    spec: dict[str, Any],
-) -> list[tuple[str, dict[str, Any]]]:
-    """Extract MRI imaging scenarios from specification."""
-    scenarios = spec.get("mri_scenarios", [])
-    return [(s["scenario_id"], s) for s in scenarios]
+def get_caregap_scenarios() -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Get care gap scenarios from golden_caregaps.json.
+
+    Returns:
+        List of (scenario_id, scenario_dict) tuples
+    """
+    spec = load_golden_spec("golden_caregaps.json")
+    scenarios = []
+
+    for scenario in spec.get("caregap_scenarios", []):
+        scenario_id = scenario.get("scenario_id", "unknown")
+        scenarios.append((scenario_id, scenario))
+
+    return scenarios
 
 
-def extract_caregap_scenarios(
-    spec: dict[str, Any],
-) -> list[tuple[str, dict[str, Any]]]:
-    """Extract care gap scenarios from specification."""
-    scenarios = spec.get("caregap_scenarios", [])
-    return [(s["scenario_id"], s) for s in scenarios]
+def get_drug_interaction_scenarios() -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Get drug interaction scenarios from golden_drug_interactions.json.
+
+    Returns:
+        List of (scenario_id, scenario_dict) tuples
+    """
+    spec = load_golden_spec("golden_drug_interactions.json")
+    scenarios = []
+
+    for scenario in spec.get("interaction_scenarios", []):
+        scenario_id = scenario.get("scenario_id", "unknown")
+        scenarios.append((scenario_id, scenario))
+
+    return scenarios
 
 
-def extract_interaction_scenarios(
-    spec: dict[str, Any],
-) -> list[tuple[str, dict[str, Any]]]:
-    """Extract drug interaction scenarios from specification."""
-    scenarios = spec.get("interaction_scenarios", [])
-    return [(s["scenario_id"], s) for s in scenarios]
+# =============================================================================
+# Input builders - map golden spec fields to interpretation function params
+# =============================================================================
 
 
-def build_lab_input(scenario: dict[str, Any]) -> dict[str, str]:
-    """Build input parameters for interpret_lab from a lab scenario.
+def build_lab_input(scenario: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Build input parameters for interpret_lab() from scenario.
 
-    Maps golden spec fields to function parameters:
-    - test_name: from scenario["test_name"]
-    - meaning_category: from scenario["result_context"]["meaning_category"]
-    - source_note: from scenario["clinical_significance"] or flag description
+    Maps golden spec fields to function parameters.
     """
     result_context = scenario.get("result_context", {})
+
     return {
         "test_name": scenario.get("test_name", ""),
         "meaning_category": result_context.get("meaning_category", "Normal"),
@@ -86,18 +137,14 @@ def build_lab_input(scenario: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def build_imaging_input(scenario: dict[str, Any]) -> dict[str, str]:
-    """Build input parameters for interpret_imaging_report from an imaging scenario.
+def build_imaging_input(scenario: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Build input parameters for interpret_imaging_report() from scenario.
 
-    Maps golden spec fields:
-    - study_type: from scenario["study_type"]
-    - report_text: combined findings + impression
-    - flag: from scenario["flag"]
+    Maps golden spec fields to function parameters.
     """
     report = scenario.get("radiology_report", {})
-    findings = report.get("findings", "")
-    impression = report.get("impression", "")
-    report_text = f"Findings: {findings}\n\nImpression: {impression}"
+    report_text = f"FINDINGS: {report.get('findings', '')}\n\nIMPRESSION: {report.get('impression', '')}"
 
     return {
         "study_type": scenario.get("study_type", ""),
@@ -106,45 +153,31 @@ def build_imaging_input(scenario: dict[str, Any]) -> dict[str, str]:
     }
 
 
-def build_caregap_input(scenario: dict[str, Any]) -> dict[str, str]:
-    """Build input parameters for interpret_caregap from a caregap scenario.
+def build_caregap_input(scenario: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Build input parameters for interpret_caregap() from scenario.
 
-    Maps golden spec fields:
-    - item_text: from scenario["item_text"]
-    - next_step: from scenario["raw_next_step"]
-    - time_bucket: from scenario["time_bucket"]
+    Maps golden spec fields to function parameters.
     """
     return {
         "item_text": scenario.get("item_text", ""),
         "next_step": scenario.get("raw_next_step", ""),
-        "time_bucket": scenario.get("time_bucket", "This Week"),
+        "time_bucket": scenario.get("time_bucket", "Later"),
     }
 
 
-def build_interaction_input(scenario: dict[str, Any]) -> dict[str, str]:
-    """Build input parameters for interpret_medication from a drug interaction scenario.
+def build_medication_input(scenario: Dict[str, Any]) -> Dict[str, str]:
+    """
+    Build input parameters for interpret_medication() from scenario.
 
-    Maps interaction scenario fields to medication interpretation:
-    - medication_name: from scenario["drugs_involved"][0]
-    - when_to_give: empty (not specified in interaction scenarios)
-    - clinician_notes: from scenario["what_happens"]
-    - interaction_notes: from scenario["clinical_description"]
+    Maps golden spec fields to function parameters.
     """
     drugs = scenario.get("drugs_involved", [])
-    medication_name = drugs[0] if drugs else ""
+    medication_name = drugs[0] if drugs else "Unknown"
 
     return {
         "medication_name": medication_name,
-        "when_to_give": "",
-        "clinician_notes": scenario.get("what_happens", ""),
-        "interaction_notes": scenario.get("clinical_description", ""),
+        "sig_text": "",  # Not in golden spec
+        "clinician_notes": scenario.get("clinical_description", ""),
+        "interaction_notes": scenario.get("what_happens", ""),
     }
-
-
-def get_forbidden_terms(scenario: dict[str, Any]) -> list[str]:
-    """Extract forbidden terms from a scenario.
-
-    Looks for '_forbidden_in_output' field which lists terms that
-    should NOT appear in MedGemma's output.
-    """
-    return scenario.get("_forbidden_in_output", [])

@@ -1,149 +1,104 @@
-"""Integration tests for care gap interpretation against golden specifications.
+"""
+Integration tests for care gap interpretation against golden specifications.
 
-These tests validate that REAL MedGemma outputs:
-1. Contain the correct structure (expected keys)
-2. Have valid time bucket values (Today, This Week, Later)
-3. Have non-empty meaningful values
+Tests 10 care gap scenarios from golden_caregaps.json using real MedGemma.
 
-Run tests:
-    .venv/bin/python -m pytest tests/integration/test_golden_caregaps.py -v
+Run with:
+    PYTHONPATH=src .venv/bin/python -m pytest tests/integration/test_golden_caregaps.py -v
 """
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
-from caremap.caregap_interpretation import CARE_OUT_KEYS, interpret_caregap
+from caremap.caregap_interpretation import interpret_caregap, CARE_OUT_KEYS
 
-from helpers.golden_validators import (
+from tests.helpers import (
     assert_no_forbidden_terms,
-    assert_non_empty_string_values,
-    assert_output_keys_match,
+    assert_output_structure,
+    assert_non_empty_values,
 )
-from helpers.scenario_loader import (
-    build_caregap_input,
-    extract_caregap_scenarios,
-    load_golden_spec,
-)
-
-# Load spec once at module level for parametrization
-_GOLDEN_SPEC = load_golden_spec("golden_caregaps.json")
-_CAREGAP_SCENARIOS = extract_caregap_scenarios(_GOLDEN_SPEC)
-
-# Valid time bucket values
-VALID_TIME_BUCKETS = {"Today", "This Week", "Later"}
-
-# General forbidden terms for care gaps (medical abbreviations)
-CAREGAP_FORBIDDEN_TERMS = [
-    "PHQ-9",
-    "eGFR",
-    "HbA1c",
-    "A1c",
-    "PCV20",
-    "PPSV23",
-    "LI-RADS",
-    "INR",
-    "BNP",
-]
+from tests.helpers.scenario_loader import get_caregap_scenarios, build_caregap_input
 
 
-class TestGoldenCaregaps:
-    """Real integration tests for care gap interpretation with MedGemma."""
+# Load scenarios for parametrization
+_CAREGAP_SCENARIOS = get_caregap_scenarios()
 
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _CAREGAP_SCENARIOS,
-        ids=[s[0] for s in _CAREGAP_SCENARIOS],
+
+@pytest.mark.parametrize("scenario_id,scenario", _CAREGAP_SCENARIOS)
+def test_caregap_interpretation(medgemma_client, scenario_id, scenario):
+    """
+    Test care gap interpretation against golden spec.
+    """
+    input_params = build_caregap_input(scenario)
+
+    result = interpret_caregap(
+        client=medgemma_client,
+        item_text=input_params["item_text"],
+        next_step=input_params["next_step"],
+        time_bucket=input_params["time_bucket"],
     )
-    def test_caregap_output_structure(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that care gap interpretation returns correct structure."""
-        input_params = build_caregap_input(scenario)
 
-        result = interpret_caregap(
-            client=medgemma_client,
-            item_text=input_params["item_text"],
-            next_step=input_params["next_step"],
-            time_bucket=input_params["time_bucket"],
-        )
-
-        # Validate structure
-        assert_output_keys_match(result, CARE_OUT_KEYS, scenario_id)
-
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _CAREGAP_SCENARIOS,
-        ids=[s[0] for s in _CAREGAP_SCENARIOS],
+    # Validate structure
+    assert_output_structure(
+        result,
+        expected_keys=set(CARE_OUT_KEYS),
+        scenario_id=scenario_id,
     )
-    def test_caregap_non_empty_values(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that care gap interpretation returns non-empty values."""
-        input_params = build_caregap_input(scenario)
 
-        result = interpret_caregap(
-            client=medgemma_client,
-            item_text=input_params["item_text"],
-            next_step=input_params["next_step"],
-            time_bucket=input_params["time_bucket"],
-        )
+    # Validate non-empty values
+    assert_non_empty_values(result, scenario_id)
 
-        # Validate non-empty
-        assert_non_empty_string_values(result, CARE_OUT_KEYS, scenario_id)
 
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _CAREGAP_SCENARIOS,
-        ids=[s[0] for s in _CAREGAP_SCENARIOS],
+@pytest.mark.parametrize("scenario_id,scenario", _CAREGAP_SCENARIOS)
+def test_caregap_time_bucket_preserved(medgemma_client, scenario_id, scenario):
+    """
+    Test that time_bucket from input is preserved in output.
+    """
+    input_params = build_caregap_input(scenario)
+    expected_bucket = input_params["time_bucket"]
+
+    result = interpret_caregap(
+        client=medgemma_client,
+        item_text=input_params["item_text"],
+        next_step=input_params["next_step"],
+        time_bucket=input_params["time_bucket"],
     )
-    def test_caregap_valid_time_bucket(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that time bucket is a valid value."""
-        input_params = build_caregap_input(scenario)
 
-        result = interpret_caregap(
-            client=medgemma_client,
-            item_text=input_params["item_text"],
-            next_step=input_params["next_step"],
-            time_bucket=input_params["time_bucket"],
-        )
-
-        assert result.get("time_bucket") in VALID_TIME_BUCKETS, (
-            f"[{scenario_id}] Invalid time_bucket: {result.get('time_bucket')}"
-        )
-
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _CAREGAP_SCENARIOS,
-        ids=[s[0] for s in _CAREGAP_SCENARIOS],
+    assert result["time_bucket"] == expected_bucket, (
+        f"[{scenario_id}] Expected time_bucket '{expected_bucket}', "
+        f"got '{result['time_bucket']}'"
     )
-    def test_caregap_no_medical_abbreviations(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that care gap interpretation excludes medical abbreviations."""
-        input_params = build_caregap_input(scenario)
 
-        result = interpret_caregap(
-            client=medgemma_client,
-            item_text=input_params["item_text"],
-            next_step=input_params["next_step"],
-            time_bucket=input_params["time_bucket"],
-        )
 
-        # Check general forbidden terms
-        assert_no_forbidden_terms(result, CAREGAP_FORBIDDEN_TERMS, scenario_id)
+@pytest.mark.parametrize("scenario_id,scenario", _CAREGAP_SCENARIOS)
+def test_caregap_no_medical_abbreviations(medgemma_client, scenario_id, scenario):
+    """
+    Test that care gap outputs don't contain unexplained medical abbreviations.
+    """
+    input_params = build_caregap_input(scenario)
+
+    result = interpret_caregap(
+        client=medgemma_client,
+        item_text=input_params["item_text"],
+        next_step=input_params["next_step"],
+        time_bucket=input_params["time_bucket"],
+    )
+
+    # Common abbreviations that should be explained or avoided
+    abbreviations = [
+        "PHQ-9", "eGFR", "A1c", "HbA1c", "INR", "PT", "BNP",
+        "CKD", "CHF", "AFib", "CAD", "COPD", "DM",
+        "NPO", "PRN", "BID", "TID", "QID",
+    ]
+
+    # Check for abbreviations (case-sensitive for these)
+    all_text = " ".join(str(v) for v in result.values() if isinstance(v, str))
+
+    found_abbrev = []
+    for abbrev in abbreviations:
+        if abbrev in all_text:
+            found_abbrev.append(abbrev)
+
+    assert not found_abbrev, (
+        f"[{scenario_id}] Found unexplained abbreviations: {found_abbrev}"
+    )

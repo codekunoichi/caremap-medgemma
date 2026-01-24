@@ -1,145 +1,99 @@
-"""Integration tests for lab interpretation against golden specifications.
+"""
+Integration tests for lab interpretation against golden specifications.
 
-These tests validate that REAL MedGemma outputs:
-1. Contain the correct structure (expected keys)
-2. Do NOT contain forbidden terms (numbers, medical jargon)
-3. Have non-empty meaningful values
+Tests 8 lab scenarios from golden_labs.json using the real MedGemma model.
 
-Run tests:
-    .venv/bin/python -m pytest tests/integration/test_golden_labs.py -v
+Run with:
+    PYTHONPATH=src .venv/bin/python -m pytest tests/integration/test_golden_labs.py -v
 """
 from __future__ import annotations
 
-from typing import Any
-
 import pytest
 
-from caremap.lab_interpretation import LAB_OUT_KEYS, interpret_lab
+from caremap.lab_interpretation import interpret_lab, LAB_OUT_KEYS
 
-from helpers.golden_validators import (
+from tests.helpers import (
     assert_no_forbidden_terms,
-    assert_non_empty_string_values,
-    assert_output_keys_match,
-    validate_golden_output,
+    assert_output_structure,
+    assert_non_empty_values,
 )
-from helpers.scenario_loader import (
-    build_lab_input,
-    extract_lab_scenarios,
-    get_forbidden_terms,
-    load_golden_spec,
-)
-
-# Load spec once at module level for parametrization
-_GOLDEN_SPEC = load_golden_spec("golden_labs.json")
-_LAB_SCENARIOS = extract_lab_scenarios(_GOLDEN_SPEC)
+from tests.helpers.scenario_loader import get_lab_scenarios, build_lab_input
 
 
-class TestGoldenLabs:
-    """Real integration tests for lab interpretation with MedGemma."""
+# Load scenarios for parametrization
+_LAB_SCENARIOS = get_lab_scenarios()
 
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _LAB_SCENARIOS,
-        ids=[s[0] for s in _LAB_SCENARIOS],
+
+@pytest.mark.parametrize("scenario_id,scenario", _LAB_SCENARIOS)
+def test_lab_interpretation(medgemma_client, scenario_id, scenario):
+    """
+    Test real lab interpretation against golden spec.
+
+    For each scenario:
+    1. Call interpret_lab() with real MedGemma
+    2. Validate output has correct structure
+    3. Validate no forbidden terms appear
+    4. Validate fields are non-empty
+    """
+    # Build input from scenario
+    input_params = build_lab_input(scenario)
+
+    # Call real interpretation function
+    result = interpret_lab(
+        client=medgemma_client,
+        test_name=input_params["test_name"],
+        meaning_category=input_params["meaning_category"],
+        source_note=input_params["source_note"],
     )
-    def test_lab_output_structure(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that lab interpretation returns correct structure."""
-        # Build input from scenario
-        input_params = build_lab_input(scenario)
 
-        # Call REAL interpretation function
-        result = interpret_lab(
-            client=medgemma_client,
-            test_name=input_params["test_name"],
-            meaning_category=input_params["meaning_category"],
-            source_note=input_params["source_note"],
-        )
-
-        # Validate structure
-        assert_output_keys_match(result, LAB_OUT_KEYS, scenario_id)
-
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _LAB_SCENARIOS,
-        ids=[s[0] for s in _LAB_SCENARIOS],
+    # Validate structure
+    assert_output_structure(
+        result,
+        expected_keys=set(LAB_OUT_KEYS),
+        scenario_id=scenario_id,
     )
-    def test_lab_non_empty_values(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that lab interpretation returns non-empty values."""
-        input_params = build_lab_input(scenario)
 
-        result = interpret_lab(
-            client=medgemma_client,
-            test_name=input_params["test_name"],
-            meaning_category=input_params["meaning_category"],
-            source_note=input_params["source_note"],
-        )
+    # Validate no forbidden terms
+    forbidden = scenario.get("_forbidden_in_output", [])
+    if forbidden:
+        assert_no_forbidden_terms(result, forbidden, scenario_id)
 
-        # Validate non-empty
-        assert_non_empty_string_values(result, LAB_OUT_KEYS, scenario_id)
+    # Validate non-empty values
+    assert_non_empty_values(result, scenario_id)
 
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _LAB_SCENARIOS,
-        ids=[s[0] for s in _LAB_SCENARIOS],
+
+@pytest.mark.parametrize("scenario_id,scenario", _LAB_SCENARIOS)
+def test_lab_no_numeric_leakage(medgemma_client, scenario_id, scenario):
+    """
+    Test that lab outputs don't leak specific numeric values.
+
+    Lab results should never include:
+    - Actual test values (e.g., "8.4%", "42 mL/min")
+    - Reference ranges (e.g., "< 7.0%")
+    """
+    input_params = build_lab_input(scenario)
+
+    result = interpret_lab(
+        client=medgemma_client,
+        test_name=input_params["test_name"],
+        meaning_category=input_params["meaning_category"],
+        source_note=input_params["source_note"],
     )
-    def test_lab_no_forbidden_terms(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Test that lab interpretation excludes forbidden terms."""
-        input_params = build_lab_input(scenario)
 
-        result = interpret_lab(
-            client=medgemma_client,
-            test_name=input_params["test_name"],
-            meaning_category=input_params["meaning_category"],
-            source_note=input_params["source_note"],
-        )
+    # Check for numeric values in result context
+    result_context = scenario.get("result_context", {})
+    forbidden_numbers = []
 
-        # Get forbidden terms for this scenario
-        forbidden = get_forbidden_terms(scenario)
-        if forbidden:
-            assert_no_forbidden_terms(result, forbidden, scenario_id)
+    # Extract numeric values from the scenario
+    if "value" in result_context:
+        forbidden_numbers.append(result_context["value"])
+    if "reference_range" in result_context:
+        forbidden_numbers.append(result_context["reference_range"])
 
-    @pytest.mark.parametrize(
-        "scenario_id,scenario",
-        _LAB_SCENARIOS,
-        ids=[s[0] for s in _LAB_SCENARIOS],
-    )
-    def test_lab_comprehensive_validation(
-        self,
-        medgemma_client,
-        scenario_id: str,
-        scenario: dict[str, Any],
-    ):
-        """Comprehensive validation of lab interpretation output."""
-        input_params = build_lab_input(scenario)
+    # Also check any nested numeric fields
+    for key, val in result_context.items():
+        if isinstance(val, str) and any(c.isdigit() for c in val):
+            forbidden_numbers.append(val)
 
-        result = interpret_lab(
-            client=medgemma_client,
-            test_name=input_params["test_name"],
-            meaning_category=input_params["meaning_category"],
-            source_note=input_params["source_note"],
-        )
-
-        # Full validation
-        forbidden = get_forbidden_terms(scenario)
-        validate_golden_output(
-            output=result,
-            expected_keys=LAB_OUT_KEYS,
-            forbidden_terms=forbidden,
-            scenario_id=scenario_id,
-            check_numerics=True,
-        )
+    if forbidden_numbers:
+        assert_no_forbidden_terms(result, forbidden_numbers, scenario_id)

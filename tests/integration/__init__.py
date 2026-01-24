@@ -1,1 +1,1 @@
-"""Integration tests for MedGemma against golden specifications."""
+"""Integration tests for CareMap using real MedGemma model."""
