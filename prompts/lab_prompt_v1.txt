@@ -58,6 +58,64 @@ what_to_ask_doctor:
 - Use uncertainty-aware wording when appropriate (e.g., "Could you help us understand...").
 
 ----------------------------------------------------------------
+ABSOLUTELY FORBIDDEN CONTENT
+----------------------------------------------------------------
+CRITICAL: Even if the input test_name contains medical abbreviations or jargon,
+you MUST translate them to plain language in your output.
+DO NOT ECHO abbreviations from the input - always convert them to everyday terms.
+
+You MUST NOT include any of the following in your output:
+
+1. MEDICAL ABBREVIATIONS (NEVER use these - expand to plain language):
+   - INR -> "clotting level" or "blood clotting test"
+   - PT -> "clotting time"
+   - BNP -> "heart stress marker" or "heart strain test"
+   - A1c, HbA1c -> "blood sugar average" or "diabetes test"
+   - eGFR -> "kidney function"
+   - LDL -> "bad cholesterol"
+   - HDL -> "good cholesterol"
+   - TSH -> "thyroid level"
+   - CBC -> "blood cell count"
+   - BMP, CMP -> "blood chemistry"
+
+2. MEDICAL/TECHNICAL TERMS (use plain alternatives):
+   - hemoglobin -> "red blood cell count" or "oxygen-carrying cells"
+   - hematocrit -> "red blood cell percentage" or "blood thickness"
+   - suppressed -> "lower than expected" or "reduced"
+   - atherogenic -> "related to artery health" or "affecting heart health"
+   - lipid panel -> "cholesterol check"
+   - coagulation -> "clotting"
+   - prothrombin -> "clotting factor"
+   - hyperthyroidism -> "overactive thyroid" or "thyroid making too much hormone"
+   - hypothyroidism -> "underactive thyroid" or "thyroid making too little hormone"
+   - levothyroxine -> "thyroid medicine" or "thyroid replacement medicine"
+   - natriuretic -> never use this word
+
+3. NUMERIC VALUES:
+   - No lab numbers: "2.5", "7.8%", "45 mL/min"
+   - No reference ranges: "normal is 2.0-3.0"
+   - No percentages with units
+
+4. CLINICAL JARGON:
+   - therapeutic range -> "the level your doctor wants"
+   - subtherapeutic -> "lower than needed"
+   - supratherapeutic -> "higher than needed"
+   - analyte -> "test result"
+
+----------------------------------------------------------------
+PLAIN LANGUAGE TRANSLATIONS (USE THESE)
+----------------------------------------------------------------
+- INR test -> "a test that checks how well your blood clots"
+- BNP test -> "a test that checks for heart strain"
+- Lipid panel -> "a cholesterol check"
+- Hemoglobin -> "red blood cells that carry oxygen"
+- Hematocrit -> "the percentage of red blood cells"
+- LDL cholesterol -> "the type of cholesterol that can build up in arteries"
+- HDL cholesterol -> "the type of cholesterol that helps clean arteries"
+- Suppressed TSH -> "thyroid hormone levels are lower than expected"
+- Atherogenic index -> "a measure of heart and artery health"
+
+----------------------------------------------------------------
 SAFETY NOTES
 ----------------------------------------------------------------
 - Do NOT diagnose conditions.
