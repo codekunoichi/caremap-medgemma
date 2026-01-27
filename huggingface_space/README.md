@@ -32,6 +32,10 @@ Family caregivers receive overwhelming amounts of medical information:
 - **Medication Summaries**: What each medicine does and safety notes
 - **Care Gap Actions**: Clear to-do items grouped by urgency
 - **One-Page Format**: Designed to fit on a single printable sheet
+- **Multilingual Support**: Output in 10 languages (English, Spanish, Chinese, Hindi, Arabic, Portuguese, French, German, Japanese, Korean)
+- **View Modes**:
+  - 📖 **Detailed**: Full AI explanations with why/how/watch-out notes
+  - 📋 **Brief**: Condensed printable summary
 
 ## Safety by Design
 
@@ -57,9 +61,10 @@ This app uses **MedGemma 4B-IT** from Google Health AI.
 ## Usage
 
 1. Paste patient JSON data (see example format in the app)
-2. Click "Generate Fridge Sheet"
-3. View the formatted caregiver-friendly output
-4. Print and post on the refrigerator!
+2. Select output language
+3. Choose view mode (Detailed or Brief)
+4. Click "Generate Fridge Sheet"
+5. Print and post on the refrigerator!
 
 ## Links
 
