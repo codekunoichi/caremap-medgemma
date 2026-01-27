@@ -147,18 +147,20 @@ EXAMPLE_PATIENT = '''{
 }'''
 
 
-def generate_fridge_sheet(patient_json: str, language: str = "english", progress=gr.Progress()) -> str:
+def generate_fridge_sheet(patient_json: str, language: str = "english", view_mode: str = "detailed", progress=gr.Progress()) -> str:
     """
     Generate a caregiver fridge sheet from patient JSON data.
 
     Args:
         patient_json: JSON string with patient data
         language: Target language for output
+        view_mode: "brief" for printable summary, "detailed" for full AI output
         progress: Gradio progress tracker
 
     Returns:
         Markdown formatted fridge sheet
     """
+    is_detailed = (view_mode == "detailed")
     try:
         # Parse JSON
         data = json.loads(patient_json)
@@ -190,7 +192,12 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", progress
     age = patient.get('age_range', '')
     conditions = patient.get('conditions_display', [])
 
-    lines.append(f"# CareMap Fridge Sheet: {nickname}")
+    lines.append(f"# 🏠 CareMap Fridge Sheet: {nickname}")
+    if is_detailed:
+        lines.append("*📖 Detailed View - Full AI-powered explanations*")
+    else:
+        lines.append("*📋 Brief View - Printable summary*")
+    lines.append("")
     if age:
         lines.append(f"**Age:** {age}")
     if conditions:
@@ -218,31 +225,60 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", progress
                     time_bucket=gap.get('time_bucket', 'This Week'),
                 )
                 action = result.get('action_item', gap.get('item_text', ''))
+                why_matters = result.get('why_this_matters', '')
+                how_to = result.get('how_to_do_it', '')
             except Exception:
                 action = gap.get('item_text', '')
+                why_matters = ''
+                how_to = ''
 
             bucket = gap.get('time_bucket', 'This Week')
+            # Store as tuple with all info for detailed mode
+            item_data = {
+                'action': action,
+                'why_matters': why_matters,
+                'how_to': how_to,
+                'next_step': gap.get('next_step', ''),
+            }
             if bucket == 'Today':
-                today_items.append(action)
+                today_items.append(item_data)
             else:
-                week_items.append(action)
+                week_items.append(item_data)
 
         if today_items:
-            lines.append("## Today's Priorities")
+            lines.append("## 🚨 Today's Priorities")
             for item in today_items:
-                lines.append(f"- [ ] **{item}**")
+                if is_detailed:
+                    lines.append(f"- [ ] **{item['action']}**")
+                    if item['why_matters']:
+                        lines.append(f"  - *Why:* {item['why_matters']}")
+                    if item['how_to']:
+                        lines.append(f"  - *How:* {item['how_to']}")
+                    elif item['next_step']:
+                        lines.append(f"  - *Next step:* {item['next_step']}")
+                else:
+                    lines.append(f"- [ ] **{item['action']}**")
             lines.append("")
 
         if week_items:
-            lines.append("## This Week")
+            lines.append("## 📅 This Week")
             for item in week_items:
-                lines.append(f"- [ ] {item}")
+                if is_detailed:
+                    lines.append(f"- [ ] {item['action']}")
+                    if item['why_matters']:
+                        lines.append(f"  - *Why:* {item['why_matters']}")
+                    if item['how_to']:
+                        lines.append(f"  - *How:* {item['how_to']}")
+                    elif item['next_step']:
+                        lines.append(f"  - *Next step:* {item['next_step']}")
+                else:
+                    lines.append(f"- [ ] {item['action']}")
             lines.append("")
 
     # Medications
     if medications:
         progress(0.4, desc="Processing medications...")
-        lines.append("## Medications")
+        lines.append("## 💊 Medications")
 
         for i, med in enumerate(medications[:5]):  # Limit to 5 for speed
             progress(0.4 + (0.3 * i / min(len(medications), 5)), desc=f"Medication {i+1}")
@@ -258,21 +294,41 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", progress
                     clinician_notes=med.get('clinician_notes', ''),
                     interaction_notes=med.get('interaction_notes', ''),
                 )
-                what_it_does = result.get('what_it_does', '')[:150]
+                what_it_does = result.get('what_it_does', '')
+                watch_out_for = result.get('watch_out_for', '')
+                how_to_take = result.get('how_to_take', '')
                 if 'raw_response' in result:
                     what_it_does = ''
+                    watch_out_for = ''
+                    how_to_take = ''
             except Exception:
                 what_it_does = ''
+                watch_out_for = ''
+                how_to_take = ''
 
             lines.append(f"**{name}** ({timing})")
-            if what_it_does:
-                lines.append(f"- {what_it_does}")
+            if is_detailed:
+                # Detailed mode: show full MedGemma output
+                if what_it_does:
+                    lines.append(f"- **What it does:** {what_it_does}")
+                if how_to_take:
+                    lines.append(f"- **How to take:** {how_to_take}")
+                if watch_out_for:
+                    lines.append(f"- ⚠️ **Watch out for:** {watch_out_for}")
+                # Show interaction notes from original data
+                interaction = med.get('interaction_notes', '')
+                if interaction:
+                    lines.append(f"- 🔔 **Important:** {interaction}")
+            else:
+                # Brief mode: truncated for printing
+                if what_it_does:
+                    lines.append(f"- {what_it_does[:150]}")
             lines.append("")
 
     # Labs
     if results:
         progress(0.7, desc="Processing lab results...")
-        lines.append("## Recent Labs")
+        lines.append("## 🔬 Recent Labs")
 
         for i, lab in enumerate(results[:4]):  # Limit to 4
             progress(0.7 + (0.2 * i / min(len(results), 4)), desc=f"Lab {i+1}")
@@ -288,17 +344,27 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", progress
                     source_note=lab.get('source_note', ''),
                 )
                 meaning = result.get('what_it_means', category)
-                # Get first sentence only
-                meaning = meaning.split('.')[0] + '.' if meaning else category
+                what_to_ask = result.get('what_to_ask_doctor', '')
             except Exception:
                 meaning = category
+                what_to_ask = ''
 
-            lines.append(f"- **{name}**: {meaning}")
+            if is_detailed:
+                # Detailed mode: show full explanation
+                lines.append(f"- **{name}** ({category})")
+                if meaning:
+                    lines.append(f"  - {meaning}")
+                if what_to_ask:
+                    lines.append(f"  - 💬 *Ask your doctor: {what_to_ask}*")
+            else:
+                # Brief mode: first sentence only
+                brief_meaning = meaning.split('.')[0] + '.' if meaning else category
+                lines.append(f"- **{name}**: {brief_meaning}")
         lines.append("")
 
     # Contacts
     if contacts:
-        lines.append("## Contacts")
+        lines.append("## 📞 Contacts")
         clinic = contacts.get('clinic_name', '')
         clinic_phone = contacts.get('clinic_phone', '')
         pharmacy = contacts.get('pharmacy_name', '')
@@ -364,15 +430,17 @@ with gr.Blocks(
 ) as demo:
 
     gr.Markdown("""
-    # CareMap: AI-Powered Caregiver Fridge Sheet
+    # 🏠 CareMap: AI-Powered Caregiver Fridge Sheet
 
-    Transform complex patient data into a simple, one-page caregiver aid.
+    Transform complex patient data into a simple, one-page caregiver aid using **MedGemma AI**.
 
     **How to use:**
     1. Paste patient JSON data in the left panel (or use the example)
     2. Select output language (supports 10 languages!)
-    3. Click "Generate Fridge Sheet"
-    4. View the formatted output on the right
+    3. Choose view mode:
+       - **📖 Detailed**: See full AI-powered explanations (great for learning)
+       - **📋 Brief**: Condensed for printing on the fridge
+    4. Click "Generate Fridge Sheet"
 
     **Safety:** CareMap provides information only - no diagnoses, no dosage advice, no treatment changes.
     """)
@@ -392,6 +460,17 @@ with gr.Blocks(
                 label="Select Language",
                 choices=[label for label, _ in LANGUAGE_OPTIONS],
                 value="English",
+                interactive=True,
+            )
+
+            gr.Markdown("### View Mode")
+            view_mode_radio = gr.Radio(
+                label="Select Detail Level",
+                choices=[
+                    ("📖 Detailed (Full AI Output)", "detailed"),
+                    ("📋 Brief (Printable)", "brief"),
+                ],
+                value="detailed",
                 interactive=True,
             )
 
@@ -415,14 +494,14 @@ with gr.Blocks(
 
     # Event handlers
     generate_btn.click(
-        fn=lambda json_str, lang: generate_fridge_sheet(json_str, get_lang_code(lang)),
-        inputs=[input_json, language_dropdown],
+        fn=lambda json_str, lang, mode: generate_fridge_sheet(json_str, get_lang_code(lang), mode),
+        inputs=[input_json, language_dropdown, view_mode_radio],
         outputs=[output_md],
     )
 
     clear_btn.click(
-        fn=lambda: ("", "English", "*Click 'Generate Fridge Sheet' to see output*"),
-        outputs=[input_json, language_dropdown, output_md],
+        fn=lambda: ("", "English", "detailed", "*Click 'Generate Fridge Sheet' to see output*"),
+        outputs=[input_json, language_dropdown, view_mode_radio, output_md],
     )
 
     gr.Markdown("""
