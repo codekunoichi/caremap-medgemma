@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept B: Medications (Ayah Page)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .nav {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #2d3748;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #276749;
+            color: white;
+        }
+
+        .print-btn {
+            background: #2c5282 !important;
+            color: white !important;
+        }
+
+        /* Page Styles */
+        .page {
+            max-width: 8.5in;
+            min-height: 11in;
+            margin: 1rem auto;
+            background: white;
+            padding: 0.4in;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        @media print {
+            body { background: white; }
+            .nav { display: none; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                padding: 0.3in;
+                max-width: 100%;
+                min-height: auto;
+            }
+        }
+
+        .concept-label {
+            position: absolute;
+            top: 0.3in;
+            right: 0.3in;
+            background: #276749;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .page-header {
+            border-bottom: 4px solid #276749;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #276749;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-header .subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 0.2rem;
+        }
+
+        .patient-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 13px;
+        }
+
+        .patient-bar .name {
+            font-weight: bold;
+            color: #276749;
+            font-size: 16px;
+        }
+
+        .audience-tag {
+            background: #276749;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Medication Grid */
+        .med-grid {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 0.5rem;
+        }
+
+        .med-grid th {
+            background: #276749;
+            color: white;
+            padding: 0.4rem 0.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .med-grid td {
+            padding: 0.4rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+
+        .med-grid tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .med-grid tr:hover {
+            background: #f0fff4;
+        }
+
+        .med-name {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 13px;
+        }
+
+        .med-dose {
+            color: #718096;
+            font-size: 11px;
+        }
+
+        .time-badge {
+            display: inline-block;
+            background: #ebf8ff;
+            color: #2c5282;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            margin: 0.1rem 0.1rem 0.1rem 0;
+        }
+
+        .time-badge.morning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .time-badge.afternoon {
+            background: #fed7e2;
+            color: #97266d;
+        }
+
+        .time-badge.evening {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .time-badge.bedtime {
+            background: #c4b5fd;
+            color: #4c1d95;
+        }
+
+        .instruction {
+            font-size: 11px;
+            color: #4a5568;
+        }
+
+        .warning {
+            color: #c53030;
+            font-weight: 500;
+            font-size: 11px;
+        }
+
+        .warning-icon {
+            color: #c53030;
+        }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #cbd5e0;
+            border-radius: 3px;
+            display: inline-block;
+        }
+
+        .page-footer {
+            position: absolute;
+            bottom: 0.3in;
+            left: 0.4in;
+            right: 0.4in;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.3rem;
+            font-size: 10px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .complete-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 11px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Back to Overview</a>
+        <a href="concept_a.html">Concept A: One Page</a>
+        <a href="concept_b_meds.html" class="active">Concept B: Medications</a>
+        <a href="concept_b_labs.html">Concept B: Labs</a>
+        <a href="concept_b_gaps.html">Concept B: Care Gaps</a>
+        <a href="concept_b_connections.html">Concept B: Connections</a>
+        <a href="javascript:window.print()" class="print-btn">🖨️ Print</a>
+    </nav>
+
+    <div class="page">
+        <div class="concept-label">CONCEPT B - Page 1 of 4</div>
+
+        <div class="page-header">
+            <h1>💊 Medication Schedule</h1>
+            <div class="subtitle">Daily reference for giving medicines</div>
+        </div>
+
+        <div class="patient-bar">
+            <div>
+                <span class="name">Dadu (Grandfather)</span>
+                <span style="margin-left: 1rem;">82 years old</span>
+            </div>
+            <div>
+                <span class="audience-tag">👤 For: Ayah / Helper</span>
+                <span class="complete-badge" style="margin-left: 0.5rem;">✓ All 12 Medicines Shown</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><span class="time-badge morning">AM</span> Morning</div>
+            <div class="legend-item"><span class="time-badge afternoon">PM</span> Afternoon</div>
+            <div class="legend-item"><span class="time-badge evening">EVE</span> Evening</div>
+            <div class="legend-item"><span class="time-badge bedtime">BED</span> Bedtime</div>
+            <div class="legend-item"><span class="warning-icon">⚠️</span> Important Warning</div>
+        </div>
+
+        <table class="med-grid">
+            <thead>
+                <tr>
+                    <th style="width: 5%">✓</th>
+                    <th style="width: 20%">Medicine</th>
+                    <th style="width: 18%">When to Give</th>
+                    <th style="width: 25%">How to Give</th>
+                    <th style="width: 32%">Watch For</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Warfarin</div>
+                        <div class="med-dose">5mg tablet</div>
+                    </td>
+                    <td><span class="time-badge evening">6 PM</span></td>
+                    <td class="instruction">Same time every day. Can take with or without food.</td>
+                    <td class="warning">⚠️ NO ibuprofen, aspirin, or Advil. Watch for bleeding, bruises.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Metformin</div>
+                        <div class="med-dose">500mg tablet</div>
+                    </td>
+                    <td>
+                        <span class="time-badge morning">8 AM</span>
+                        <span class="time-badge evening">6 PM</span>
+                    </td>
+                    <td class="instruction">Must take WITH food to avoid stomach upset.</td>
+                    <td class="warning">⚠️ STOP before any CT scan. Tell doctor first.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Furosemide</div>
+                        <div class="med-dose">40mg tablet (Lasix)</div>
+                    </td>
+                    <td>
+                        <span class="time-badge morning">8 AM</span>
+                        <span class="time-badge afternoon">2 PM</span>
+                    </td>
+                    <td class="instruction">Give early - causes frequent bathroom trips. Not after 4 PM.</td>
+                    <td class="warning">⚠️ Weigh daily. Call if weight up 3+ lbs in one day.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Carvedilol</div>
+                        <div class="med-dose">12.5mg tablet</div>
+                    </td>
+                    <td>
+                        <span class="time-badge morning">8 AM</span>
+                        <span class="time-badge evening">6 PM</span>
+                    </td>
+                    <td class="instruction">Take with food. Don't stop suddenly.</td>
+                    <td>May feel dizzy. Help stand up slowly.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Lisinopril</div>
+                        <div class="med-dose">10mg tablet</div>
+                    </td>
+                    <td><span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction">Can take with or without food.</td>
+                    <td>Dry cough is normal. Report face/lip swelling.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Amlodipine</div>
+                        <div class="med-dose">5mg tablet</div>
+                    </td>
+                    <td><span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction">Can take with or without food.</td>
+                    <td>May cause ankle swelling. Keep legs raised when sitting.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Atorvastatin</div>
+                        <div class="med-dose">40mg tablet (Lipitor)</div>
+                    </td>
+                    <td><span class="time-badge bedtime">Bedtime</span></td>
+                    <td class="instruction">Best taken at night. With or without food.</td>
+                    <td>Report unusual muscle pain or weakness.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Potassium</div>
+                        <div class="med-dose">20mEq tablet</div>
+                    </td>
+                    <td><span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction">Take WITH food and full glass of water. Don't crush.</td>
+                    <td>Can upset stomach. Give with breakfast.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Insulin Lantus</div>
+                        <div class="med-dose">20 units injection</div>
+                    </td>
+                    <td><span class="time-badge bedtime">10 PM</span></td>
+                    <td class="instruction">Inject in belly or thigh. Rotate spots. Same time nightly.</td>
+                    <td class="warning">⚠️ Must eat regularly. Watch for shaking, sweating, confusion.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Aspirin</div>
+                        <div class="med-dose">81mg (baby aspirin)</div>
+                    </td>
+                    <td><span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction">Take with food to protect stomach.</td>
+                    <td>Report black/tarry stool or stomach pain.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Omeprazole</div>
+                        <div class="med-dose">20mg capsule (Prilosec)</div>
+                    </td>
+                    <td><span class="time-badge morning">7:30 AM</span></td>
+                    <td class="instruction">30 minutes BEFORE breakfast. Don't crush.</td>
+                    <td>None expected. Protects stomach.</td>
+                </tr>
+                <tr>
+                    <td><div class="checkmark"></div></td>
+                    <td>
+                        <div class="med-name">Vitamin D</div>
+                        <div class="med-dose">2000 IU tablet</div>
+                    </td>
+                    <td><span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction">Take with food for better absorption.</td>
+                    <td>None expected.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="page-footer">
+            <div>CareMap Demo | For information only | Updated: Jan 29, 2026</div>
+            <div>Page 1 of 4: Medications (Ayah Reference)</div>
+        </div>
+    </div>
+</body>
+</html>

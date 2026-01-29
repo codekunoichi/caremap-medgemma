@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept B: Care Gaps (Caregiver Page)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .nav {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #2d3748;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #276749;
+            color: white;
+        }
+
+        .print-btn {
+            background: #2c5282 !important;
+            color: white !important;
+        }
+
+        .page {
+            max-width: 8.5in;
+            min-height: 11in;
+            margin: 1rem auto;
+            background: white;
+            padding: 0.4in;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        @media print {
+            body { background: white; }
+            .nav { display: none; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                padding: 0.3in;
+                max-width: 100%;
+                min-height: auto;
+            }
+            .bucket { break-inside: avoid; }
+        }
+
+        .concept-label {
+            position: absolute;
+            top: 0.3in;
+            right: 0.3in;
+            background: #276749;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .page-header {
+            border-bottom: 4px solid #d69e2e;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #975a16;
+        }
+
+        .page-header .subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 0.2rem;
+        }
+
+        .patient-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #fffbeb;
+            border: 1px solid #f6e05e;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 13px;
+        }
+
+        .patient-bar .name {
+            font-weight: bold;
+            color: #975a16;
+            font-size: 16px;
+        }
+
+        .audience-tag {
+            background: #975a16;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .complete-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Bucket Styles */
+        .buckets {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .bucket {
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid;
+        }
+
+        .bucket.today {
+            border-color: #fc8181;
+        }
+
+        .bucket.week {
+            border-color: #f6e05e;
+        }
+
+        .bucket.later {
+            border-color: #90cdf4;
+        }
+
+        .bucket-header {
+            padding: 0.5rem 0.75rem;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bucket.today .bucket-header {
+            background: #fff5f5;
+            color: #c53030;
+        }
+
+        .bucket.week .bucket-header {
+            background: #fffff0;
+            color: #975a16;
+        }
+
+        .bucket.later .bucket-header {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .bucket-count {
+            font-size: 11px;
+            font-weight: normal;
+            opacity: 0.8;
+        }
+
+        .bucket-body {
+            padding: 0.5rem;
+        }
+
+        /* Action Items */
+        .action-item {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 0.4rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #cbd5e0;
+            border-radius: 4px;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2d3748;
+            margin-bottom: 0.2rem;
+        }
+
+        .action-details {
+            font-size: 11px;
+            color: #4a5568;
+        }
+
+        .action-next-step {
+            background: #f7fafc;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.3rem;
+            font-size: 11px;
+        }
+
+        .action-next-step strong {
+            color: #2c5282;
+        }
+
+        .related-tag {
+            display: inline-block;
+            background: #e9d8fd;
+            color: #553c9a;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+            font-size: 9px;
+            margin-top: 0.2rem;
+        }
+
+        .urgent-badge {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .page-footer {
+            position: absolute;
+            bottom: 0.3in;
+            left: 0.4in;
+            right: 0.4in;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.3rem;
+            font-size: 10px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Back to Overview</a>
+        <a href="concept_a.html">Concept A: One Page</a>
+        <a href="concept_b_meds.html">Concept B: Medications</a>
+        <a href="concept_b_labs.html">Concept B: Labs</a>
+        <a href="concept_b_gaps.html" class="active">Concept B: Care Gaps</a>
+        <a href="concept_b_connections.html">Concept B: Connections</a>
+        <a href="javascript:window.print()" class="print-btn">🖨️ Print</a>
+    </nav>
+
+    <div class="page">
+        <div class="concept-label">CONCEPT B - Page 3 of 4</div>
+
+        <div class="page-header">
+            <h1>✅ Care Actions & Follow-ups</h1>
+            <div class="subtitle">Tasks organized by urgency - check off as completed</div>
+        </div>
+
+        <div class="patient-bar">
+            <div>
+                <span class="name">Dadu (Grandfather)</span>
+                <span style="margin-left: 1rem;">Week of: January 29, 2026</span>
+            </div>
+            <div>
+                <span class="audience-tag">👨‍👩‍👧 For: Family Caregiver</span>
+                <span class="complete-badge" style="margin-left: 0.5rem;">✓ All 7 Actions Shown</span>
+            </div>
+        </div>
+
+        <div class="buckets">
+            <!-- TODAY -->
+            <div class="bucket today">
+                <div class="bucket-header">
+                    <span>🔴 TODAY - Do These Now</span>
+                    <span class="bucket-count">3 items</span>
+                </div>
+                <div class="bucket-body">
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Weigh Dadu Every Morning
+                                <span class="urgent-badge">DAILY</span>
+                            </div>
+                            <div class="action-details">
+                                Heart failure requires daily weight monitoring to catch fluid buildup early.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Weigh at same time each morning, before eating. Write it down.
+                                <strong style="color: #c53030;">Call clinic if weight goes up more than 3 lbs in one day.</strong>
+                            </div>
+                            <span class="related-tag">🔗 Related: Furosemide (water pill)</span>
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Check Blood Sugar Before Meals
+                                <span class="urgent-badge">DAILY</span>
+                            </div>
+                            <div class="action-details">
+                                Monitor glucose levels to ensure diabetes medications are working properly.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Test before breakfast and dinner. Record in log book. Target: 80-130 before meals.
+                            </div>
+                            <span class="related-tag">🔗 Related: Metformin, Insulin Lantus</span>
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Check for Unusual Bleeding or Bruising
+                            </div>
+                            <div class="action-details">
+                                INR is running high - need to watch for signs the blood is too thin.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Look for nosebleeds, bleeding gums, blood in urine/stool, unusual bruises.
+                                <strong style="color: #c53030;">Call doctor immediately if any bleeding noticed.</strong>
+                            </div>
+                            <span class="related-tag">🔗 Related: Warfarin, INR lab result</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THIS WEEK -->
+            <div class="bucket week">
+                <div class="bucket-header">
+                    <span>🟡 THIS WEEK - Schedule Soon</span>
+                    <span class="bucket-count">2 items</span>
+                </div>
+                <div class="bucket-body">
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                INR Recheck - Thursday January 30
+                            </div>
+                            <div class="action-details">
+                                Follow-up blood test to see if INR has come back into target range.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Appointment at Riverside Clinic, 10:30 AM. No fasting needed.
+                            </div>
+                            <span class="related-tag">🔗 Related: Warfarin medication, INR lab</span>
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Schedule Diabetic Eye Exam
+                            </div>
+                            <div class="action-details">
+                                Annual eye exam is overdue. Diabetes can affect vision, and early detection is important.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Call Dr. Patel's office (555-0400) to schedule. Mention diabetes and Metformin.
+                            </div>
+                            <span class="related-tag">🔗 Related: Diabetes management</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LATER -->
+            <div class="bucket later">
+                <div class="bucket-header">
+                    <span>🔵 COMING UP - Plan Ahead</span>
+                    <span class="bucket-count">2 items</span>
+                </div>
+                <div class="bucket-body">
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Cardiology Follow-up - February 15
+                            </div>
+                            <div class="action-details">
+                                Regular check-in with heart doctor to review heart failure management.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Appointment already scheduled. Bring weight log and medication list.
+                            </div>
+                            <span class="related-tag">🔗 Related: Carvedilol, Furosemide, Lisinopril</span>
+                        </div>
+                    </div>
+
+                    <div class="action-item">
+                        <div class="checkbox"></div>
+                        <div class="action-content">
+                            <div class="action-title">
+                                Flu Shot - Overdue
+                            </div>
+                            <div class="action-details">
+                                Annual flu vaccination recommended, especially with heart and kidney conditions.
+                            </div>
+                            <div class="action-next-step">
+                                <strong>Next step:</strong> Can get at pharmacy or next doctor visit. No appointment needed at pharmacy.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <div>CareMap Demo | For information only | Updated: Jan 29, 2026</div>
+            <div>Page 3 of 4: Care Actions (Family Caregiver Reference)</div>
+        </div>
+    </div>
+</body>
+</html>

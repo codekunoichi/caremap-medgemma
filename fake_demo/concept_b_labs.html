@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concept B: Labs (Caregiver Page)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .nav {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #2d3748;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #276749;
+            color: white;
+        }
+
+        .print-btn {
+            background: #2c5282 !important;
+            color: white !important;
+        }
+
+        .page {
+            max-width: 8.5in;
+            min-height: 11in;
+            margin: 1rem auto;
+            background: white;
+            padding: 0.4in;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        @media print {
+            body { background: white; }
+            .nav { display: none; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                padding: 0.3in;
+                max-width: 100%;
+                min-height: auto;
+            }
+        }
+
+        .concept-label {
+            position: absolute;
+            top: 0.3in;
+            right: 0.3in;
+            background: #276749;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            font-size: 10px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+
+        .page-header {
+            border-bottom: 4px solid #2c5282;
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #2c5282;
+        }
+
+        .page-header .subtitle {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 0.2rem;
+        }
+
+        .patient-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 13px;
+        }
+
+        .patient-bar .name {
+            font-weight: bold;
+            color: #2c5282;
+            font-size: 16px;
+        }
+
+        .audience-tag {
+            background: #2c5282;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .complete-badge {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Lab Cards */
+        .lab-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .lab-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .lab-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .lab-name {
+            font-weight: bold;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .lab-status {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-normal {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-alert {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .lab-card-body {
+            padding: 0.6rem 0.75rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .lab-section h4 {
+            font-size: 10px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .lab-section p {
+            font-size: 12px;
+            color: #4a5568;
+        }
+
+        .question-box {
+            background: #fffbeb;
+            border-left: 3px solid #d69e2e;
+            padding: 0.4rem 0.6rem;
+            margin-top: 0.5rem;
+            grid-column: 1 / -1;
+        }
+
+        .question-box h4 {
+            color: #92400e;
+        }
+
+        .question-box p {
+            color: #92400e;
+            font-style: italic;
+        }
+
+        .related-tag {
+            display: inline-block;
+            background: #e9d8fd;
+            color: #553c9a;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 10px;
+            margin-top: 0.3rem;
+        }
+
+        .page-footer {
+            position: absolute;
+            bottom: 0.3in;
+            left: 0.4in;
+            right: 0.4in;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.3rem;
+            font-size: 10px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 11px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.normal { background: #d1fae5; }
+        .legend-dot.warning { background: #fef3c7; }
+        .legend-dot.alert { background: #fee2e2; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Back to Overview</a>
+        <a href="concept_a.html">Concept A: One Page</a>
+        <a href="concept_b_meds.html">Concept B: Medications</a>
+        <a href="concept_b_labs.html" class="active">Concept B: Labs</a>
+        <a href="concept_b_gaps.html">Concept B: Care Gaps</a>
+        <a href="concept_b_connections.html">Concept B: Connections</a>
+        <a href="javascript:window.print()" class="print-btn">🖨️ Print</a>
+    </nav>
+
+    <div class="page">
+        <div class="concept-label">CONCEPT B - Page 2 of 4</div>
+
+        <div class="page-header">
+            <h1>🔬 Lab Results Explained</h1>
+            <div class="subtitle">Understanding recent test results and what to discuss with the doctor</div>
+        </div>
+
+        <div class="patient-bar">
+            <div>
+                <span class="name">Dadu (Grandfather)</span>
+                <span style="margin-left: 1rem;">Labs from: January 25, 2026</span>
+            </div>
+            <div>
+                <span class="audience-tag">👨‍👩‍👧 For: Family Caregiver</span>
+                <span class="complete-badge" style="margin-left: 0.5rem;">✓ All 5 Results Shown</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-dot normal"></div> Normal</div>
+            <div class="legend-item"><div class="legend-dot warning"></div> Slightly Off</div>
+            <div class="legend-item"><div class="legend-dot alert"></div> Needs Follow-up</div>
+        </div>
+
+        <div class="lab-grid">
+            <!-- INR -->
+            <div class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-name">INR (Blood Thinner Level)</span>
+                    <span class="lab-status status-alert">⚠️ Needs Follow-up</span>
+                </div>
+                <div class="lab-card-body">
+                    <div class="lab-section">
+                        <h4>What This Test Checks</h4>
+                        <p>Measures how well the blood thinner (Warfarin) is working. Helps prevent dangerous blood clots while avoiding bleeding risk.</p>
+                    </div>
+                    <div class="lab-section">
+                        <h4>What The Result Means</h4>
+                        <p>The level is slightly above the target range. This means the blood is a bit "thinner" than ideal, which increases bleeding risk. A recheck is scheduled.</p>
+                    </div>
+                    <div class="question-box">
+                        <h4>💬 Ask the Doctor</h4>
+                        <p>"Should we adjust the Warfarin dose, or just recheck and wait?"</p>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <span class="related-tag">🔗 Related: Warfarin medication</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kidney Function -->
+            <div class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-name">Kidney Function (eGFR / Creatinine)</span>
+                    <span class="lab-status status-warning">Slightly Off</span>
+                </div>
+                <div class="lab-card-body">
+                    <div class="lab-section">
+                        <h4>What This Test Checks</h4>
+                        <p>Shows how well the kidneys filter waste from the blood. Important because several medications are processed by the kidneys.</p>
+                    </div>
+                    <div class="lab-section">
+                        <h4>What The Result Means</h4>
+                        <p>Kidney function is reduced but stable compared to last time. This is expected given Dadu's conditions. No immediate concern, but we continue monitoring.</p>
+                    </div>
+                    <div class="question-box">
+                        <h4>💬 Ask the Doctor</h4>
+                        <p>"Are all his current medications safe for his kidney level?"</p>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <span class="related-tag">🔗 Related: Metformin, Lisinopril medications</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- A1C -->
+            <div class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-name">Blood Sugar Control (Hemoglobin A1C)</span>
+                    <span class="lab-status status-warning">Slightly Off</span>
+                </div>
+                <div class="lab-card-body">
+                    <div class="lab-section">
+                        <h4>What This Test Checks</h4>
+                        <p>Shows average blood sugar over the past 3 months. Helps track how well diabetes is being managed overall.</p>
+                    </div>
+                    <div class="lab-section">
+                        <h4>What The Result Means</h4>
+                        <p>Slightly above the target range. Blood sugar control could be a bit better. May need diet adjustments or medication review.</p>
+                    </div>
+                    <div class="question-box">
+                        <h4>💬 Ask the Doctor</h4>
+                        <p>"Should we adjust his diabetes medicines or focus on diet changes first?"</p>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <span class="related-tag">🔗 Related: Metformin, Insulin Lantus medications</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Potassium -->
+            <div class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-name">Potassium Level</span>
+                    <span class="lab-status status-normal">✓ Normal</span>
+                </div>
+                <div class="lab-card-body">
+                    <div class="lab-section">
+                        <h4>What This Test Checks</h4>
+                        <p>Potassium is essential for heart rhythm and muscle function. The water pill (Furosemide) can lower it, so we monitor regularly.</p>
+                    </div>
+                    <div class="lab-section">
+                        <h4>What The Result Means</h4>
+                        <p>Good news - the potassium level is normal. The potassium supplement is working well to replace what's lost from the water pill.</p>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <span class="related-tag">🔗 Related: Furosemide, Potassium supplement, Lisinopril</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hemoglobin -->
+            <div class="lab-card">
+                <div class="lab-card-header">
+                    <span class="lab-name">Hemoglobin (Red Blood Cells)</span>
+                    <span class="lab-status status-normal">✓ Normal</span>
+                </div>
+                <div class="lab-card-body">
+                    <div class="lab-section">
+                        <h4>What This Test Checks</h4>
+                        <p>Measures red blood cells that carry oxygen. Important to monitor because some conditions and medications can affect this.</p>
+                    </div>
+                    <div class="lab-section">
+                        <h4>What The Result Means</h4>
+                        <p>Hemoglobin is in the normal range. No signs of anemia or bleeding problems. This is reassuring given he's on blood thinners.</p>
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <span class="related-tag">🔗 Related: Warfarin, Aspirin (bleeding risk monitoring)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-footer">
+            <div>CareMap Demo | For information only | Updated: Jan 29, 2026</div>
+            <div>Page 2 of 4: Lab Results (Family Caregiver Reference)</div>
+        </div>
+    </div>
+</body>
+</html>

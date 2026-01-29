@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHR Patient Chart - Dadu</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .nav {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #e2e8f0;
+            color: #2d3748;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #2c5282;
+            color: white;
+        }
+
+        .ehr-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* EHR Header Bar */
+        .ehr-header {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .ehr-logo {
+            color: #2c5282;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .ehr-user {
+            color: #718096;
+            font-size: 13px;
+        }
+
+        /* Patient Banner */
+        .patient-banner {
+            background: linear-gradient(135deg, #2c5282 0%, #4a7c59 100%);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .patient-photo {
+            width: 70px;
+            height: 70px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .patient-info h1 {
+            font-size: 20px;
+            margin-bottom: 0.25rem;
+        }
+
+        .patient-info .mrn {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .patient-demographics {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .patient-demographics span {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .patient-alerts {
+            text-align: right;
+        }
+
+        .alert-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 0.15rem;
+        }
+
+        .alert-badge.red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Tabs */
+        .ehr-tabs {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .ehr-tab {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 0.5rem 1rem;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            border-radius: 4px;
+        }
+
+        .ehr-tab.active {
+            background: #2c5282;
+            color: white;
+        }
+
+        /* Content Panels */
+        .ehr-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .ehr-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .ehr-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2c5282;
+            padding: 0.6rem 1rem;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header .count {
+            background: #2c5282;
+            color: white;
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .panel-body {
+            padding: 0.75rem;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        /* Problem List */
+        .problem-item {
+            padding: 0.6rem 0.75rem;
+            border-bottom: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .problem-item:last-child {
+            border-bottom: none;
+        }
+
+        .problem-name {
+            font-weight: 500;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .icd-code {
+            color: #718096;
+            font-size: 12px;
+            margin-top: 0.2rem;
+        }
+
+        .problem-status {
+            color: #276749;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Medications */
+        .med-item {
+            padding: 0.75rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .med-item:last-child {
+            border-bottom: none;
+        }
+
+        .med-name {
+            color: #276749;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .med-sig {
+            color: #4a5568;
+            font-size: 13px;
+            margin-top: 0.2rem;
+        }
+
+        .med-details {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.3rem;
+            font-size: 11px;
+            color: #718096;
+            flex-wrap: wrap;
+        }
+
+        .med-warning {
+            color: #c53030;
+            font-size: 12px;
+            margin-top: 0.3rem;
+            background: #fff5f5;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Labs */
+        .lab-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+
+        .lab-table th {
+            background: #f7fafc;
+            color: #2c5282;
+            padding: 0.5rem;
+            text-align: left;
+            font-size: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .lab-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .lab-value {
+            font-weight: 600;
+        }
+
+        .lab-value.high {
+            color: #c53030;
+        }
+
+        .lab-value.low {
+            color: #d69e2e;
+        }
+
+        .lab-value.normal {
+            color: #276749;
+        }
+
+        .lab-flag {
+            font-size: 10px;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .lab-flag.H {
+            background: #fee2e2;
+            color: #c53030;
+        }
+
+        .lab-flag.L {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Orders/Care Gaps */
+        .order-item {
+            padding: 0.6rem;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 13px;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-title {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+
+        .order-status.overdue {
+            background: #fee2e2;
+            color: #c53030;
+        }
+
+        .order-status.due {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .order-status.scheduled {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .order-details {
+            color: #718096;
+            font-size: 12px;
+            margin-top: 0.25rem;
+        }
+
+        /* Allergies */
+        .allergy-item {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.5rem 0.75rem;
+            margin: 0.3rem 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .allergy-item strong {
+            color: #c53030;
+        }
+
+        .drug-interactions {
+            padding: 0.75rem;
+            color: #4a5568;
+            font-size: 13px;
+            background: #fffbeb;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .drug-interactions strong {
+            color: #92400e;
+        }
+
+        /* Footer */
+        .ehr-footer {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .ehr-footer h3 {
+            color: #2c5282;
+            margin-bottom: 0.75rem;
+            font-size: 18px;
+        }
+
+        .ehr-footer p {
+            color: #4a5568;
+            font-size: 14px;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .transform-arrow {
+            font-size: 28px;
+            color: #2c5282;
+            margin: 1rem 0;
+        }
+
+        .transform-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .transform-links a {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .transform-links .concept-a {
+            background: #c53030;
+            color: white;
+        }
+
+        .transform-links .concept-a:hover {
+            background: #9b2c2c;
+        }
+
+        .transform-links .concept-b {
+            background: #276749;
+            color: white;
+        }
+
+        .transform-links .concept-b:hover {
+            background: #1e5631;
+        }
+
+        /* Full width panel */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .clinical-note {
+            background: #f7fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: #2d3748;
+            border: 1px solid #e2e8f0;
+        }
+
+        .clinical-note .timestamp {
+            color: #2c5282;
+            font-size: 12px;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .clinical-note .author {
+            color: #276749;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .urgency-section {
+            padding: 0.5rem 0;
+        }
+
+        .urgency-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 13px;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+        }
+
+        .urgency-label.urgent {
+            background: #fee2e2;
+            color: #c53030;
+        }
+
+        .urgency-label.week {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .urgency-label.upcoming {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Back to Overview</a>
+        <a href="ehr_patient_chart.html" class="active">EHR Source</a>
+        <a href="concept_a.html">→ Concept A</a>
+        <a href="concept_b_meds.html">→ Concept B</a>
+    </nav>
+
+    <div class="ehr-container">
+        <!-- EHR Header -->
+        <div class="ehr-header">
+            <div class="ehr-logo">EPIC SimChart | Riverside Health System</div>
+            <div class="ehr-user">User: Dr. Sharma, Internal Medicine | Last refresh: 01/29/2026 09:45:32</div>
+        </div>
+
+        <!-- Patient Banner -->
+        <div class="patient-banner">
+            <div class="patient-photo">👴</div>
+            <div class="patient-info">
+                <h1>SHARMA, DADU (Preferred: Dadu)</h1>
+                <div class="mrn">MRN: 847291035 | DOB: 03/15/1943 (82y) | M | Hindi</div>
+                <div class="patient-demographics">
+                    <span>PCP: Dr. Sharma</span>
+                    <span>Cardio: Dr. Patel</span>
+                    <span>Endo: Dr. Gupta</span>
+                    <span>Nephro: Dr. Khan</span>
+                </div>
+            </div>
+            <div class="patient-alerts">
+                <div class="alert-badge red">FALL RISK</div>
+                <div class="alert-badge red">ANTICOAGULATED</div>
+                <div class="alert-badge">CONTRAST ALLERGY</div>
+                <div class="alert-badge">INR OUT OF RANGE</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="ehr-tabs">
+            <button class="ehr-tab active">Summary</button>
+            <button class="ehr-tab">Notes</button>
+            <button class="ehr-tab">Orders</button>
+            <button class="ehr-tab">Results</button>
+            <button class="ehr-tab">Medications</button>
+            <button class="ehr-tab">Problems</button>
+            <button class="ehr-tab">Allergies</button>
+            <button class="ehr-tab">Vitals</button>
+            <button class="ehr-tab">Immunizations</button>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="ehr-content">
+            <!-- Problem List -->
+            <div class="ehr-panel">
+                <div class="panel-header">
+                    <span>Problem List</span>
+                    <span class="count">5</span>
+                </div>
+                <div class="panel-body">
+                    <div class="problem-item">
+                        <div>
+                            <div class="problem-name">Type 2 Diabetes Mellitus w/ CKD</div>
+                            <div class="icd-code">E11.22 | Onset: 2008</div>
+                        </div>
+                        <div class="problem-status">Active</div>
+                    </div>
+                    <div class="problem-item">
+                        <div>
+                            <div class="problem-name">Congestive Heart Failure, systolic (HFrEF)</div>
+                            <div class="icd-code">I50.22 | LVEF 35% | Onset: 2019</div>
+                        </div>
+                        <div class="problem-status">Active</div>
+                    </div>
+                    <div class="problem-item">
+                        <div>
+                            <div class="problem-name">Atrial Fibrillation, persistent</div>
+                            <div class="icd-code">I48.1 | CHA2DS2-VASc: 5 | Onset: 2018</div>
+                        </div>
+                        <div class="problem-status">Active</div>
+                    </div>
+                    <div class="problem-item">
+                        <div>
+                            <div class="problem-name">Chronic Kidney Disease, Stage 3b</div>
+                            <div class="icd-code">N18.32 | eGFR 38 | Onset: 2020</div>
+                        </div>
+                        <div class="problem-status">Active</div>
+                    </div>
+                    <div class="problem-item">
+                        <div>
+                            <div class="problem-name">Essential Hypertension</div>
+                            <div class="icd-code">I10 | Onset: 2005</div>
+                        </div>
+                        <div class="problem-status">Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Allergies -->
+            <div class="ehr-panel">
+                <div class="panel-header">
+                    <span>Allergies & Interactions</span>
+                    <span class="count">2</span>
+                </div>
+                <div class="panel-body">
+                    <div class="allergy-item">
+                        <strong>IODINATED CONTRAST</strong> - Anaphylaxis (2015)
+                        <div style="font-size: 11px; margin-top: 0.2rem; color: #7f1d1d;">Premedication required if contrast necessary</div>
+                    </div>
+                    <div class="allergy-item">
+                        <strong>SULFA ANTIBIOTICS</strong> - Rash (2010)
+                    </div>
+                    <div class="drug-interactions">
+                        <strong>Drug Interactions Flagged:</strong><br>
+                        • Warfarin + NSAIDs → Increased bleeding risk<br>
+                        • Metformin + Contrast → Hold 48h pre/post<br>
+                        • K+ supplement + Lisinopril → Monitor K+ levels
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medications -->
+            <div class="ehr-panel">
+                <div class="panel-header">
+                    <span>Active Medications</span>
+                    <span class="count">12</span>
+                </div>
+                <div class="panel-body">
+                    <div class="med-item">
+                        <div class="med-name">WARFARIN SODIUM 5 MG TAB</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO QHS for atrial fibrillation</div>
+                        <div class="med-details">
+                            <span>RxNorm: 855350</span>
+                            <span>Prescribed: 01/15/2026</span>
+                            <span>Target INR: 2.0-3.0</span>
+                        </div>
+                        <div class="med-warning">HIGH-ALERT MEDICATION | Interaction: Avoid NSAIDs, maintain consistent Vitamin K intake</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">METFORMIN HCL 500 MG TAB</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO BID with meals</div>
+                        <div class="med-details">
+                            <span>RxNorm: 861007</span>
+                            <span>Prescribed: 11/20/2025</span>
+                        </div>
+                        <div class="med-warning">HOLD 48H BEFORE/AFTER IODINATED CONTRAST | Monitor renal function</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">FUROSEMIDE 40 MG TAB (LASIX)</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO BID (0800, 1400)</div>
+                        <div class="med-details">
+                            <span>RxNorm: 310429</span>
+                            <span>Prescribed: 01/10/2026</span>
+                        </div>
+                        <div class="med-warning">Monitor daily weights, K+, renal function</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">CARVEDILOL 12.5 MG TAB (COREG)</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO BID with food</div>
+                        <div class="med-details">
+                            <span>RxNorm: 200033</span>
+                            <span>Prescribed: 12/01/2025</span>
+                        </div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">LISINOPRIL 10 MG TAB</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO daily in AM</div>
+                        <div class="med-details">
+                            <span>RxNorm: 314076</span>
+                            <span>Prescribed: 10/15/2025</span>
+                        </div>
+                        <div class="med-warning">Monitor K+, SCr | Interaction with K+ supplement</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">AMLODIPINE BESYLATE 5 MG TAB (NORVASC)</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO daily</div>
+                        <div class="med-details">
+                            <span>RxNorm: 329528</span>
+                            <span>Prescribed: 10/15/2025</span>
+                        </div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">ATORVASTATIN CALCIUM 40 MG TAB (LIPITOR)</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO QHS</div>
+                        <div class="med-details">
+                            <span>RxNorm: 617314</span>
+                            <span>Prescribed: 09/01/2025</span>
+                        </div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">POTASSIUM CHLORIDE 20 MEQ ER TAB</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO daily with food</div>
+                        <div class="med-details">
+                            <span>RxNorm: 628958</span>
+                            <span>Prescribed: 01/10/2026</span>
+                        </div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">INSULIN GLARGINE 100 UNIT/ML INJ (LANTUS)</div>
+                        <div class="med-sig">Sig: Inject 20 units SC QHS</div>
+                        <div class="med-details">
+                            <span>RxNorm: 261551</span>
+                            <span>Prescribed: 11/20/2025</span>
+                        </div>
+                        <div class="med-warning">HIGH-ALERT MEDICATION | Hypoglycemia precautions</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">ASPIRIN 81 MG EC TAB</div>
+                        <div class="med-sig">Sig: Take 1 tablet PO daily with food</div>
+                        <div class="med-details">
+                            <span>RxNorm: 243670</span>
+                            <span>Prescribed: 06/15/2024</span>
+                        </div>
+                        <div class="med-warning">Additive bleeding risk with Warfarin</div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">OMEPRAZOLE 20 MG DR CAP (PRILOSEC)</div>
+                        <div class="med-sig">Sig: Take 1 capsule PO daily 30 min before breakfast</div>
+                        <div class="med-details">
+                            <span>RxNorm: 402014</span>
+                            <span>Prescribed: 06/15/2024</span>
+                        </div>
+                    </div>
+                    <div class="med-item">
+                        <div class="med-name">CHOLECALCIFEROL 2000 UNIT CAP (VITAMIN D3)</div>
+                        <div class="med-sig">Sig: Take 1 capsule PO daily</div>
+                        <div class="med-details">
+                            <span>RxNorm: 636676</span>
+                            <span>Prescribed: 03/01/2025</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lab Results -->
+            <div class="ehr-panel">
+                <div class="panel-header">
+                    <span>Recent Lab Results</span>
+                    <span class="count">01/25/2026</span>
+                </div>
+                <div class="panel-body">
+                    <table class="lab-table">
+                        <thead>
+                            <tr>
+                                <th>Test</th>
+                                <th>Result</th>
+                                <th>Ref Range</th>
+                                <th>Flag</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>INR</td>
+                                <td class="lab-value high">3.4</td>
+                                <td>2.0-3.0</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                            <tr>
+                                <td>PT</td>
+                                <td class="lab-value high">38.2 sec</td>
+                                <td>11.0-13.5</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                            <tr>
+                                <td>Creatinine</td>
+                                <td class="lab-value high">1.8 mg/dL</td>
+                                <td>0.7-1.3</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                            <tr>
+                                <td>eGFR (CKD-EPI)</td>
+                                <td class="lab-value low">38 mL/min/1.73m²</td>
+                                <td>>60</td>
+                                <td><span class="lab-flag L">L</span></td>
+                            </tr>
+                            <tr>
+                                <td>BUN</td>
+                                <td class="lab-value high">32 mg/dL</td>
+                                <td>7-20</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                            <tr>
+                                <td>HbA1c</td>
+                                <td class="lab-value high">7.8%</td>
+                                <td>&lt;7.0%</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                            <tr>
+                                <td>Potassium</td>
+                                <td class="lab-value normal">4.2 mEq/L</td>
+                                <td>3.5-5.0</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Hemoglobin</td>
+                                <td class="lab-value normal">13.1 g/dL</td>
+                                <td>13.0-17.0</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>Sodium</td>
+                                <td class="lab-value normal">139 mEq/L</td>
+                                <td>136-145</td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>BNP</td>
+                                <td class="lab-value high">485 pg/mL</td>
+                                <td>&lt;100</td>
+                                <td><span class="lab-flag H">H</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Care Gaps / Orders -->
+            <div class="ehr-panel full-width">
+                <div class="panel-header">
+                    <span>Care Gaps & Pending Orders</span>
+                    <span class="count">7</span>
+                </div>
+                <div class="panel-body" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="urgency-section">
+                        <div class="urgency-label urgent">URGENT / TODAY</div>
+                        <div class="order-item">
+                            <div class="order-title">Daily Weight Monitoring <span class="order-status due">STANDING</span></div>
+                            <div class="order-details">Order: Monitor weight QAM, report gain >3 lbs/24h<br>Reason: CHF fluid management</div>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-title">Glucose Monitoring <span class="order-status due">STANDING</span></div>
+                            <div class="order-details">Order: Check BG AC meals<br>Reason: DM management, on insulin</div>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-title">Bleeding Precautions <span class="order-status due">ACTIVE</span></div>
+                            <div class="order-details">Order: Monitor for bleeding s/sx<br>Reason: INR supratherapeutic (3.4)</div>
+                        </div>
+                    </div>
+                    <div class="urgency-section">
+                        <div class="urgency-label week">THIS WEEK</div>
+                        <div class="order-item">
+                            <div class="order-title">INR Recheck <span class="order-status scheduled">SCHEDULED</span></div>
+                            <div class="order-details">Order: PT/INR<br>Scheduled: 01/30/2026 10:30<br>Location: Riverside Clinic Lab</div>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-title">Diabetic Retinal Exam <span class="order-status overdue">OVERDUE</span></div>
+                            <div class="order-details">Order: Annual diabetic eye exam<br>Last completed: 01/15/2024 (>12 mo)<br>Refer to: Ophthalmology</div>
+                        </div>
+                    </div>
+                    <div class="urgency-section">
+                        <div class="urgency-label upcoming">UPCOMING</div>
+                        <div class="order-item">
+                            <div class="order-title">Cardiology Follow-up <span class="order-status scheduled">SCHEDULED</span></div>
+                            <div class="order-details">Appt: 02/15/2026 14:00<br>Provider: Dr. Patel, Cardiology<br>Reason: HFrEF management</div>
+                        </div>
+                        <div class="order-item">
+                            <div class="order-title">Influenza Vaccine <span class="order-status overdue">OVERDUE</span></div>
+                            <div class="order-details">Order: Flu vaccine (high-dose, age 65+)<br>Last given: 10/2024<br>Due: 10/2025</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Note -->
+            <div class="ehr-panel full-width">
+                <div class="panel-header">
+                    <span>Most Recent Progress Note</span>
+                </div>
+                <div class="panel-body">
+                    <div class="clinical-note">
+                        <div class="timestamp">01/25/2026 14:32 | Internal Medicine Clinic Visit</div>
+                        <div class="author">Dr. Anita Sharma, MD | Attending Physician</div>
+                        <br>
+                        <strong>CHIEF COMPLAINT:</strong> Follow-up CHF, DM, AFib management. Labs review.<br><br>
+                        <strong>ASSESSMENT/PLAN:</strong><br>
+                        1. <strong>AFib on anticoagulation</strong> - INR 3.4, supratherapeutic. Pt denies bleeding. Will recheck INR in 5 days. Consider dose reduction if remains elevated. Continue warfarin 5mg daily for now. Counseled on bleeding precautions.<br>
+                        2. <strong>HFrEF (EF 35%)</strong> - Stable. No orthopnea, PND. Weight stable. Continue carvedilol, lisinopril, furosemide. Daily weights. Return precautions given.<br>
+                        3. <strong>T2DM with nephropathy</strong> - A1c 7.8%, above goal. Will optimize diet before adjusting meds. Continue metformin, lantus. SMBG AC meals. Annual eye exam overdue - referred.<br>
+                        4. <strong>CKD Stage 3b</strong> - eGFR 38, stable from 3 mo ago. Continue renal-protective meds. Avoid NSAIDs, nephrotoxins.<br>
+                        5. <strong>HTN</strong> - Controlled on current regimen.<br><br>
+                        <strong>FOLLOW-UP:</strong> Cardiology 02/15. Recheck INR 01/30. RTC 4 weeks or PRN.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transformation Footer -->
+        <div class="ehr-footer">
+            <h3>CareMap Transformation</h3>
+            <p>
+                The clinical data above is complex, coded, and designed for healthcare professionals.
+                CareMap uses <strong>MedGemma AI</strong> to transform this into caregiver-friendly language
+                that can be understood by family members and household helpers (Ayahs).
+            </p>
+            <div class="transform-arrow">⬇</div>
+            <p><strong>See the transformation:</strong></p>
+            <div class="transform-links">
+                <a href="concept_a.html" class="concept-a">Concept A: One-Page Summary</a>
+                <a href="concept_b_meds.html" class="concept-b">Concept B: Multi-Page Care Kit</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
