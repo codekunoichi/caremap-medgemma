@@ -13,3 +13,6 @@ All notable changes to CareMap will be documented in this file.
 
 ### Changed
 - UI improvements with section emojis for better readability
+
+### Fixed
+- `require_one_question` validator now enforces exactly one question mark (was allowing multiple)
