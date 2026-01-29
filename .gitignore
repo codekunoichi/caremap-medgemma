@@ -211,3 +211,9 @@ __marimo__/
 
 # Project outputs (generated files)
 outputs/
+
+# Feedback exports
+feedback/
+
+# Claude Code
+.claude/
