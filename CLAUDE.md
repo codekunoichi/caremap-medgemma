@@ -23,16 +23,19 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run all unit tests (fast, uses mocked LLM)
-pytest tests/ --ignore=tests/integration/
+PYTHONPATH=src pytest tests/ --ignore=tests/integration/
 
 # Run integration tests (slow, requires real MedGemma model + HuggingFace auth)
-pytest tests/integration/ -v
+PYTHONPATH=src pytest tests/integration/ -v
 
 # Run single test file
-pytest tests/test_lab_interpretation.py -v
+PYTHONPATH=src pytest tests/test_lab_interpretation.py -v
 
 # Run single test
-pytest tests/integration/test_golden_labs.py::TestGoldenLabs::test_lab_output_structure[LAB-001] -v
+PYTHONPATH=src pytest tests/integration/test_golden_labs.py::TestGoldenLabs::test_lab_output_structure[LAB-001] -v
+
+# Run a module directly (e.g., medication interpretation demo)
+PYTHONPATH=src python -m caremap.medication_interpretation
 ```
 
 ## Architecture
@@ -49,6 +52,8 @@ assemble_fridge_sheet.py (orchestrator)
     └─→ imaging_interpretation.py → MedGemma → JSON
     ↓
 Fridge Sheet JSON (capped by BuildLimits: 8 meds, 3 labs, 2 actions/bucket)
+    ↓
+(optional) translation.py → NLLB-200 → Multilingual output
 ```
 
 ### Key Modules (`src/caremap/`)
@@ -60,6 +65,19 @@ Fridge Sheet JSON (capped by BuildLimits: 8 meds, 3 labs, 2 actions/bucket)
 | `*_interpretation.py` | Domain-specific interpreters (meds, labs, caregaps, imaging) |
 | `assemble_fridge_sheet.py` | Orchestrates all interpreters, applies BuildLimits |
 | `validators.py` | JSON extraction, schema validation, constraint checking |
+| `safety_validator.py` | Forbidden terms, jargon detection, negation preservation checks |
+| `translation.py` | NLLB-200 translator with back-translation validation |
+| `multilingual_fridge_sheet.py` | Generates fridge sheets in multiple languages |
+
+### Alternative: Structured Output (`src/caremap_structured/`)
+
+Uses Pydantic + `outlines` library for guaranteed valid JSON via token-level constraints:
+- `schemas/` - Pydantic models for each domain (medication, lab, imaging, caregap)
+- `generators/structured_generator.py` - StructuredMedGemmaClient with schema-constrained generation
+
+### HuggingFace Space (`huggingface_space/`)
+
+Gradio web app for interactive demo. Contains copied core modules for standalone deployment.
 
 ### Prompt Templates (`prompts/`)
 
@@ -67,6 +85,8 @@ Each prompt is task-scoped: one item in → one JSON object out. All enforce:
 - No diagnosis or treatment recommendations
 - Plain language output
 - Specific JSON keys per domain
+
+Versions: V1 (constrained), V2 (experimental), V3 (grounded with chain-of-thought)
 
 ### Test Structure
 
