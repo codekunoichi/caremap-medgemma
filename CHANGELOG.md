@@ -5,6 +5,7 @@ All notable changes to CareMap will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Physician feedback demo** (`fake_demo/`): 7 HTML pages comparing one-page vs multi-page fridge sheet concepts for user research
 - **View mode toggle** in HuggingFace app: Detailed (full AI output) vs Brief (printable)
 - **Multilingual support**: Output in 10 languages (English, Spanish, Chinese, Hindi, Arabic, Portuguese, French, German, Japanese, Korean)
 - **HuggingFace Spaces app** for interactive demo with Gradio
