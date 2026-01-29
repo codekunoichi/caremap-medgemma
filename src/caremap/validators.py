@@ -112,10 +112,10 @@ def require_max_sentences(value: str, field: str, max_sentences: int) -> None:
 
 def require_one_question(value: str, field: str) -> None:
     """
-    Ensure the field contains at least one question mark.
-    (Caregiver prompt asks for a question to ask the doctor.)
+    Ensure the field contains exactly one question mark.
+    (Caregiver prompt asks for a single question to ask the doctor.)
     """
     text = (value or "").strip()
     q = text.count("?")
-    if q < 1:
-        raise ValidationError(f"Field '{field}' must contain at least one question mark ('?').")
+    if q != 1:
+        raise ValidationError(f"Field '{field}' must contain exactly one question mark ('?').")
