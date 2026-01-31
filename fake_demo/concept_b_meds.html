@@ -267,6 +267,42 @@
             align-items: center;
             gap: 0.3rem;
         }
+
+        /* Time icons */
+        .time-icon {
+            font-size: 16px;
+            margin-right: 2px;
+        }
+
+        /* Food icons */
+        .food-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .food-badge.with-food {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .food-badge.no-food {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .food-badge.optional {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .food-icon {
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -300,11 +336,13 @@
         </div>
 
         <div class="legend">
-            <div class="legend-item"><span class="time-badge morning">AM</span> Morning</div>
-            <div class="legend-item"><span class="time-badge afternoon">PM</span> Afternoon</div>
-            <div class="legend-item"><span class="time-badge evening">EVE</span> Evening</div>
-            <div class="legend-item"><span class="time-badge bedtime">BED</span> Bedtime</div>
-            <div class="legend-item"><span class="warning-icon">⚠️</span> Important Warning</div>
+            <div class="legend-item"><span class="time-icon">☀️</span> Morning</div>
+            <div class="legend-item"><span class="time-icon">🌤️</span> Afternoon</div>
+            <div class="legend-item"><span class="time-icon">🌅</span> Evening</div>
+            <div class="legend-item"><span class="time-icon">🌙</span> Bedtime</div>
+            <div class="legend-item"><span class="food-badge with-food"><span class="food-icon">🍽️</span></span> With Food</div>
+            <div class="legend-item"><span class="food-badge no-food"><span class="food-icon">🍽️</span>🚫</span> Empty Stomach</div>
+            <div class="legend-item"><span class="warning-icon">⚠️</span> Warning</div>
         </div>
 
         <table class="med-grid">
@@ -324,8 +362,8 @@
                         <div class="med-name">Warfarin</div>
                         <div class="med-dose">5mg tablet</div>
                     </td>
-                    <td><span class="time-badge evening">6 PM</span></td>
-                    <td class="instruction">Same time every day. Can take with or without food.</td>
+                    <td><span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span></td>
+                    <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Same time daily</td>
                     <td class="warning">⚠️ NO ibuprofen, aspirin, or Advil. Watch for bleeding, bruises.</td>
                 </tr>
                 <tr>
@@ -335,10 +373,10 @@
                         <div class="med-dose">500mg tablet</div>
                     </td>
                     <td>
-                        <span class="time-badge morning">8 AM</span>
-                        <span class="time-badge evening">6 PM</span>
+                        <span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span><br>
+                        <span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span>
                     </td>
-                    <td class="instruction">Must take WITH food to avoid stomach upset.</td>
+                    <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Avoids upset stomach</td>
                     <td class="warning">⚠️ STOP before any CT scan. Tell doctor first.</td>
                 </tr>
                 <tr>
@@ -348,10 +386,10 @@
                         <div class="med-dose">40mg tablet (Lasix)</div>
                     </td>
                     <td>
-                        <span class="time-badge morning">8 AM</span>
-                        <span class="time-badge afternoon">2 PM</span>
+                        <span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span><br>
+                        <span class="time-icon">🌤️</span> <span class="time-badge afternoon">2 PM</span>
                     </td>
-                    <td class="instruction">Give early - causes frequent bathroom trips. Not after 4 PM.</td>
+                    <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Not after 4 PM (bathroom)</td>
                     <td class="warning">⚠️ Weigh daily. Call if weight up 3+ lbs in one day.</td>
                 </tr>
                 <tr>
@@ -361,10 +399,10 @@
                         <div class="med-dose">12.5mg tablet</div>
                     </td>
                     <td>
-                        <span class="time-badge morning">8 AM</span>
-                        <span class="time-badge evening">6 PM</span>
+                        <span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span><br>
+                        <span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span>
                     </td>
-                    <td class="instruction">Take with food. Don't stop suddenly.</td>
+                    <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Don't stop suddenly</td>
                     <td>May feel dizzy. Help stand up slowly.</td>
                 </tr>
                 <tr>
@@ -373,8 +411,8 @@
                         <div class="med-name">Lisinopril</div>
                         <div class="med-dose">10mg tablet</div>
                     </td>
-                    <td><span class="time-badge morning">8 AM</span></td>
-                    <td class="instruction">Can take with or without food.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span></td>
                     <td>Dry cough is normal. Report face/lip swelling.</td>
                 </tr>
                 <tr>
@@ -383,9 +421,9 @@
                         <div class="med-name">Amlodipine</div>
                         <div class="med-dose">5mg tablet</div>
                     </td>
-                    <td><span class="time-badge morning">8 AM</span></td>
-                    <td class="instruction">Can take with or without food.</td>
-                    <td>May cause ankle swelling. Keep legs raised when sitting.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span></td>
+                    <td>May cause ankle swelling. Keep legs raised.</td>
                 </tr>
                 <tr>
                     <td><div class="checkmark"></div></td>
@@ -393,8 +431,8 @@
                         <div class="med-name">Atorvastatin</div>
                         <div class="med-dose">40mg tablet (Lipitor)</div>
                     </td>
-                    <td><span class="time-badge bedtime">Bedtime</span></td>
-                    <td class="instruction">Best taken at night. With or without food.</td>
+                    <td><span class="time-icon">🌙</span> <span class="time-badge bedtime">Bedtime</span></td>
+                    <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Best at night</td>
                     <td>Report unusual muscle pain or weakness.</td>
                 </tr>
                 <tr>
@@ -403,8 +441,8 @@
                         <div class="med-name">Potassium</div>
                         <div class="med-dose">20mEq tablet</div>
                     </td>
-                    <td><span class="time-badge morning">8 AM</span></td>
-                    <td class="instruction">Take WITH food and full glass of water. Don't crush.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> + full glass water</td>
                     <td>Can upset stomach. Give with breakfast.</td>
                 </tr>
                 <tr>
@@ -413,8 +451,8 @@
                         <div class="med-name">Insulin Lantus</div>
                         <div class="med-dose">20 units injection</div>
                     </td>
-                    <td><span class="time-badge bedtime">10 PM</span></td>
-                    <td class="instruction">Inject in belly or thigh. Rotate spots. Same time nightly.</td>
+                    <td><span class="time-icon">🌙</span> <span class="time-badge bedtime">10 PM</span></td>
+                    <td class="instruction">Inject belly/thigh. Rotate spots. Same time.</td>
                     <td class="warning">⚠️ Must eat regularly. Watch for shaking, sweating, confusion.</td>
                 </tr>
                 <tr>
@@ -423,8 +461,8 @@
                         <div class="med-name">Aspirin</div>
                         <div class="med-dose">81mg (baby aspirin)</div>
                     </td>
-                    <td><span class="time-badge morning">8 AM</span></td>
-                    <td class="instruction">Take with food to protect stomach.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Protects stomach</td>
                     <td>Report black/tarry stool or stomach pain.</td>
                 </tr>
                 <tr>
@@ -433,8 +471,8 @@
                         <div class="med-name">Omeprazole</div>
                         <div class="med-dose">20mg capsule (Prilosec)</div>
                     </td>
-                    <td><span class="time-badge morning">7:30 AM</span></td>
-                    <td class="instruction">30 minutes BEFORE breakfast. Don't crush.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">7:30 AM</span></td>
+                    <td class="instruction"><span class="food-badge no-food"><span class="food-icon">🍽️</span>🚫</span> 30 min BEFORE food</td>
                     <td>None expected. Protects stomach.</td>
                 </tr>
                 <tr>
@@ -443,8 +481,8 @@
                         <div class="med-name">Vitamin D</div>
                         <div class="med-dose">2000 IU tablet</div>
                     </td>
-                    <td><span class="time-badge morning">8 AM</span></td>
-                    <td class="instruction">Take with food for better absorption.</td>
+                    <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
+                    <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Better absorption</td>
                     <td>None expected.</td>
                 </tr>
             </tbody>
