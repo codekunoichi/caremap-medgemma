@@ -303,6 +303,41 @@
         .food-icon {
             font-size: 14px;
         }
+
+        /* MedGemma Insight styling */
+        .medgemma-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            margin-left: 0.3rem;
+            vertical-align: middle;
+        }
+
+        .medgemma-badge::before {
+            content: "🧠";
+            font-size: 10px;
+        }
+
+        .why-matters {
+            font-size: 11px;
+            color: #4a5568;
+            line-height: 1.3;
+        }
+
+        .why-matters .condition-link {
+            color: #5b21b6;
+            font-weight: 500;
+        }
+
+        .med-grid th.medgemma-col {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
     </style>
 </head>
 <body>
@@ -343,16 +378,18 @@
             <div class="legend-item"><span class="food-badge with-food"><span class="food-icon">🍽️</span></span> With Food</div>
             <div class="legend-item"><span class="food-badge no-food"><span class="food-icon">🍽️</span>🚫</span> Empty Stomach</div>
             <div class="legend-item"><span class="warning-icon">⚠️</span> Warning</div>
+            <div class="legend-item"><span class="medgemma-badge">MedGemma</span> AI-Generated Insight</div>
         </div>
 
         <table class="med-grid">
             <thead>
                 <tr>
-                    <th style="width: 5%">✓</th>
-                    <th style="width: 20%">Medicine</th>
-                    <th style="width: 18%">When to Give</th>
-                    <th style="width: 25%">How to Give</th>
-                    <th style="width: 32%">Watch For</th>
+                    <th style="width: 4%">✓</th>
+                    <th style="width: 14%">Medicine</th>
+                    <th style="width: 11%">When</th>
+                    <th style="width: 15%">How to Give</th>
+                    <th style="width: 28%" class="medgemma-col">Why It Matters <span class="medgemma-badge" style="margin-left: 0;">AI</span></th>
+                    <th style="width: 28%">Watch For</th>
                 </tr>
             </thead>
             <tbody>
@@ -364,6 +401,7 @@
                     </td>
                     <td><span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span></td>
                     <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Same time daily</td>
+                    <td class="why-matters">Prevents blood clots from <span class="condition-link">AFib</span>. Irregular heartbeat can form clots → stroke risk.</td>
                     <td class="warning">⚠️ NO ibuprofen, aspirin, or Advil. Watch for bleeding, bruises.</td>
                 </tr>
                 <tr>
@@ -377,6 +415,7 @@
                         <span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span>
                     </td>
                     <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Avoids upset stomach</td>
+                    <td class="why-matters">Controls blood sugar for <span class="condition-link">Diabetes</span>. Safe for <span class="condition-link">CKD Stage 3</span> at current kidney function.</td>
                     <td class="warning">⚠️ STOP before any CT scan. Tell doctor first.</td>
                 </tr>
                 <tr>
@@ -390,6 +429,7 @@
                         <span class="time-icon">🌤️</span> <span class="time-badge afternoon">2 PM</span>
                     </td>
                     <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Not after 4 PM (bathroom)</td>
+                    <td class="why-matters">Removes extra fluid for <span class="condition-link">Heart Failure</span>. Reduces swelling & breathing difficulty. <em>Depletes potassium.</em></td>
                     <td class="warning">⚠️ Weigh daily. Call if weight up 3+ lbs in one day.</td>
                 </tr>
                 <tr>
@@ -403,6 +443,7 @@
                         <span class="time-icon">🌅</span> <span class="time-badge evening">6 PM</span>
                     </td>
                     <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Don't stop suddenly</td>
+                    <td class="why-matters">Protects the heart for <span class="condition-link">Heart Failure</span> + controls rate for <span class="condition-link">AFib</span>. Lowers BP.</td>
                     <td>May feel dizzy. Help stand up slowly.</td>
                 </tr>
                 <tr>
@@ -413,6 +454,7 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
                     <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span></td>
+                    <td class="why-matters">Triple benefit: Protects <span class="condition-link">Kidneys</span> in diabetics, helps <span class="condition-link">Heart Failure</span>, lowers <span class="condition-link">BP</span>.</td>
                     <td>Dry cough is normal. Report face/lip swelling.</td>
                 </tr>
                 <tr>
@@ -423,6 +465,7 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
                     <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span></td>
+                    <td class="why-matters">Additional <span class="condition-link">BP control</span>. Safe with kidney disease. Works well with Lisinopril.</td>
                     <td>May cause ankle swelling. Keep legs raised.</td>
                 </tr>
                 <tr>
@@ -433,6 +476,7 @@
                     </td>
                     <td><span class="time-icon">🌙</span> <span class="time-badge bedtime">Bedtime</span></td>
                     <td class="instruction"><span class="food-badge optional"><span class="food-icon">🍽️</span> Optional</span> Best at night</td>
+                    <td class="why-matters">Lowers cholesterol, critical for <span class="condition-link">Diabetes</span> + <span class="condition-link">Heart</span>. Prevents future heart attacks.</td>
                     <td>Report unusual muscle pain or weakness.</td>
                 </tr>
                 <tr>
@@ -443,6 +487,7 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
                     <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> + full glass water</td>
+                    <td class="why-matters">Replaces potassium lost from <em>Furosemide</em>. Low K is dangerous for <span class="condition-link">Heart</span>.</td>
                     <td>Can upset stomach. Give with breakfast.</td>
                 </tr>
                 <tr>
@@ -453,6 +498,7 @@
                     </td>
                     <td><span class="time-icon">🌙</span> <span class="time-badge bedtime">10 PM</span></td>
                     <td class="instruction">Inject belly/thigh. Rotate spots. Same time.</td>
+                    <td class="why-matters">24-hour baseline sugar control for <span class="condition-link">Diabetes</span>. Metformin alone not enough at this stage.</td>
                     <td class="warning">⚠️ Must eat regularly. Watch for shaking, sweating, confusion.</td>
                 </tr>
                 <tr>
@@ -463,6 +509,7 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
                     <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Protects stomach</td>
+                    <td class="why-matters">Extra heart protection for <span class="condition-link">Diabetes</span> + <span class="condition-link">Heart</span>. Low-dose = safe with Warfarin.</td>
                     <td>Report black/tarry stool or stomach pain.</td>
                 </tr>
                 <tr>
@@ -473,6 +520,7 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">7:30 AM</span></td>
                     <td class="instruction"><span class="food-badge no-food"><span class="food-icon">🍽️</span>🚫</span> 30 min BEFORE food</td>
+                    <td class="why-matters">Protects stomach from <em>Aspirin</em> + <em>Warfarin</em>. Both increase bleeding risk.</td>
                     <td>None expected. Protects stomach.</td>
                 </tr>
                 <tr>
@@ -483,13 +531,14 @@
                     </td>
                     <td><span class="time-icon">☀️</span> <span class="time-badge morning">8 AM</span></td>
                     <td class="instruction"><span class="food-badge with-food"><span class="food-icon">🍽️</span> With Food</span> Better absorption</td>
+                    <td class="why-matters">Supports bone health. <span class="condition-link">CKD</span> patients often low. Also helps heart function.</td>
                     <td>None expected.</td>
                 </tr>
             </tbody>
         </table>
 
         <div class="page-footer">
-            <div>CareMap Demo | For information only | Updated: Jan 29, 2026</div>
+            <div>CareMap Demo | For information only | Updated: Feb 1, 2026</div>
             <div>Page 1 of 4: Medications (Ayah Reference)</div>
         </div>
     </div>
