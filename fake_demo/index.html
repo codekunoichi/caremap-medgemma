@@ -111,12 +111,12 @@
 
         .comparison {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
             margin-top: 2rem;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: 1000px) {
             .comparison {
                 grid-template-columns: 1fr;
             }
@@ -144,6 +144,20 @@
         .concept-card.b h3 {
             color: #276749;
             border-color: #276749;
+        }
+
+        .concept-card.c h3 {
+            color: #9f1239;
+            border-color: #9f1239;
+        }
+
+        .btn-c {
+            background: #9f1239;
+            color: white;
+        }
+
+        .btn-c:hover {
+            background: #881337;
         }
 
         .concept-card ul {
@@ -215,7 +229,7 @@
 <body>
     <div class="header">
         <h1>CareMap Fridge Sheet</h1>
-        <p>Physician Feedback Demo - Comparing Two Design Approaches</p>
+        <p>Physician Feedback Demo - Comparing Three Design Approaches</p>
     </div>
 
     <nav class="nav">
@@ -226,6 +240,8 @@
         <a href="concept_b_labs.html" class="concept-b">Concept B: Labs</a>
         <a href="concept_b_gaps.html" class="concept-b">Concept B: Care Gaps</a>
         <a href="concept_b_connections.html" class="concept-b">Concept B: Connections</a>
+        <a href="concept_c_meds.html" style="background: #fce7f3; color: #9f1239;">Concept C: Time-Bucket</a>
+        <a href="concept_c_sos.html" style="background: #fee2e2; color: #dc2626;">Concept C: SOS</a>
     </nav>
 
     <div class="container">
@@ -236,8 +252,13 @@
                 <strong>Conditions:</strong> Type 2 Diabetes, Congestive Heart Failure, Atrial Fibrillation, Chronic Kidney Disease Stage 3, Hypertension
             </div>
             <p>
-                This demo compares two approaches to creating a caregiver-friendly summary for a <strong>complex elderly patient on 12 medications</strong>.
+                This demo compares three approaches to creating a caregiver-friendly summary for a <strong>complex elderly patient on 12 medications</strong>.
                 The goal is to help you evaluate which approach better serves family caregivers and household helpers (Ayahs) managing daily care.
+            </p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #718096;">
+                <strong>Concept A:</strong> One page (with omissions) |
+                <strong>Concept B:</strong> Multi-page detailed |
+                <strong>Concept C:</strong> Time-bucket + SOS (ultra-simple for India)
             </p>
 
             <div class="question-box">
@@ -302,6 +323,34 @@
                 </ul>
 
                 <a href="concept_b_meds.html" class="btn btn-b">View Concept B →</a>
+            </div>
+
+            <div class="concept-card c">
+                <h3>Concept C: Time-Bucket + SOS</h3>
+                <p><strong>"Made for Dummies":</strong> Ultra-simple, time-oriented, emergency-ready.</p>
+
+                <h4 style="margin-top: 1rem;">Two Pages Only:</h4>
+                <ul>
+                    <li><strong>Medications</strong> - Grouped by time (8 AM, 2 PM, 6 PM, Bedtime)</li>
+                    <li><strong>SOS</strong> - Emergency actions caregiver CAN do</li>
+                </ul>
+
+                <h4 class="pros">Potential Benefits:</h4>
+                <ul>
+                    <li>Time-oriented = natural workflow</li>
+                    <li>Emergency contact in RED at top</li>
+                    <li>Pre-authorized SOS interventions</li>
+                    <li>Minimal cognitive load</li>
+                </ul>
+
+                <h4 class="cons">Potential Risks:</h4>
+                <ul>
+                    <li>Less detail than Concept B</li>
+                    <li>Family needs separate info</li>
+                    <li>May not fit Kaggle demo</li>
+                </ul>
+
+                <a href="concept_c_meds.html" class="btn btn-c">View Concept C →</a>
             </div>
         </div>
 
