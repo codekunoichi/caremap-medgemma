@@ -11,6 +11,7 @@ from .medication_interpretation import interpret_medication
 from .lab_interpretation import interpret_lab
 from .caregap_interpretation import interpret_caregap
 from .imaging_interpretation import interpret_imaging_report, interpret_imaging_with_image
+from .radiology_triage import analyze_xray, triage_batch, TriageResult, format_triage_queue
 from .validators import ValidationError, parse_json_strict
 from .prompt_loader import load_prompt, fill_prompt
 
@@ -24,6 +25,10 @@ __all__ = [
     "interpret_caregap",
     "interpret_imaging_report",
     "interpret_imaging_with_image",
+    "analyze_xray",
+    "triage_batch",
+    "TriageResult",
+    "format_triage_queue",
     "ValidationError",
     "parse_json_strict",
     "load_prompt",
