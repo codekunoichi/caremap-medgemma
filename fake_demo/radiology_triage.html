@@ -13,19 +13,19 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a2e;
-            color: #e2e8f0;
+            background: #f5f5f5;
+            color: #333;
             line-height: 1.4;
         }
 
         .nav {
-            background: #16213e;
+            background: white;
             padding: 1rem;
             display: flex;
             justify-content: center;
             gap: 1rem;
             flex-wrap: wrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
@@ -33,23 +33,25 @@
 
         .nav a {
             padding: 0.5rem 1rem;
-            background: #1a1a2e;
-            color: #a0aec0;
+            background: #e2e8f0;
+            color: #2d3748;
             text-decoration: none;
             border-radius: 6px;
             font-size: 0.9rem;
-            border: 1px solid #2d3748;
         }
 
         .nav a:hover, .nav a.active {
-            background: #e94560;
+            background: #c53030;
             color: white;
-            border-color: #e94560;
         }
 
         .nav a.patient-portal {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .nav a.patient-portal:hover {
             background: #276749;
-            border-color: #276749;
             color: white;
         }
 
@@ -65,12 +67,16 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid #2d3748;
+            border-bottom: 3px solid #c53030;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .page-header h1 {
             font-size: 24px;
-            color: #e94560;
+            color: #c53030;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -100,7 +106,7 @@
         }
 
         .staff-badge {
-            background: #e94560;
+            background: #c53030;
             color: white;
             padding: 0.3rem 0.75rem;
             border-radius: 20px;
@@ -117,27 +123,27 @@
         }
 
         .stat-card {
-            background: #16213e;
+            background: white;
             border-radius: 8px;
             padding: 1rem;
             text-align: center;
-            border: 1px solid #2d3748;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .stat-card.stat {
-            border-left: 4px solid #e94560;
+            border-left: 4px solid #c53030;
         }
 
         .stat-card.soon {
-            border-left: 4px solid #f6ad55;
+            border-left: 4px solid #d69e2e;
         }
 
         .stat-card.routine {
-            border-left: 4px solid #48bb78;
+            border-left: 4px solid #38a169;
         }
 
         .stat-card.total {
-            border-left: 4px solid #4299e1;
+            border-left: 4px solid #3182ce;
         }
 
         .stat-number {
@@ -145,10 +151,10 @@
             font-weight: bold;
         }
 
-        .stat-card.stat .stat-number { color: #e94560; }
-        .stat-card.soon .stat-number { color: #f6ad55; }
-        .stat-card.routine .stat-number { color: #48bb78; }
-        .stat-card.total .stat-number { color: #4299e1; }
+        .stat-card.stat .stat-number { color: #c53030; }
+        .stat-card.soon .stat-number { color: #d69e2e; }
+        .stat-card.routine .stat-number { color: #38a169; }
+        .stat-card.total .stat-number { color: #3182ce; }
 
         .stat-label {
             font-size: 12px;
@@ -160,14 +166,19 @@
         /* Queue Sections */
         .queue-section {
             margin-bottom: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .queue-header {
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 0.75rem;
-            padding: 0.5rem 0;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
         }
 
         .priority-badge {
@@ -180,62 +191,64 @@
         }
 
         .priority-badge.stat {
-            background: #e94560;
+            background: #c53030;
             color: white;
         }
 
         .priority-badge.soon {
-            background: #f6ad55;
-            color: #1a1a2e;
+            background: #d69e2e;
+            color: white;
         }
 
         .priority-badge.routine {
-            background: #48bb78;
+            background: #38a169;
             color: white;
         }
 
         .queue-header h2 {
             font-size: 16px;
-            color: #e2e8f0;
+            color: #2d3748;
         }
 
         .queue-header .time-target {
             font-size: 12px;
             color: #718096;
+            margin-left: auto;
         }
 
         /* Image Grid */
         .image-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1rem;
         }
 
         .image-card {
-            background: #16213e;
+            background: #f7fafc;
             border-radius: 8px;
             overflow: hidden;
-            border: 1px solid #2d3748;
+            border: 2px solid #e2e8f0;
             transition: all 0.2s;
         }
 
         .image-card:hover {
-            border-color: #4299e1;
-            transform: translateY(-2px);
+            border-color: #3182ce;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .image-card.stat-priority {
-            border-color: #e94560;
-            box-shadow: 0 0 0 1px #e94560;
+            border-color: #fc8181;
+            background: #fff5f5;
         }
 
         .image-card.soon-priority {
-            border-color: #f6ad55;
+            border-color: #f6e05e;
+            background: #fffff0;
         }
 
         .image-preview {
-            background: #0f0f1a;
-            padding: 0.5rem;
+            background: #2d3748;
+            padding: 0.75rem;
             text-align: center;
         }
 
@@ -246,7 +259,7 @@
         }
 
         .image-info {
-            padding: 0.75rem;
+            padding: 1rem;
         }
 
         .image-meta {
@@ -259,7 +272,8 @@
         .image-id {
             font-family: monospace;
             font-size: 12px;
-            color: #a0aec0;
+            color: #4a5568;
+            font-weight: bold;
         }
 
         .image-time {
@@ -268,45 +282,48 @@
         }
 
         .ai-findings {
-            background: #1a1a2e;
-            border-radius: 4px;
-            padding: 0.5rem;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
             margin-top: 0.5rem;
         }
 
         .ai-findings-header {
             font-size: 10px;
-            color: #7c3aed;
+            color: #6b46c1;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             gap: 0.3rem;
+            font-weight: bold;
         }
 
         .finding-tag {
             display: inline-block;
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 0.15rem 0.4rem;
-            border-radius: 3px;
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
             font-size: 11px;
             margin: 0.15rem 0.15rem 0.15rem 0;
+            font-weight: 500;
         }
 
         .finding-tag.critical {
-            background: #e94560;
-            color: white;
+            background: #fed7d7;
+            color: #c53030;
         }
 
         .finding-tag.moderate {
-            background: #f6ad55;
-            color: #1a1a2e;
+            background: #fefcbf;
+            color: #975a16;
         }
 
         .confidence-bar {
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -319,21 +336,21 @@
 
         .confidence-track {
             flex: 1;
-            height: 4px;
-            background: #2d3748;
-            border-radius: 2px;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
             overflow: hidden;
         }
 
         .confidence-fill {
             height: 100%;
             background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            border-radius: 2px;
+            border-radius: 3px;
         }
 
         .confidence-value {
-            font-size: 10px;
-            color: #a0aec0;
+            font-size: 11px;
+            color: #4a5568;
             font-weight: bold;
         }
 
@@ -346,50 +363,54 @@
 
         .btn-review {
             flex: 1;
-            padding: 0.4rem;
-            background: #4299e1;
+            padding: 0.5rem;
+            background: #3182ce;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 11px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
         }
 
         .btn-review:hover {
-            background: #3182ce;
+            background: #2c5282;
         }
 
         .btn-defer {
-            padding: 0.4rem 0.75rem;
-            background: transparent;
+            padding: 0.5rem 0.75rem;
+            background: white;
             color: #718096;
-            border: 1px solid #2d3748;
-            border-radius: 4px;
-            font-size: 11px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
             cursor: pointer;
+        }
+
+        .btn-defer:hover {
+            background: #f7fafc;
         }
 
         /* Disclaimer */
         .disclaimer {
-            background: #1e1e3f;
-            border: 1px solid #4f46e5;
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
             border-radius: 8px;
             padding: 1rem;
             margin-top: 1.5rem;
             font-size: 12px;
-            color: #a0aec0;
+            color: #2c5282;
         }
 
         .disclaimer strong {
-            color: #7c3aed;
+            color: #2b6cb0;
         }
 
         /* Footer info */
         .page-footer {
             margin-top: 2rem;
             padding-top: 1rem;
-            border-top: 1px solid #2d3748;
+            border-top: 1px solid #e2e8f0;
             font-size: 11px;
             color: #718096;
             display: flex;
@@ -400,13 +421,18 @@
             .stats-bar {
                 grid-template-columns: repeat(2, 1fr);
             }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="nav">
         <a href="index.html">← Overview</a>
-        <a href="ehr_overview.html" class="active">EHR Enhancement</a>
+        <a href="ehr_overview.html">EHR Enhancement</a>
         <a href="concept_b_meds.html" class="patient-portal">Patient Portal →</a>
         <a href="radiology_triage.html" class="active">Radiology Triage</a>
     </nav>
@@ -612,7 +638,7 @@
                     </div>
                 </div>
             </div>
-            <p style="color: #718096; font-size: 12px; margin-top: 0.75rem;">+ 6 more in queue...</p>
+            <p style="color: #718096; font-size: 12px; margin-top: 1rem; text-align: center;">+ 6 more studies in queue...</p>
         </div>
 
         <!-- ROUTINE Queue Preview -->
@@ -622,14 +648,14 @@
                 <h2>No Acute Findings - Standard Review</h2>
                 <span class="time-target">Target: 48-72 hours</span>
             </div>
-            <p style="color: #718096; font-size: 13px;">47 studies with no acute findings detected. These will be reviewed in standard workflow order.</p>
+            <p style="color: #4a5568; font-size: 13px;">47 studies with no acute findings detected by MedGemma. These will be reviewed in standard workflow order.</p>
         </div>
 
         <div class="disclaimer">
             <strong>⚠️ AI-Assisted Triage - Not Diagnostic</strong><br>
             MedGemma prioritizes the review queue but does NOT replace radiologist interpretation.
             All images require human review. AI confidence scores indicate model certainty, not clinical significance.
-            False negatives are possible - clinical correlation always required.
+            False negatives are possible — clinical correlation always required.
         </div>
 
         <div class="page-footer">
