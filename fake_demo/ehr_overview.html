@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareMap - EHR Enhancement Platform</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e2e8f0;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .nav {
+            background: rgba(22, 33, 62, 0.95);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #1a1a2e;
+            color: #a0aec0;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid #2d3748;
+            transition: all 0.2s;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #e94560 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .tagline {
+            font-size: 1.25rem;
+            color: #a0aec0;
+            margin-bottom: 1rem;
+        }
+
+        .hero .powered-by {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* Main Value Prop */
+        .value-prop {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .value-prop h2 {
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .value-prop p {
+            color: #a0aec0;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Two Modules Grid */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 800px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .module-card {
+            background: rgba(255,255,255,0.03);
+            border: 2px solid #2d3748;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+
+        .module-card.patient-portal {
+            border-color: #276749;
+        }
+
+        .module-card.patient-portal:hover {
+            border-color: #48bb78;
+        }
+
+        .module-card.clinical-staff {
+            border-color: #e94560;
+        }
+
+        .module-card.clinical-staff:hover {
+            border-color: #f56565;
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-icon {
+            font-size: 2.5rem;
+        }
+
+        .module-title h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .module-card.patient-portal .module-title h3 {
+            color: #48bb78;
+        }
+
+        .module-card.clinical-staff .module-title h3 {
+            color: #e94560;
+        }
+
+        .module-title .subtitle {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        .module-description {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .module-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #cbd5e0;
+        }
+
+        .module-features li::before {
+            content: "✓";
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .module-card.clinical-staff .module-features li::before {
+            color: #e94560;
+        }
+
+        .module-cta {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .module-card.patient-portal .module-cta {
+            background: #276749;
+            color: white;
+        }
+
+        .module-card.patient-portal .module-cta:hover {
+            background: #2f855a;
+        }
+
+        .module-card.clinical-staff .module-cta {
+            background: #e94560;
+            color: white;
+        }
+
+        .module-card.clinical-staff .module-cta:hover {
+            background: #c53030;
+        }
+
+        /* Impact Stats */
+        .impact-section {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .impact-section h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .impact-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .impact-stat {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .impact-number {
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4f46e5 0%, #e94560 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .impact-label {
+            font-size: 0.85rem;
+            color: #718096;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: #0f0f1a;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .architecture h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .arch-diagram {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #a0aec0;
+            overflow-x: auto;
+            white-space: pre;
+            padding: 1rem;
+            background: #1a1a2e;
+            border-radius: 8px;
+        }
+
+        .arch-diagram .highlight-green {
+            color: #48bb78;
+        }
+
+        .arch-diagram .highlight-red {
+            color: #e94560;
+        }
+
+        .arch-diagram .highlight-purple {
+            color: #7c3aed;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+            font-size: 0.85rem;
+            border-top: 1px solid #2d3748;
+        }
+
+        .footer a {
+            color: #7c3aed;
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Demo Overview</a>
+        <a href="ehr_overview.html" class="active">EHR Enhancement</a>
+        <a href="concept_b_meds.html">Patient Portal</a>
+        <a href="radiology_triage.html">Radiology Triage</a>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>CareMap EHR Enhancement</h1>
+            <p class="tagline">One Model. Two Sides of Healthcare. Better Outcomes.</p>
+            <span class="powered-by">
+                <span>🧠</span>
+                Powered by MedGemma
+            </span>
+        </div>
+
+        <div class="value-prop">
+            <h2>Enhancing Existing EHRs with Clinical AI</h2>
+            <p>
+                CareMap doesn't replace your EHR — it makes it smarter. Using Google's MedGemma clinical foundation model,
+                we add AI-powered capabilities to both sides of healthcare: helping <strong>caregivers understand</strong>
+                complex medical information AND helping <strong>clinical staff prioritize</strong> their workload.
+            </p>
+        </div>
+
+        <div class="modules-grid">
+            <div class="module-card patient-portal">
+                <div class="module-header">
+                    <span class="module-icon">👨‍👩‍👧</span>
+                    <div class="module-title">
+                        <h3>Patient Portal Extension</h3>
+                        <span class="subtitle">For Caregivers & Families</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    Transform complex EHR data into caregiver-friendly "Fridge Sheets" that explain
+                    medications, labs, imaging, and care actions in plain language.
+                </p>
+                <ul class="module-features">
+                    <li>12 medications explained with "Why It Matters"</li>
+                    <li>Lab results with normal ranges and implications</li>
+                    <li>X-ray findings in plain language</li>
+                    <li>Care gaps prioritized by urgency</li>
+                    <li>Connections between meds, labs, and conditions</li>
+                </ul>
+                <a href="concept_b_meds.html" class="module-cta">View Patient Portal Demo →</a>
+            </div>
+
+            <div class="module-card clinical-staff">
+                <div class="module-header">
+                    <span class="module-icon">👨‍⚕️</span>
+                    <div class="module-title">
+                        <h3>Clinical Staff Extension</h3>
+                        <span class="subtitle">For Radiologists & Clinicians</span>
+                    </div>
+                </div>
+                <p class="module-description">
+                    AI-powered triage queue that prioritizes imaging studies by severity,
+                    ensuring critical findings get reviewed first in overburdened departments.
+                </p>
+                <ul class="module-features">
+                    <li>Auto-triage into STAT / SOON / ROUTINE queues</li>
+                    <li>Critical findings flagged immediately</li>
+                    <li>Confidence scores for transparency</li>
+                    <li>Reduces time-to-diagnosis for urgent cases</li>
+                    <li>Human reviews ALL images — AI prioritizes order</li>
+                </ul>
+                <a href="radiology_triage.html" class="module-cta">View Radiology Triage Demo →</a>
+            </div>
+        </div>
+
+        <div class="impact-section">
+            <h2>Why This Matters — Especially in India</h2>
+            <div class="impact-grid">
+                <div class="impact-stat">
+                    <div class="impact-number">1:100K</div>
+                    <div class="impact-label">Radiologist-to-patient ratio in India</div>
+                </div>
+                <div class="impact-stat">
+                    <div class="impact-number">72hr</div>
+                    <div class="impact-label">Average X-ray report delay in district hospitals</div>
+                </div>
+                <div class="impact-stat">
+                    <div class="impact-number">80%</div>
+                    <div class="impact-label">Caregivers who don't understand discharge instructions</div>
+                </div>
+                <div class="impact-stat">
+                    <div class="impact-number">2x</div>
+                    <div class="impact-label">Readmission risk when caregivers aren't educated</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="architecture">
+            <h2>Technical Architecture</h2>
+            <pre class="arch-diagram">
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         EXISTING EHR SYSTEM                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
+│  │ Medications │  │    Labs     │  │   Imaging   │  │  Care Gaps  │        │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘        │
+└─────────┼────────────────┼────────────────┼────────────────┼────────────────┘
+          │                │                │                │
+          └────────────────┴────────────────┴────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    │  <span class="highlight-purple">🧠 MedGemma Integration Layer</span>  │
+                    │     (Text + Image + Reasoning)   │
+                    └───────────────┬───────────────┘
+                                    │
+          ┌─────────────────────────┴─────────────────────────┐
+          │                                                   │
+          ▼                                                   ▼
+┌─────────────────────────────┐             ┌─────────────────────────────┐
+│  <span class="highlight-green">PATIENT PORTAL EXTENSION</span>    │             │  <span class="highlight-red">CLINICAL STAFF EXTENSION</span>   │
+│                             │             │                             │
+│  📋 Fridge Sheet Generator  │             │  🔬 Radiology Triage Queue  │
+│  ┌───────────────────────┐  │             │  ┌───────────────────────┐  │
+│  │ • Medications + Why   │  │             │  │ 🔴 STAT    (critical) │  │
+│  │ • Labs Explained      │  │             │  │ 🟡 SOON    (abnormal) │  │
+│  │ • Imaging in Plain    │  │             │  │ 🟢 ROUTINE (normal)   │  │
+│  │ • Care Gap Actions    │  │             │  └───────────────────────┘  │
+│  │ • Cross-Domain Links  │  │             │                             │
+│  └───────────────────────┘  │             │  AI prioritizes worklist    │
+│                             │             │  Human reviews ALL images   │
+│  👨‍👩‍👧 For: Caregivers       │             │  👨‍⚕️ For: Radiologists       │
+└─────────────────────────────┘             └─────────────────────────────┘
+</pre>
+        </div>
+
+        <div class="footer">
+            <p>
+                CareMap EHR Enhancement Platform | Built for
+                <a href="https://www.kaggle.com/competitions/solve-for-india-gemini" target="_blank">Kaggle Solve for India with Gemini</a>
+            </p>
+            <p style="margin-top: 0.5rem;">
+                Using Google's MedGemma clinical foundation model | Demo only — Not for clinical use
+            </p>
+        </div>
+    </div>
+</body>
+</html>

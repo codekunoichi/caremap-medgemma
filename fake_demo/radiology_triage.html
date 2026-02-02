@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radiology Triage Queue - Clinical Staff View</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e2e8f0;
+            line-height: 1.4;
+        }
+
+        .nav {
+            background: #16213e;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            padding: 0.5rem 1rem;
+            background: #1a1a2e;
+            color: #a0aec0;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid #2d3748;
+        }
+
+        .nav a:hover, .nav a.active {
+            background: #e94560;
+            color: white;
+            border-color: #e94560;
+        }
+
+        .nav a.patient-portal {
+            background: #276749;
+            border-color: #276749;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #2d3748;
+        }
+
+        .page-header h1 {
+            font-size: 24px;
+            color: #e94560;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-header .subtitle {
+            color: #718096;
+            font-size: 14px;
+        }
+
+        /* MedGemma Badge */
+        .medgemma-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .medgemma-badge::before {
+            content: "🧠";
+            font-size: 12px;
+        }
+
+        .staff-badge {
+            background: #e94560;
+            color: white;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #2d3748;
+        }
+
+        .stat-card.stat {
+            border-left: 4px solid #e94560;
+        }
+
+        .stat-card.soon {
+            border-left: 4px solid #f6ad55;
+        }
+
+        .stat-card.routine {
+            border-left: 4px solid #48bb78;
+        }
+
+        .stat-card.total {
+            border-left: 4px solid #4299e1;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .stat-card.stat .stat-number { color: #e94560; }
+        .stat-card.soon .stat-number { color: #f6ad55; }
+        .stat-card.routine .stat-number { color: #48bb78; }
+        .stat-card.total .stat-number { color: #4299e1; }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Queue Sections */
+        .queue-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .queue-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .priority-badge {
+            padding: 0.3rem 0.75rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .priority-badge.stat {
+            background: #e94560;
+            color: white;
+        }
+
+        .priority-badge.soon {
+            background: #f6ad55;
+            color: #1a1a2e;
+        }
+
+        .priority-badge.routine {
+            background: #48bb78;
+            color: white;
+        }
+
+        .queue-header h2 {
+            font-size: 16px;
+            color: #e2e8f0;
+        }
+
+        .queue-header .time-target {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        /* Image Grid */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .image-card {
+            background: #16213e;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #2d3748;
+            transition: all 0.2s;
+        }
+
+        .image-card:hover {
+            border-color: #4299e1;
+            transform: translateY(-2px);
+        }
+
+        .image-card.stat-priority {
+            border-color: #e94560;
+            box-shadow: 0 0 0 1px #e94560;
+        }
+
+        .image-card.soon-priority {
+            border-color: #f6ad55;
+        }
+
+        .image-preview {
+            background: #0f0f1a;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 4px;
+        }
+
+        .image-info {
+            padding: 0.75rem;
+        }
+
+        .image-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-id {
+            font-family: monospace;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .image-time {
+            font-size: 11px;
+            color: #718096;
+        }
+
+        .ai-findings {
+            background: #1a1a2e;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .ai-findings-header {
+            font-size: 10px;
+            color: #7c3aed;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .finding-tag {
+            display: inline-block;
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 11px;
+            margin: 0.15rem 0.15rem 0.15rem 0;
+        }
+
+        .finding-tag.critical {
+            background: #e94560;
+            color: white;
+        }
+
+        .finding-tag.moderate {
+            background: #f6ad55;
+            color: #1a1a2e;
+        }
+
+        .confidence-bar {
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .confidence-label {
+            font-size: 10px;
+            color: #718096;
+        }
+
+        .confidence-track {
+            flex: 1;
+            height: 4px;
+            background: #2d3748;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            border-radius: 2px;
+        }
+
+        .confidence-value {
+            font-size: 10px;
+            color: #a0aec0;
+            font-weight: bold;
+        }
+
+        /* Action buttons */
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .btn-review {
+            flex: 1;
+            padding: 0.4rem;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-review:hover {
+            background: #3182ce;
+        }
+
+        .btn-defer {
+            padding: 0.4rem 0.75rem;
+            background: transparent;
+            color: #718096;
+            border: 1px solid #2d3748;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            background: #1e1e3f;
+            border: 1px solid #4f46e5;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .disclaimer strong {
+            color: #7c3aed;
+        }
+
+        /* Footer info */
+        .page-footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #2d3748;
+            font-size: 11px;
+            color: #718096;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @media (max-width: 768px) {
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="index.html">← Overview</a>
+        <a href="ehr_overview.html" class="active">EHR Enhancement</a>
+        <a href="concept_b_meds.html" class="patient-portal">Patient Portal →</a>
+        <a href="radiology_triage.html" class="active">Radiology Triage</a>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>🔬 Radiology Triage Queue</h1>
+                <div class="subtitle">AI-Prioritized Worklist for Radiologists</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="medgemma-badge">MedGemma AI</span>
+                <span class="staff-badge">👨‍⚕️ Clinical Staff View</span>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card stat">
+                <div class="stat-number">3</div>
+                <div class="stat-label">🔴 STAT (&lt;1 hr)</div>
+            </div>
+            <div class="stat-card soon">
+                <div class="stat-number">8</div>
+                <div class="stat-label">🟡 Soon (&lt;24 hr)</div>
+            </div>
+            <div class="stat-card routine">
+                <div class="stat-number">47</div>
+                <div class="stat-label">🟢 Routine (48-72 hr)</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-number">58</div>
+                <div class="stat-label">📊 Total Pending</div>
+            </div>
+        </div>
+
+        <!-- STAT Queue -->
+        <div class="queue-section">
+            <div class="queue-header">
+                <span class="priority-badge stat">🔴 STAT</span>
+                <h2>Critical - Review Immediately</h2>
+                <span class="time-target">Target: &lt;1 hour</span>
+            </div>
+            <div class="image-grid">
+                <div class="image-card stat-priority">
+                    <div class="image-preview">
+                        <img src="images/chest_xray_heart_failure.png" alt="Chest X-ray">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-meta">
+                            <span class="image-id">CXR-2026-0201-001</span>
+                            <span class="image-time">12 min ago</span>
+                        </div>
+                        <div class="ai-findings">
+                            <div class="ai-findings-header">
+                                <span>🧠</span> MedGemma Findings
+                            </div>
+                            <span class="finding-tag critical">Cardiomegaly</span>
+                            <span class="finding-tag critical">Pulmonary Edema</span>
+                            <span class="finding-tag moderate">Effusion</span>
+                            <div class="confidence-bar">
+                                <span class="confidence-label">Confidence</span>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" style="width: 94%"></div>
+                                </div>
+                                <span class="confidence-value">94%</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-review">Open in PACS</button>
+                            <button class="btn-defer">Defer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-card stat-priority">
+                    <div class="image-preview">
+                        <img src="images/chest_xray_heart_failure.png" alt="Chest X-ray" style="filter: brightness(1.1) contrast(0.95);">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-meta">
+                            <span class="image-id">CXR-2026-0201-003</span>
+                            <span class="image-time">28 min ago</span>
+                        </div>
+                        <div class="ai-findings">
+                            <div class="ai-findings-header">
+                                <span>🧠</span> MedGemma Findings
+                            </div>
+                            <span class="finding-tag critical">Large Effusion</span>
+                            <span class="finding-tag critical">Cardiomegaly</span>
+                            <div class="confidence-bar">
+                                <span class="confidence-label">Confidence</span>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" style="width: 91%"></div>
+                                </div>
+                                <span class="confidence-value">91%</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-review">Open in PACS</button>
+                            <button class="btn-defer">Defer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-card stat-priority">
+                    <div class="image-preview">
+                        <img src="images/chest_xray_heart_failure.png" alt="Chest X-ray" style="filter: brightness(0.9) contrast(1.1);">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-meta">
+                            <span class="image-id">CXR-2026-0201-007</span>
+                            <span class="image-time">45 min ago</span>
+                        </div>
+                        <div class="ai-findings">
+                            <div class="ai-findings-header">
+                                <span>🧠</span> MedGemma Findings
+                            </div>
+                            <span class="finding-tag critical">Acute Edema</span>
+                            <span class="finding-tag moderate">Cardiomegaly</span>
+                            <span class="finding-tag">Infiltration</span>
+                            <div class="confidence-bar">
+                                <span class="confidence-label">Confidence</span>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" style="width: 88%"></div>
+                                </div>
+                                <span class="confidence-value">88%</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-review">Open in PACS</button>
+                            <button class="btn-defer">Defer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOON Queue -->
+        <div class="queue-section">
+            <div class="queue-header">
+                <span class="priority-badge soon">🟡 SOON</span>
+                <h2>Abnormal - Review Within 24 Hours</h2>
+                <span class="time-target">Target: &lt;24 hours</span>
+            </div>
+            <div class="image-grid">
+                <div class="image-card soon-priority">
+                    <div class="image-preview">
+                        <img src="images/chest_xray_heart_failure.png" alt="Chest X-ray" style="filter: brightness(1.2) contrast(0.9);">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-meta">
+                            <span class="image-id">CXR-2026-0201-012</span>
+                            <span class="image-time">2 hr ago</span>
+                        </div>
+                        <div class="ai-findings">
+                            <div class="ai-findings-header">
+                                <span>🧠</span> MedGemma Findings
+                            </div>
+                            <span class="finding-tag moderate">Cardiomegaly</span>
+                            <span class="finding-tag">Mild Effusion</span>
+                            <div class="confidence-bar">
+                                <span class="confidence-label">Confidence</span>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" style="width: 86%"></div>
+                                </div>
+                                <span class="confidence-value">86%</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-review">Open in PACS</button>
+                            <button class="btn-defer">Defer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="image-card soon-priority">
+                    <div class="image-preview">
+                        <img src="images/chest_xray_heart_failure.png" alt="Chest X-ray" style="filter: brightness(1.15) contrast(0.85) hue-rotate(5deg);">
+                    </div>
+                    <div class="image-info">
+                        <div class="image-meta">
+                            <span class="image-id">CXR-2026-0201-015</span>
+                            <span class="image-time">3 hr ago</span>
+                        </div>
+                        <div class="ai-findings">
+                            <div class="ai-findings-header">
+                                <span>🧠</span> MedGemma Findings
+                            </div>
+                            <span class="finding-tag moderate">Nodule</span>
+                            <span class="finding-tag">Follow-up recommended</span>
+                            <div class="confidence-bar">
+                                <span class="confidence-label">Confidence</span>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" style="width: 79%"></div>
+                                </div>
+                                <span class="confidence-value">79%</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-review">Open in PACS</button>
+                            <button class="btn-defer">Defer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="color: #718096; font-size: 12px; margin-top: 0.75rem;">+ 6 more in queue...</p>
+        </div>
+
+        <!-- ROUTINE Queue Preview -->
+        <div class="queue-section">
+            <div class="queue-header">
+                <span class="priority-badge routine">🟢 ROUTINE</span>
+                <h2>No Acute Findings - Standard Review</h2>
+                <span class="time-target">Target: 48-72 hours</span>
+            </div>
+            <p style="color: #718096; font-size: 13px;">47 studies with no acute findings detected. These will be reviewed in standard workflow order.</p>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ AI-Assisted Triage - Not Diagnostic</strong><br>
+            MedGemma prioritizes the review queue but does NOT replace radiologist interpretation.
+            All images require human review. AI confidence scores indicate model certainty, not clinical significance.
+            False negatives are possible - clinical correlation always required.
+        </div>
+
+        <div class="page-footer">
+            <div>CareMap EHR Enhancement Demo | Radiology Triage Module | Data: NIH Chest X-ray Dataset (CC0)</div>
+            <div>For demonstration only - Not for clinical use</div>
+        </div>
+    </div>
+</body>
+</html>
