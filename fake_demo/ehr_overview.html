@@ -13,41 +13,58 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e2e8f0;
+            background: #f5f5f5;
+            color: #333;
             line-height: 1.5;
             min-height: 100vh;
         }
 
         .nav {
-            background: rgba(22, 33, 62, 0.95);
+            background: white;
             padding: 1rem;
             display: flex;
             justify-content: center;
             gap: 1rem;
             flex-wrap: wrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
         }
 
         .nav a {
             padding: 0.5rem 1rem;
-            background: #1a1a2e;
-            color: #a0aec0;
+            background: #e2e8f0;
+            color: #2d3748;
             text-decoration: none;
             border-radius: 6px;
             font-size: 0.9rem;
-            border: 1px solid #2d3748;
             transition: all 0.2s;
         }
 
         .nav a:hover, .nav a.active {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            border-color: transparent;
+        }
+
+        .nav a.patient-portal {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .nav a.patient-portal:hover {
+            background: #276749;
+            color: white;
+        }
+
+        .nav a.clinical-staff {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .nav a.clinical-staff:hover {
+            background: #c53030;
+            color: white;
         }
 
         .container {
@@ -59,14 +76,17 @@
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 3rem 1rem;
+            padding: 2.5rem 1rem;
             margin-bottom: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .hero h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #4f46e5 0%, #e94560 100%);
+            background: linear-gradient(135deg, #2c5282 0%, #276749 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -74,7 +94,7 @@
 
         .hero .tagline {
             font-size: 1.25rem;
-            color: #a0aec0;
+            color: #4a5568;
             margin-bottom: 1rem;
         }
 
@@ -83,6 +103,7 @@
             align-items: center;
             gap: 0.5rem;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 14px;
@@ -90,22 +111,22 @@
 
         /* Main Value Prop */
         .value-prop {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #2d3748;
+            background: white;
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
             text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .value-prop h2 {
-            color: #e2e8f0;
+            color: #2d3748;
             margin-bottom: 1rem;
             font-size: 1.5rem;
         }
 
         .value-prop p {
-            color: #a0aec0;
+            color: #4a5568;
             max-width: 700px;
             margin: 0 auto;
         }
@@ -125,32 +146,33 @@
         }
 
         .module-card {
-            background: rgba(255,255,255,0.03);
-            border: 2px solid #2d3748;
+            background: white;
+            border: 2px solid #e2e8f0;
             border-radius: 16px;
             padding: 1.5rem;
             transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .module-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
         }
 
         .module-card.patient-portal {
-            border-color: #276749;
+            border-color: #9ae6b4;
         }
 
         .module-card.patient-portal:hover {
-            border-color: #48bb78;
+            border-color: #276749;
         }
 
         .module-card.clinical-staff {
-            border-color: #e94560;
+            border-color: #feb2b2;
         }
 
         .module-card.clinical-staff:hover {
-            border-color: #f56565;
+            border-color: #c53030;
         }
 
         .module-header {
@@ -170,11 +192,11 @@
         }
 
         .module-card.patient-portal .module-title h3 {
-            color: #48bb78;
+            color: #276749;
         }
 
         .module-card.clinical-staff .module-title h3 {
-            color: #e94560;
+            color: #c53030;
         }
 
         .module-title .subtitle {
@@ -183,7 +205,7 @@
         }
 
         .module-description {
-            color: #a0aec0;
+            color: #4a5568;
             font-size: 0.95rem;
             margin-bottom: 1rem;
         }
@@ -199,17 +221,17 @@
             gap: 0.5rem;
             margin-bottom: 0.5rem;
             font-size: 0.9rem;
-            color: #cbd5e0;
+            color: #4a5568;
         }
 
         .module-features li::before {
             content: "✓";
-            color: #48bb78;
+            color: #276749;
             font-weight: bold;
         }
 
         .module-card.clinical-staff .module-features li::before {
-            color: #e94560;
+            color: #c53030;
         }
 
         .module-cta {
@@ -231,27 +253,27 @@
         }
 
         .module-card.clinical-staff .module-cta {
-            background: #e94560;
+            background: #c53030;
             color: white;
         }
 
         .module-card.clinical-staff .module-cta:hover {
-            background: #c53030;
+            background: #9b2c2c;
         }
 
         /* Impact Stats */
         .impact-section {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #2d3748;
+            background: white;
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .impact-section h2 {
             text-align: center;
             margin-bottom: 1.5rem;
-            color: #e2e8f0;
+            color: #2d3748;
         }
 
         .impact-grid {
@@ -269,15 +291,14 @@
         .impact-stat {
             text-align: center;
             padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
         }
 
         .impact-number {
             font-size: 2rem;
             font-weight: bold;
-            background: linear-gradient(135deg, #4f46e5 0%, #e94560 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #2c5282;
         }
 
         .impact-label {
@@ -287,41 +308,45 @@
 
         /* Architecture Diagram */
         .architecture {
-            background: #0f0f1a;
-            border: 1px solid #2d3748;
+            background: white;
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .architecture h2 {
             text-align: center;
             margin-bottom: 1.5rem;
-            color: #e2e8f0;
+            color: #2d3748;
         }
 
         .arch-diagram {
             font-family: monospace;
             font-size: 12px;
             line-height: 1.4;
-            color: #a0aec0;
+            color: #4a5568;
             overflow-x: auto;
             white-space: pre;
             padding: 1rem;
-            background: #1a1a2e;
+            background: #f7fafc;
             border-radius: 8px;
+            border: 1px solid #e2e8f0;
         }
 
         .arch-diagram .highlight-green {
-            color: #48bb78;
+            color: #276749;
+            font-weight: bold;
         }
 
         .arch-diagram .highlight-red {
-            color: #e94560;
+            color: #c53030;
+            font-weight: bold;
         }
 
         .arch-diagram .highlight-purple {
-            color: #7c3aed;
+            color: #6b46c1;
+            font-weight: bold;
         }
 
         /* Footer */
@@ -330,11 +355,10 @@
             padding: 2rem;
             color: #718096;
             font-size: 0.85rem;
-            border-top: 1px solid #2d3748;
         }
 
         .footer a {
-            color: #7c3aed;
+            color: #6b46c1;
         }
     </style>
 </head>
@@ -342,8 +366,8 @@
     <nav class="nav">
         <a href="index.html">← Demo Overview</a>
         <a href="ehr_overview.html" class="active">EHR Enhancement</a>
-        <a href="concept_b_meds.html">Patient Portal</a>
-        <a href="radiology_triage.html">Radiology Triage</a>
+        <a href="concept_b_meds.html" class="patient-portal">Patient Portal</a>
+        <a href="radiology_triage.html" class="clinical-staff">Radiology Triage</a>
     </nav>
 
     <div class="container">
