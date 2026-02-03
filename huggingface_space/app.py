@@ -31,6 +31,99 @@ from caremap.translation import (
 )
 
 
+# ============================================================================
+# MEDICATION TABLE FORMATTING HELPERS
+# ============================================================================
+
+def get_time_emoji(timing: str) -> str:
+    """Convert timing text to emoji badges."""
+    timing_lower = timing.lower()
+    badges = []
+
+    if 'morning' in timing_lower or 'breakfast' in timing_lower or 'am' in timing_lower:
+        badges.append('☀️ Morning')
+    if 'afternoon' in timing_lower or 'lunch' in timing_lower or 'noon' in timing_lower:
+        badges.append('🌤️ Afternoon')
+    if 'evening' in timing_lower or 'dinner' in timing_lower or 'pm' in timing_lower:
+        badges.append('🌅 Evening')
+    if 'bedtime' in timing_lower or 'night' in timing_lower:
+        badges.append('🌙 Bedtime')
+    if 'twice' in timing_lower and not badges:
+        badges = ['☀️ Morning', '🌅 Evening']
+
+    return '<br>'.join(badges) if badges else timing
+
+
+def get_food_instruction(timing: str, sig_text: str) -> str:
+    """Extract food instructions from timing and sig text."""
+    combined = (timing + ' ' + sig_text).lower()
+
+    if 'with food' in combined or 'with meal' in combined or 'after meal' in combined:
+        return '🍽️ With food'
+    elif 'empty stomach' in combined or 'before food' in combined or 'before meal' in combined:
+        return '🚫🍽️ Empty stomach'
+    else:
+        return '—'
+
+
+def format_medication_table(medications: list, medgemma, progress_fn=None) -> str:
+    """Generate a medication table in concept_b style."""
+    lines = []
+    lines.append("## 💊 Medication Schedule")
+    lines.append("*Daily reference for giving medicines*")
+    lines.append("")
+    lines.append("| ✓ | Medicine | When | How | Why It Matters 🧠 | Watch For |")
+    lines.append("|:---:|:---|:---|:---|:---|:---|")
+
+    for i, med in enumerate(medications[:8]):  # Limit to 8 meds for one page
+        if progress_fn:
+            progress_fn(0.4 + (0.3 * i / min(len(medications), 8)), desc=f"Medication {i+1}")
+
+        name = med.get('medication_name', 'Unknown')
+        sig_text = med.get('sig_text', '')
+        timing = med.get('timing', '')
+        clinician_notes = med.get('clinician_notes', '')
+        interaction_notes = med.get('interaction_notes', '')
+
+        # Get time emoji
+        when_col = get_time_emoji(timing)
+
+        # Get food instruction
+        how_col = get_food_instruction(timing, sig_text)
+
+        # Get AI interpretation
+        try:
+            result, _ = interpret_medication_v3_grounded(
+                client=medgemma,
+                medication_name=name,
+                sig_text=sig_text,
+                clinician_notes=clinician_notes,
+                interaction_notes=interaction_notes,
+            )
+            why_matters = result.get('what_this_does', '') if 'raw_response' not in result else ''
+            watch_for = result.get('watch_out_for', '') if 'raw_response' not in result else ''
+        except Exception:
+            why_matters = clinician_notes
+            watch_for = interaction_notes
+
+        # Build watch for column (combine watch_for + interaction_notes if both exist)
+        watch_items = []
+        if watch_for:
+            watch_items.append(watch_for)
+        if interaction_notes and interaction_notes.lower() not in (watch_for or '').lower():
+            watch_items.append(f"⚠️ {interaction_notes}")
+        watch_col = ' '.join(watch_items)[:100] if watch_items else '—'
+
+        # Clean up text for table (remove newlines, limit length)
+        why_matters = (why_matters or '—')[:80].replace('\n', ' ').replace('|', '/')
+        watch_col = watch_col.replace('\n', ' ').replace('|', '/')
+
+        lines.append(f"| ☐ | **{name}** | {when_col} | {how_col} | {why_matters} | {watch_col} |")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
 # Global clients (loaded once)
 medgemma_client = None
 medgemma_multimodal_client = None
@@ -308,28 +401,14 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", view_mod
                 lines.append(f"- [ ] {item['action']}")
             lines.append("")
 
-    # Medications
+    # Medications - Use table format like concept_b_meds.html
     if medications:
-        progress(0.4, desc="Processing medications...")
-        lines.append("## 💊 Medications")
-        for i, med in enumerate(medications[:5]):
-            progress(0.4 + (0.3 * i / min(len(medications), 5)), desc=f"Medication {i+1}")
-            name = med.get('medication_name', 'Unknown')
-            timing = med.get('timing', '')
-            try:
-                result, _ = interpret_medication_v3_grounded(
-                    client=medgemma, medication_name=name,
-                    sig_text=med.get('sig_text', ''),
-                    clinician_notes=med.get('clinician_notes', ''),
-                    interaction_notes=med.get('interaction_notes', ''),
-                )
-                what_it_does = result.get('what_it_does', '') if 'raw_response' not in result else ''
-            except Exception:
-                what_it_does = ''
-            lines.append(f"**{name}** ({timing})")
-            if what_it_does:
-                lines.append(f"- {what_it_does[:150]}")
-            lines.append("")
+        med_table = format_medication_table(
+            medications,
+            medgemma,
+            progress_fn=lambda p, desc: progress(p, desc=desc)
+        )
+        lines.append(med_table)
 
     # Labs
     if results:
