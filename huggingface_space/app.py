@@ -3,7 +3,7 @@ CareMap: EHR Enhancement Platform
 HuggingFace Spaces Gradio App
 
 Three modules powered by MedGemma:
-1. Patient Portal - Caregiver-friendly Fridge Sheets
+1. Patient Portal - Caregiver-friendly Fridge Sheets (Concept B: 5 printable pages)
 2. Clinical Staff - Radiology Triage Queue (Multimodal)
 3. Clinical Staff - HL7 ORU Message Triage (Text)
 """
@@ -13,6 +13,8 @@ import gradio as gr
 from pathlib import Path
 from dataclasses import dataclass
 import re
+import tempfile
+import base64
 
 # Import CareMap modules
 import sys
@@ -28,6 +30,16 @@ from caremap.translation import (
     NLLBTranslator,
     LANGUAGE_CODES,
     LANGUAGE_NAMES,
+)
+
+# Import Concept B fridge sheet generators
+from caremap.fridge_sheet_html import (
+    generate_medications_page,
+    generate_labs_page,
+    generate_gaps_page,
+    generate_imaging_page,
+    generate_connections_page,
+    PatientInfo,
 )
 
 
@@ -189,7 +201,7 @@ def get_client():
     return get_medgemma()
 
 
-# Example patient data for Patient Portal
+# Example patient data for Patient Portal (matches golden_patient_complex.json)
 EXAMPLE_PATIENT = '''{
   "patient": {
     "nickname": "Dadu",
@@ -203,36 +215,91 @@ EXAMPLE_PATIENT = '''{
   "medications": [
     {
       "medication_name": "Metformin",
-      "sig_text": "Take 500mg twice daily with meals",
+      "sig_text": "Take 500mg by mouth twice daily with meals",
       "timing": "morning and evening, with food",
-      "clinician_notes": "Monitor kidney function",
-      "interaction_notes": "Hold 48 hours before CT scan with contrast"
+      "clinician_notes": "Monitor kidney function. Hold if eGFR drops below 30.",
+      "interaction_notes": "Hold 48 hours before and after CT scan with contrast dye."
     },
     {
       "medication_name": "Warfarin",
       "sig_text": "Take as directed based on INR results",
       "timing": "evening, same time each day",
-      "clinician_notes": "Target INR 2.0-3.0 for AFib",
-      "interaction_notes": "Avoid NSAIDs. Keep vitamin K intake consistent."
+      "clinician_notes": "Target INR 2.0-3.0 for AFib. Weekly INR checks required.",
+      "interaction_notes": "Avoid NSAIDs (ibuprofen, aspirin). Keep vitamin K intake consistent."
     },
     {
       "medication_name": "Furosemide",
-      "sig_text": "Take 40mg twice daily",
-      "timing": "morning and early afternoon",
-      "clinician_notes": "For heart failure fluid management",
-      "interaction_notes": "Can cause low potassium"
+      "sig_text": "Take 40mg by mouth twice daily",
+      "timing": "morning and early afternoon, not after 4pm",
+      "clinician_notes": "For heart failure fluid management. Weigh daily.",
+      "interaction_notes": "Can cause low potassium. Take potassium supplement as prescribed."
+    },
+    {
+      "medication_name": "Potassium Chloride",
+      "sig_text": "Take 20mEq by mouth daily with food",
+      "timing": "with breakfast",
+      "clinician_notes": "To replace potassium lost from Lasix.",
+      "interaction_notes": "Take with food to avoid stomach upset. Do not crush tablets."
+    },
+    {
+      "medication_name": "Carvedilol",
+      "sig_text": "Take 12.5mg by mouth twice daily with food",
+      "timing": "morning and evening, with food",
+      "clinician_notes": "Beta-blocker for heart failure and heart rate control.",
+      "interaction_notes": "May cause dizziness. Rise slowly from sitting or lying down."
+    },
+    {
+      "medication_name": "Lisinopril",
+      "sig_text": "Take 10mg by mouth daily",
+      "timing": "morning",
+      "clinician_notes": "ACE inhibitor for heart and kidney protection.",
+      "interaction_notes": "May cause dry cough. Can raise potassium levels."
+    },
+    {
+      "medication_name": "Levothyroxine",
+      "sig_text": "Take 75mcg by mouth daily on empty stomach",
+      "timing": "first thing in morning, 60 minutes before food",
+      "clinician_notes": "For hypothyroidism. Take on empty stomach.",
+      "interaction_notes": "Separate from calcium, iron, antacids by at least 4 hours."
+    },
+    {
+      "medication_name": "Acetaminophen",
+      "sig_text": "Take 650mg by mouth every 6 hours as needed for pain",
+      "timing": "as needed for arthritis pain",
+      "clinician_notes": "Preferred pain reliever - safe with warfarin.",
+      "interaction_notes": "Do NOT exceed 3000mg per day. Avoid ibuprofen, naproxen, aspirin."
     }
   ],
   "results": [
     {
       "test_name": "INR (Blood Thinner Level)",
       "meaning_category": "Needs follow-up",
-      "source_note": "Above target range"
+      "source_note": "Above target range - warfarin dose may need adjustment"
     },
     {
-      "test_name": "Kidney Function",
+      "test_name": "Kidney Function (eGFR)",
       "meaning_category": "Slightly off",
-      "source_note": "Stable from previous"
+      "source_note": "Stable from previous - continue monitoring"
+    },
+    {
+      "test_name": "Potassium Level",
+      "meaning_category": "Normal",
+      "source_note": "Within normal range"
+    },
+    {
+      "test_name": "Hemoglobin A1c (3-Month Blood Sugar Average)",
+      "meaning_category": "Needs follow-up",
+      "source_note": "Above goal - discuss at next visit"
+    },
+    {
+      "test_name": "BNP (Heart Strain Marker)",
+      "meaning_category": "Slightly off",
+      "source_note": "Elevated - watch for fluid buildup symptoms"
+    },
+    {
+      "test_name": "TSH (Thyroid Function)",
+      "meaning_category": "Normal",
+      "source_note": "Thyroid well controlled on current dose"
     }
   ],
   "care_gaps": [
@@ -242,8 +309,23 @@ EXAMPLE_PATIENT = '''{
       "time_bucket": "Today"
     },
     {
-      "item_text": "Diabetic eye exam overdue",
+      "item_text": "Annual flu shot not received",
+      "next_step": "Ask pharmacy about flu shot availability",
+      "time_bucket": "Today"
+    },
+    {
+      "item_text": "INR recheck needed - last result was high",
+      "next_step": "Call clinic to schedule INR blood draw",
+      "time_bucket": "This Week"
+    },
+    {
+      "item_text": "Diabetic eye exam overdue by 8 months",
       "next_step": "Schedule appointment with eye doctor",
+      "time_bucket": "This Week"
+    },
+    {
+      "item_text": "Cardiology follow-up appointment due",
+      "next_step": "Call heart doctor's office to schedule 3-month check",
       "time_bucket": "This Week"
     }
   ],
@@ -320,7 +402,7 @@ EXAMPLE_HL7_MESSAGES = [
 
 
 def generate_fridge_sheet(patient_json: str, language: str = "english", view_mode: str = "detailed", progress=gr.Progress()) -> str:
-    """Generate a caregiver fridge sheet from patient JSON data."""
+    """Generate a caregiver fridge sheet from patient JSON data (legacy markdown version)."""
     is_detailed = (view_mode == "detailed")
     try:
         data = json.loads(patient_json)
@@ -452,6 +534,199 @@ def generate_fridge_sheet(patient_json: str, language: str = "english", view_mod
 
     progress(1.0, desc="Done!")
     return output
+
+
+# ============================================================================
+# CONCEPT B: 5-PAGE PRINTABLE FRIDGE SHEETS
+# ============================================================================
+
+def generate_concept_b_page(
+    patient_json: str,
+    page_type: str,
+    xray_image=None,
+    progress=gr.Progress()
+) -> str:
+    """
+    Generate a single Concept B fridge sheet page as HTML.
+
+    Args:
+        patient_json: Patient data as JSON string
+        page_type: One of 'medications', 'labs', 'care_gaps', 'imaging', 'connections'
+        xray_image: Optional uploaded X-ray image for imaging page
+        progress: Gradio progress callback
+
+    Returns:
+        HTML string for the requested page
+    """
+    try:
+        data = json.loads(patient_json)
+    except json.JSONDecodeError as e:
+        return f"<html><body><h1>Error: Invalid JSON</h1><pre>{str(e)}</pre></body></html>"
+
+    progress(0.1, desc="Loading MedGemma model...")
+    medgemma = get_client()
+
+    # Build PatientInfo
+    patient_dict = data.get('patient', {})
+    patient = PatientInfo(
+        nickname=patient_dict.get('nickname', 'Patient'),
+        age_range=patient_dict.get('age_range', ''),
+        conditions=patient_dict.get('conditions_display', [])
+    )
+
+    def make_progress(current, total, message):
+        pct = 0.2 + (0.7 * current / max(total, 1))
+        progress(pct, desc=message)
+
+    html = ""
+
+    if page_type == "medications":
+        progress(0.2, desc="Generating Medication Schedule...")
+        html = generate_medications_page(
+            patient=patient,
+            medications=data.get('medications', []),
+            client=medgemma,
+            page_num=1,
+            total_pages=5,
+            progress_callback=make_progress
+        )
+
+    elif page_type == "labs":
+        progress(0.2, desc="Generating Lab Results page...")
+        html = generate_labs_page(
+            patient=patient,
+            results=data.get('results', []),
+            client=medgemma,
+            page_num=2,
+            total_pages=5,
+            progress_callback=make_progress
+        )
+
+    elif page_type == "care_gaps":
+        progress(0.2, desc="Generating Care Actions page...")
+        html = generate_gaps_page(
+            patient=patient,
+            care_gaps=data.get('care_gaps', []),
+            client=medgemma,
+            page_num=3,
+            total_pages=5,
+            progress_callback=make_progress
+        )
+
+    elif page_type == "imaging":
+        progress(0.2, desc="Generating Imaging page...")
+        image_path = None
+        if xray_image is not None:
+            image_path = xray_image if isinstance(xray_image, str) else xray_image
+        html = generate_imaging_page(
+            patient=patient,
+            image_path=image_path,
+            client=medgemma,
+            page_num=4,
+            total_pages=5,
+            progress_callback=make_progress
+        )
+
+    elif page_type == "connections":
+        progress(0.2, desc="Generating Connections page...")
+        html = generate_connections_page(
+            patient=patient,
+            medications=data.get('medications', []),
+            results=data.get('results', []),
+            care_gaps=data.get('care_gaps', []),
+            contacts=data.get('contacts', {}),
+            page_num=5,
+            total_pages=5,
+            progress_callback=make_progress
+        )
+
+    progress(1.0, desc="Done!")
+    return html
+
+
+def generate_all_concept_b_pages(patient_json: str, xray_image=None, progress=gr.Progress()):
+    """
+    Generate all 5 Concept B pages and return them as a tuple.
+
+    Returns:
+        Tuple of (medications_html, labs_html, gaps_html, imaging_html, connections_html)
+    """
+    try:
+        data = json.loads(patient_json)
+    except json.JSONDecodeError as e:
+        error_html = f"<html><body><h1>Error: Invalid JSON</h1><pre>{str(e)}</pre></body></html>"
+        return error_html, error_html, error_html, error_html, error_html
+
+    progress(0.05, desc="Loading MedGemma model...")
+    medgemma = get_client()
+
+    patient_dict = data.get('patient', {})
+    patient = PatientInfo(
+        nickname=patient_dict.get('nickname', 'Patient'),
+        age_range=patient_dict.get('age_range', ''),
+        conditions=patient_dict.get('conditions_display', [])
+    )
+
+    # Page 1: Medications
+    progress(0.1, desc="[1/5] Generating Medication Schedule...")
+    meds_html = generate_medications_page(
+        patient=patient,
+        medications=data.get('medications', []),
+        client=medgemma,
+        page_num=1,
+        total_pages=5,
+        progress_callback=lambda c, t, m: progress(0.1 + (0.15 * c / max(t, 1)), desc=f"[1/5] {m}")
+    )
+
+    # Page 2: Labs
+    progress(0.3, desc="[2/5] Generating Lab Results...")
+    labs_html = generate_labs_page(
+        patient=patient,
+        results=data.get('results', []),
+        client=medgemma,
+        page_num=2,
+        total_pages=5,
+        progress_callback=lambda c, t, m: progress(0.3 + (0.15 * c / max(t, 1)), desc=f"[2/5] {m}")
+    )
+
+    # Page 3: Care Gaps
+    progress(0.5, desc="[3/5] Generating Care Actions...")
+    gaps_html = generate_gaps_page(
+        patient=patient,
+        care_gaps=data.get('care_gaps', []),
+        client=medgemma,
+        page_num=3,
+        total_pages=5,
+        progress_callback=lambda c, t, m: progress(0.5 + (0.15 * c / max(t, 1)), desc=f"[3/5] {m}")
+    )
+
+    # Page 4: Imaging
+    progress(0.7, desc="[4/5] Generating Imaging page...")
+    image_path = xray_image if xray_image else None
+    imaging_html = generate_imaging_page(
+        patient=patient,
+        image_path=image_path,
+        client=medgemma,
+        page_num=4,
+        total_pages=5,
+        progress_callback=lambda c, t, m: progress(0.7 + (0.1 * c / max(t, 1)), desc=f"[4/5] {m}")
+    )
+
+    # Page 5: Connections
+    progress(0.85, desc="[5/5] Generating Connections...")
+    connections_html = generate_connections_page(
+        patient=patient,
+        medications=data.get('medications', []),
+        results=data.get('results', []),
+        care_gaps=data.get('care_gaps', []),
+        contacts=data.get('contacts', {}),
+        page_num=5,
+        total_pages=5,
+        progress_callback=lambda c, t, m: progress(0.85 + (0.1 * c / max(t, 1)), desc=f"[5/5] {m}")
+    )
+
+    progress(1.0, desc="All 5 pages generated!")
+    return meds_html, labs_html, gaps_html, imaging_html, connections_html
 
 
 # ============================================================================
@@ -709,7 +984,6 @@ Respond with JSON: {{"priority": "STAT/SOON/ROUTINE", "priority_reason": "...", 
 
 with gr.Blocks(
     title="CareMap: EHR Enhancement Platform",
-    theme=gr.themes.Soft(),
 ) as demo:
 
     gr.Markdown("""
@@ -724,38 +998,56 @@ with gr.Blocks(
 
     with gr.Tabs():
         # ================================================================
-        # TAB 1: PATIENT PORTAL
+        # TAB 1: PATIENT PORTAL - CONCEPT B FRIDGE SHEETS
         # ================================================================
         with gr.TabItem("👨‍👩‍👧 Patient Portal", id="patient-portal"):
             gr.Markdown("""
-            ## Caregiver Fridge Sheet Generator
+            ## 📋 Concept B: Printable Fridge Sheets
 
-            Transform complex EHR data into caregiver-friendly one-page summaries.
+            Generate **5 printable 8.5x11" pages** - each designed for a specific audience and purpose.
 
-            **Features:** Medications explained, Lab results in plain language, Care gaps prioritized, 10 languages supported
+            | Page | For | Content |
+            |------|-----|---------|
+            | 💊 Medications | Ayah/Helper | Daily schedule with timing & food instructions |
+            | 🔬 Labs | Family | Test results explained in plain language |
+            | ✅ Care Actions | Family | Tasks organized: Today / This Week / Coming Up |
+            | 🫁 Imaging | Family | X-ray findings with AI interpretation |
+            | 🔗 Connections | Both | How meds, labs, and actions work together |
             """)
 
             with gr.Row():
                 with gr.Column(scale=1):
-                    input_json = gr.Textbox(label="Patient JSON", lines=12, value=EXAMPLE_PATIENT)
-                    language_dropdown = gr.Dropdown(label="Language", choices=[l for l, _ in LANGUAGE_OPTIONS], value="English")
-                    view_mode_radio = gr.Radio(label="View", choices=[("Detailed", "detailed"), ("Brief", "brief")], value="detailed")
-                    generate_btn = gr.Button("Generate Fridge Sheet", variant="primary", size="lg")
+                    input_json = gr.Textbox(label="Patient JSON", lines=15, value=EXAMPLE_PATIENT)
+                    xray_upload = gr.Image(label="Upload X-ray (optional, for Imaging page)", type="filepath", height=150)
+                    generate_all_btn = gr.Button("🖨️ Generate All 5 Pages", variant="primary", size="lg")
 
-                with gr.Column(scale=1):
-                    output_md = gr.Markdown(value="*Click 'Generate' to see output*")
+                with gr.Column(scale=2):
+                    with gr.Tabs() as page_tabs:
+                        with gr.TabItem("💊 Medications", id="tab-meds"):
+                            meds_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create the Medication Schedule</p>")
+                        with gr.TabItem("🔬 Labs", id="tab-labs"):
+                            labs_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Lab Results</p>")
+                        with gr.TabItem("✅ Care Actions", id="tab-gaps"):
+                            gaps_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Care Actions</p>")
+                        with gr.TabItem("🫁 Imaging", id="tab-imaging"):
+                            imaging_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Imaging page</p>")
+                        with gr.TabItem("🔗 Connections", id="tab-connections"):
+                            connections_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Connections</p>")
 
-            def get_lang_code(name):
-                for l, c in LANGUAGE_OPTIONS:
-                    if l == name:
-                        return c
-                return "english"
-
-            generate_btn.click(
-                fn=lambda j, l, m: generate_fridge_sheet(j, get_lang_code(l), m),
-                inputs=[input_json, language_dropdown, view_mode_radio],
-                outputs=[output_md],
+            generate_all_btn.click(
+                fn=generate_all_concept_b_pages,
+                inputs=[input_json, xray_upload],
+                outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output],
             )
+
+            gr.Markdown("""
+            ---
+            ### 🖨️ How to Print
+            1. Click on a page tab above
+            2. Right-click the page → "Print" or use Ctrl/Cmd+P
+            3. Select "Save as PDF" or print directly
+            4. Each page is designed for 8.5x11" paper
+            """)
 
         # ================================================================
         # TAB 2: RADIOLOGY TRIAGE
@@ -851,4 +1143,4 @@ with gr.Blocks(
 
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(theme=gr.themes.Soft())
