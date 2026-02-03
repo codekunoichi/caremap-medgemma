@@ -1,0 +1,531 @@
+{
+  "description": "Sample HL7 ORU messages for triage validation",
+  "messages": [
+    {
+      "message_id": "ORU-001",
+      "expected_priority": "STAT",
+      "message_type": "LAB",
+      "patient": {"id": "P001", "age": 67, "gender": "M"},
+      "ordering_provider": "Dr. Smith",
+      "observation_datetime": "2026-02-03T08:15:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "K",
+          "test_name": "Potassium",
+          "value": "6.8",
+          "units": "mEq/L",
+          "reference_range": "3.5-5.0",
+          "abnormal_flag": "HH",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Patient on ACE inhibitor and potassium-sparing diuretic"
+    },
+    {
+      "message_id": "ORU-002",
+      "expected_priority": "STAT",
+      "message_type": "LAB",
+      "patient": {"id": "P002", "age": 45, "gender": "F"},
+      "ordering_provider": "Dr. Johnson",
+      "observation_datetime": "2026-02-03T09:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "TROP",
+          "test_name": "Troponin I",
+          "value": "2.45",
+          "units": "ng/mL",
+          "reference_range": "<0.04",
+          "abnormal_flag": "HH",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "CKMB",
+          "test_name": "CK-MB",
+          "value": "45",
+          "units": "U/L",
+          "reference_range": "0-25",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Chest pain, rule out MI"
+    },
+    {
+      "message_id": "ORU-003",
+      "expected_priority": "STAT",
+      "message_type": "LAB",
+      "patient": {"id": "P003", "age": 72, "gender": "M"},
+      "ordering_provider": "Dr. Williams",
+      "observation_datetime": "2026-02-03T10:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "GLU",
+          "test_name": "Glucose",
+          "value": "38",
+          "units": "mg/dL",
+          "reference_range": "70-100",
+          "abnormal_flag": "LL",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Diabetic patient on insulin, found unresponsive"
+    },
+    {
+      "message_id": "ORU-004",
+      "expected_priority": "STAT",
+      "message_type": "RADIOLOGY",
+      "patient": {"id": "P004", "age": 58, "gender": "M"},
+      "ordering_provider": "Dr. Chen",
+      "observation_datetime": "2026-02-03T11:15:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "XR-CHEST",
+          "test_name": "Chest X-ray PA and Lateral",
+          "value_type": "TEXT",
+          "value": "IMPRESSION: Large left-sided pneumothorax with complete collapse of the left lung. Mediastinal shift to the right consistent with tension physiology. Recommend emergent decompression.",
+          "abnormal_flag": "A",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Sudden onset dyspnea and chest pain"
+    },
+    {
+      "message_id": "ORU-005",
+      "expected_priority": "STAT",
+      "message_type": "LAB",
+      "patient": {"id": "P005", "age": 34, "gender": "F"},
+      "ordering_provider": "Dr. Martinez",
+      "observation_datetime": "2026-02-03T12:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "HGB",
+          "test_name": "Hemoglobin",
+          "value": "5.2",
+          "units": "g/dL",
+          "reference_range": "12.0-16.0",
+          "abnormal_flag": "LL",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "HCT",
+          "test_name": "Hematocrit",
+          "value": "15.6",
+          "units": "%",
+          "reference_range": "36-46",
+          "abnormal_flag": "LL",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Post-partum hemorrhage"
+    },
+    {
+      "message_id": "ORU-006",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P006", "age": 55, "gender": "M"},
+      "ordering_provider": "Dr. Brown",
+      "observation_datetime": "2026-02-03T08:45:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "INR",
+          "test_name": "INR",
+          "value": "4.2",
+          "units": "",
+          "reference_range": "2.0-3.0",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "AFib patient on warfarin, routine monitoring"
+    },
+    {
+      "message_id": "ORU-007",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P007", "age": 62, "gender": "F"},
+      "ordering_provider": "Dr. Davis",
+      "observation_datetime": "2026-02-03T09:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "CREAT",
+          "test_name": "Creatinine",
+          "value": "2.8",
+          "units": "mg/dL",
+          "reference_range": "0.6-1.2",
+          "abnormal_flag": "H",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "BUN",
+          "test_name": "BUN",
+          "value": "45",
+          "units": "mg/dL",
+          "reference_range": "7-20",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "CKD Stage 3 patient, routine monitoring"
+    },
+    {
+      "message_id": "ORU-008",
+      "expected_priority": "SOON",
+      "message_type": "RADIOLOGY",
+      "patient": {"id": "P008", "age": 70, "gender": "M"},
+      "ordering_provider": "Dr. Wilson",
+      "observation_datetime": "2026-02-03T10:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "XR-CHEST",
+          "test_name": "Chest X-ray PA",
+          "value_type": "TEXT",
+          "value": "IMPRESSION: Cardiomegaly with pulmonary vascular congestion. Small bilateral pleural effusions. Findings consistent with congestive heart failure. No pneumothorax.",
+          "abnormal_flag": "A",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Known CHF, increasing dyspnea"
+    },
+    {
+      "message_id": "ORU-009",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P009", "age": 48, "gender": "M"},
+      "ordering_provider": "Dr. Taylor",
+      "observation_datetime": "2026-02-03T11:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "HBA1C",
+          "test_name": "Hemoglobin A1c",
+          "value": "9.8",
+          "units": "%",
+          "reference_range": "<7.0",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Type 2 diabetes, quarterly monitoring"
+    },
+    {
+      "message_id": "ORU-010",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P010", "age": 65, "gender": "F"},
+      "ordering_provider": "Dr. Anderson",
+      "observation_datetime": "2026-02-03T13:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "TSH",
+          "test_name": "TSH",
+          "value": "0.05",
+          "units": "mIU/L",
+          "reference_range": "0.4-4.0",
+          "abnormal_flag": "L",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "T4FREE",
+          "test_name": "Free T4",
+          "value": "3.8",
+          "units": "ng/dL",
+          "reference_range": "0.8-1.8",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Hyperthyroidism on methimazole"
+    },
+    {
+      "message_id": "ORU-011",
+      "expected_priority": "SOON",
+      "message_type": "RADIOLOGY",
+      "patient": {"id": "P011", "age": 52, "gender": "F"},
+      "ordering_provider": "Dr. Thomas",
+      "observation_datetime": "2026-02-03T14:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "CT-ABD",
+          "test_name": "CT Abdomen/Pelvis with Contrast",
+          "value_type": "TEXT",
+          "value": "IMPRESSION: 1. 2.5 cm indeterminate liver lesion in segment 7. Recommend MRI for further characterization. 2. Mild fatty liver. 3. No acute abdominal pathology.",
+          "abnormal_flag": "A",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Abdominal pain workup"
+    },
+    {
+      "message_id": "ORU-012",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P012", "age": 78, "gender": "M"},
+      "ordering_provider": "Dr. Jackson",
+      "observation_datetime": "2026-02-03T15:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "WBC",
+          "test_name": "White Blood Cell Count",
+          "value": "14.5",
+          "units": "10*3/uL",
+          "reference_range": "4.5-11.0",
+          "abnormal_flag": "H",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "NEUT",
+          "test_name": "Neutrophils",
+          "value": "85",
+          "units": "%",
+          "reference_range": "40-70",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Fever, productive cough"
+    },
+    {
+      "message_id": "ORU-013",
+      "expected_priority": "ROUTINE",
+      "message_type": "LAB",
+      "patient": {"id": "P013", "age": 42, "gender": "F"},
+      "ordering_provider": "Dr. White",
+      "observation_datetime": "2026-02-03T08:00:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "GLU",
+          "test_name": "Glucose, Fasting",
+          "value": "92",
+          "units": "mg/dL",
+          "reference_range": "70-100",
+          "abnormal_flag": "",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "CHOL",
+          "test_name": "Total Cholesterol",
+          "value": "195",
+          "units": "mg/dL",
+          "reference_range": "<200",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Annual wellness exam"
+    },
+    {
+      "message_id": "ORU-014",
+      "expected_priority": "ROUTINE",
+      "message_type": "LAB",
+      "patient": {"id": "P014", "age": 35, "gender": "M"},
+      "ordering_provider": "Dr. Harris",
+      "observation_datetime": "2026-02-03T09:15:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "CBC",
+          "test_name": "Complete Blood Count",
+          "value": "See components",
+          "units": "",
+          "reference_range": "",
+          "abnormal_flag": "",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "WBC",
+          "test_name": "WBC",
+          "value": "7.2",
+          "units": "10*3/uL",
+          "reference_range": "4.5-11.0",
+          "abnormal_flag": "",
+          "status": "F"
+        },
+        {
+          "obx_id": 3,
+          "test_code": "HGB",
+          "test_name": "Hemoglobin",
+          "value": "14.5",
+          "units": "g/dL",
+          "reference_range": "13.5-17.5",
+          "abnormal_flag": "",
+          "status": "F"
+        },
+        {
+          "obx_id": 4,
+          "test_code": "PLT",
+          "test_name": "Platelet Count",
+          "value": "245",
+          "units": "10*3/uL",
+          "reference_range": "150-400",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Pre-employment physical"
+    },
+    {
+      "message_id": "ORU-015",
+      "expected_priority": "ROUTINE",
+      "message_type": "RADIOLOGY",
+      "patient": {"id": "P015", "age": 28, "gender": "F"},
+      "ordering_provider": "Dr. Martin",
+      "observation_datetime": "2026-02-03T10:45:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "XR-CHEST",
+          "test_name": "Chest X-ray PA and Lateral",
+          "value_type": "TEXT",
+          "value": "IMPRESSION: Normal chest radiograph. No acute cardiopulmonary abnormality. Heart size normal. Lungs are clear.",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Pre-operative clearance for elective surgery"
+    },
+    {
+      "message_id": "ORU-016",
+      "expected_priority": "ROUTINE",
+      "message_type": "LAB",
+      "patient": {"id": "P016", "age": 50, "gender": "M"},
+      "ordering_provider": "Dr. Garcia",
+      "observation_datetime": "2026-02-03T11:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "PSA",
+          "test_name": "PSA, Total",
+          "value": "1.2",
+          "units": "ng/mL",
+          "reference_range": "0-4.0",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Routine prostate screening"
+    },
+    {
+      "message_id": "ORU-017",
+      "expected_priority": "ROUTINE",
+      "message_type": "LAB",
+      "patient": {"id": "P017", "age": 60, "gender": "F"},
+      "ordering_provider": "Dr. Robinson",
+      "observation_datetime": "2026-02-03T12:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "VITD",
+          "test_name": "Vitamin D, 25-Hydroxy",
+          "value": "45",
+          "units": "ng/mL",
+          "reference_range": "30-100",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Follow-up vitamin D after supplementation"
+    },
+    {
+      "message_id": "ORU-018",
+      "expected_priority": "ROUTINE",
+      "message_type": "LAB",
+      "patient": {"id": "P018", "age": 55, "gender": "M"},
+      "ordering_provider": "Dr. Clark",
+      "observation_datetime": "2026-02-03T13:45:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "LDL",
+          "test_name": "LDL Cholesterol",
+          "value": "98",
+          "units": "mg/dL",
+          "reference_range": "<100",
+          "abnormal_flag": "",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "HDL",
+          "test_name": "HDL Cholesterol",
+          "value": "52",
+          "units": "mg/dL",
+          "reference_range": ">40",
+          "abnormal_flag": "",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Lipid panel on statin therapy - good control"
+    },
+    {
+      "message_id": "ORU-019",
+      "expected_priority": "STAT",
+      "message_type": "LAB",
+      "patient": {"id": "P019", "age": 80, "gender": "F"},
+      "ordering_provider": "Dr. Lewis",
+      "observation_datetime": "2026-02-03T14:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "NA",
+          "test_name": "Sodium",
+          "value": "118",
+          "units": "mEq/L",
+          "reference_range": "136-145",
+          "abnormal_flag": "LL",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Altered mental status, on thiazide diuretic"
+    },
+    {
+      "message_id": "ORU-020",
+      "expected_priority": "SOON",
+      "message_type": "LAB",
+      "patient": {"id": "P020", "age": 44, "gender": "M"},
+      "ordering_provider": "Dr. Lee",
+      "observation_datetime": "2026-02-03T15:30:00",
+      "observations": [
+        {
+          "obx_id": 1,
+          "test_code": "ALT",
+          "test_name": "ALT",
+          "value": "156",
+          "units": "U/L",
+          "reference_range": "7-56",
+          "abnormal_flag": "H",
+          "status": "F"
+        },
+        {
+          "obx_id": 2,
+          "test_code": "AST",
+          "test_name": "AST",
+          "value": "189",
+          "units": "U/L",
+          "reference_range": "10-40",
+          "abnormal_flag": "H",
+          "status": "F"
+        }
+      ],
+      "clinical_context": "Started on statin 3 months ago, routine LFT monitoring"
+    }
+  ]
+}
