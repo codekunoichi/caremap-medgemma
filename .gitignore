@@ -211,6 +211,7 @@ __marimo__/
 
 # Project outputs (generated files)
 outputs/
+output/
 
 # Downloaded datasets (large files)
 data/
