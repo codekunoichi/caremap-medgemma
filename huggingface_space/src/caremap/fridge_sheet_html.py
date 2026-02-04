@@ -978,9 +978,9 @@ def generate_labs_page(
                     meaning_category=category,
                     source_note=source_note,
                 )
-                what_checks = result.get('what_this_checks', '')
-                what_means = result.get('what_the_result_means', '')
-                ask_doctor = result.get('question_for_doctor', '')
+                what_checks = result.get('what_was_checked', '')
+                what_means = result.get('what_it_means', '')
+                ask_doctor = result.get('what_to_ask_doctor', '')
             except Exception:
                 pass
 
@@ -1094,14 +1094,14 @@ def generate_gaps_page(
 
     for i, gap in enumerate(care_gaps):
         if progress_callback:
-            progress_callback(i + 1, len(care_gaps), gap.get('item_text', 'gap')[:30])
+            progress_callback(i + 1, len(care_gaps), gap.get('item_text', 'gap'))
 
         item_text = gap.get('item_text', '')
         next_step = gap.get('next_step', '')
         bucket = gap.get('time_bucket', 'This Week')
 
-        why_matters = ""
-        how_to = ""
+        action_item = ""
+        next_step_ai = ""
 
         if client:
             try:
@@ -1111,15 +1111,15 @@ def generate_gaps_page(
                     next_step=next_step,
                     time_bucket=bucket,
                 )
-                why_matters = result.get('why_this_matters', '')
-                how_to = result.get('how_to_do_it', '')
+                action_item = result.get('action_item', '')
+                next_step_ai = result.get('next_step', '')
             except Exception:
                 pass
 
         item_data = {
-            'title': item_text,
-            'details': why_matters or '',
-            'next_step': how_to or next_step,
+            'title': action_item or item_text,
+            'details': '',
+            'next_step': next_step_ai or next_step,
             'is_daily': 'daily' in item_text.lower(),
         }
 
