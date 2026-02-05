@@ -12,7 +12,7 @@ from typing import Optional
 from dataclasses import dataclass
 
 from .llm_client import MedGemmaClient
-from .prompt_loader import load_prompt
+from .prompt_loader import load_prompt, fill_prompt
 
 
 @dataclass
@@ -67,11 +67,11 @@ def analyze_xray(
     Returns:
         Dictionary with findings, priority, and confidence
     """
-    prompt = load_prompt(
-        "radiology_triage.txt",
-        PATIENT_AGE=str(patient_age),
-        PATIENT_GENDER="Male" if patient_gender == "M" else "Female"
-    )
+    template = load_prompt("radiology_triage.txt")
+    prompt = fill_prompt(template, {
+        "PATIENT_AGE": str(patient_age),
+        "PATIENT_GENDER": "Male" if patient_gender == "M" else "Female",
+    })
 
     response = client.generate_with_images(prompt, images=[image_path])
     return extract_json_from_response(response)
