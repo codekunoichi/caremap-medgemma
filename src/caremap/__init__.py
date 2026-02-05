@@ -15,6 +15,7 @@ from .radiology_triage import analyze_xray, triage_batch as radiology_triage_bat
 from .hl7_triage import triage_oru_message, triage_batch as hl7_triage_batch, HL7TriageResult, format_triage_queue as format_hl7_queue, load_sample_messages
 from .validators import ValidationError, parse_json_strict
 from .prompt_loader import load_prompt, fill_prompt
+from .html_translator import translate_fridge_sheet_html, translate_html_file
 
 __all__ = [
     "MedGemmaClient",
@@ -39,4 +40,6 @@ __all__ = [
     "parse_json_strict",
     "load_prompt",
     "fill_prompt",
+    "translate_fridge_sheet_html",
+    "translate_html_file",
 ]
