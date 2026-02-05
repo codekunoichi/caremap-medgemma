@@ -31,6 +31,7 @@ from caremap.translation import (
     LANGUAGE_CODES,
     LANGUAGE_NAMES,
 )
+from caremap.html_translator import translate_fridge_sheet_html
 
 # Import Concept B fridge sheet generators
 from caremap.fridge_sheet_html import (
@@ -644,9 +645,12 @@ def generate_concept_b_page(
     return html
 
 
-def generate_all_concept_b_pages(patient_json: str, xray_image=None, progress=gr.Progress()):
+def generate_all_concept_b_pages(patient_json: str, xray_image=None, language: str = "english", progress=gr.Progress()):
     """
     Generate all 5 Concept B pages and return them as a tuple.
+
+    When a non-English language is selected, the Medications and Care Actions
+    pages are translated using NLLB-200 via the html_translator module.
 
     Returns:
         Tuple of (medications_html, labs_html, gaps_html, imaging_html, connections_html)
@@ -724,6 +728,30 @@ def generate_all_concept_b_pages(patient_json: str, xray_image=None, progress=gr
         total_pages=5,
         progress_callback=lambda c, t, m: progress(0.85 + (0.1 * c / max(t, 1)), desc=f"[5/5] {m}")
     )
+
+    # Translate Medications and Care Actions pages if non-English
+    if language and language != "english":
+        target_code = LANGUAGE_CODES.get(language, "eng_Latn")
+        if target_code != "eng_Latn":
+            progress(0.92, desc=f"Translating Medications to {language}...")
+            try:
+                trans = get_translator()
+                meds_html = translate_fridge_sheet_html(
+                    meds_html, trans, target_code,
+                    progress_callback=lambda c, t, m: progress(0.92 + (0.03 * c / max(t, 1)), desc=f"Translating Meds ({c}/{t})")
+                )
+            except Exception as e:
+                print(f"Medication translation failed: {e}")
+
+            progress(0.96, desc=f"Translating Care Actions to {language}...")
+            try:
+                trans = get_translator()
+                gaps_html = translate_fridge_sheet_html(
+                    gaps_html, trans, target_code,
+                    progress_callback=lambda c, t, m: progress(0.96 + (0.03 * c / max(t, 1)), desc=f"Translating Gaps ({c}/{t})")
+                )
+            except Exception as e:
+                print(f"Care gaps translation failed: {e}")
 
     progress(1.0, desc="All 5 pages generated!")
     return meds_html, labs_html, gaps_html, imaging_html, connections_html
@@ -1019,6 +1047,12 @@ with gr.Blocks(
                 with gr.Column(scale=1):
                     input_json = gr.Textbox(label="Patient JSON", lines=15, value=EXAMPLE_PATIENT)
                     xray_upload = gr.Image(label="Upload X-ray (optional, for Imaging page)", type="filepath", height=150)
+                    language_dropdown = gr.Dropdown(
+                        label="Language (Medications & Care Actions)",
+                        choices=LANGUAGE_OPTIONS,
+                        value="english",
+                        info="Translates Medication Schedule and Care Actions pages using NLLB-200"
+                    )
                     generate_all_btn = gr.Button("🖨️ Generate All 5 Pages", variant="primary", size="lg")
 
                 with gr.Column(scale=2):
@@ -1036,7 +1070,7 @@ with gr.Blocks(
 
             generate_all_btn.click(
                 fn=generate_all_concept_b_pages,
-                inputs=[input_json, xray_upload],
+                inputs=[input_json, xray_upload, language_dropdown],
                 outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output],
             )
 
