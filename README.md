@@ -92,10 +92,12 @@ Current focus:
 - Defining strict input → output rules
 - Establishing golden test cases
 
-Future work (out of scope for initial submission):
+Recently added:
+- Localization and multilingual support (Bengali, Hindi, Spanish, and more via NLLB-200)
+
+Future work:
 - Agentic workflows
 - Interactive caregiver tools
-- Localization and multilingual support
 
 ---
 
