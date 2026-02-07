@@ -9,6 +9,7 @@ from .prompt_loader import fill_prompt, load_prompt
 from .validators import (
     parse_json_strict,
     require_exact_keys,
+    require_keys_with_defaults,
     require_max_sentences,
 )
 
@@ -158,8 +159,8 @@ def interpret_medication_v3_grounded(
 
     try:
         obj = parse_json_strict(raw)
-        # Strict schema (same as V2)
-        require_exact_keys(obj, MED_V3_OUT_KEYS)
+        # Lenient schema: fill missing keys with safe default
+        require_keys_with_defaults(obj, MED_V3_OUT_KEYS)
         return obj, raw  # Return both parsed JSON and raw (for reasoning)
     except Exception as e:
         if debug:

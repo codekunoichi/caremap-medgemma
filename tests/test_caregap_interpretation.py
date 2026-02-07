@@ -109,18 +109,21 @@ class TestInterpretCaregap:
                 time_bucket="Today"
             )
 
-    def test_raises_on_missing_keys(self):
-        """Test that ValidationError is raised when keys are missing."""
+    def test_missing_keys_filled_with_defaults(self):
+        """Test that missing keys are filled with safe defaults instead of raising."""
         mock_client = MagicMock()
         mock_client.generate.return_value = '{"time_bucket": "Today"}'
 
-        with pytest.raises(ValidationError, match="JSON keys mismatch"):
-            interpret_caregap(
-                client=mock_client,
-                item_text="Task",
-                next_step="Action",
-                time_bucket="Today"
-            )
+        result = interpret_caregap(
+            client=mock_client,
+            item_text="Task",
+            next_step="Action",
+            time_bucket="Today"
+        )
+        default = "Not specified \u2014 confirm with care team."
+        assert result["time_bucket"] == "Today"
+        assert result["action_item"] == default
+        assert result["next_step"] == default
 
     def test_raises_on_too_many_sentences_in_action_item(self):
         """Test validation of sentence count in action_item."""

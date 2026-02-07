@@ -119,18 +119,22 @@ class TestInterpretImagingReport:
                 flag="normal"
             )
 
-    def test_raises_on_missing_keys(self):
-        """Test that ValidationError is raised when keys are missing."""
+    def test_missing_keys_filled_with_defaults(self):
+        """Test that missing keys are filled with safe defaults instead of raising."""
         mock_client = MagicMock()
-        mock_client.generate.return_value = '{"study_type": "CT"}'
+        mock_client.generate.return_value = '{"study_type": "CT", "what_to_ask_doctor": "What does this mean?"}'
 
-        with pytest.raises(ValidationError, match="JSON keys mismatch"):
-            interpret_imaging_report(
-                client=mock_client,
-                study_type="CT",
-                report_text="Test",
-                flag="normal"
-            )
+        result = interpret_imaging_report(
+            client=mock_client,
+            study_type="CT",
+            report_text="Test",
+            flag="normal"
+        )
+        default = "Not specified \u2014 confirm with care team."
+        assert result["study_type"] == "CT"
+        assert result["what_was_done"] == default
+        assert result["key_finding"] == default
+        assert result["what_to_ask_doctor"] == "What does this mean?"
 
     def test_raises_on_too_many_sentences_in_what_was_done(self):
         """Test validation of sentence count in what_was_done."""

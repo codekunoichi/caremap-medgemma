@@ -90,6 +90,23 @@ def require_exact_keys(obj: dict[str, Any], keys: list[str]) -> None:
         )
 
 
+def require_keys_with_defaults(
+    obj: dict[str, Any],
+    keys: list[str],
+    default: str = "Not specified — confirm with care team.",
+) -> None:
+    """
+    Ensure the output contains the expected keys, filling missing ones with a safe default.
+
+    Strips any extra keys not in the expected list.
+    """
+    for key in keys:
+        if key not in obj or not isinstance(obj.get(key), str) or not obj[key].strip():
+            obj[key] = default
+    for extra in set(obj.keys()) - set(keys):
+        del obj[extra]
+
+
 def require_non_empty_str(value: Any, field: str) -> None:
     if not isinstance(value, str) or not value.strip():
         raise ValidationError(f"Field '{field}' must be a non-empty string.")
@@ -112,10 +129,10 @@ def require_max_sentences(value: str, field: str, max_sentences: int) -> None:
 
 def require_one_question(value: str, field: str) -> None:
     """
-    Ensure the field contains at least one question mark.
-    (Caregiver prompt asks for a question to ask the doctor.)
+    Ensure the field contains exactly one question mark.
+    (Caregiver prompt asks for a single question to ask the doctor.)
     """
     text = (value or "").strip()
     q = text.count("?")
-    if q < 1:
-        raise ValidationError(f"Field '{field}' must contain at least one question mark ('?').")
+    if q != 1:
+        raise ValidationError(f"Field '{field}' must contain exactly one question mark ('?').")

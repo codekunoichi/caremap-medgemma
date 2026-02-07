@@ -94,17 +94,20 @@ class TestInterpretLab:
                 meaning_category="Normal"
             )
 
-    def test_raises_on_missing_keys(self):
-        """Test that ValidationError is raised when keys are missing."""
+    def test_missing_keys_filled_with_defaults(self):
+        """Test that missing keys are filled with safe defaults instead of raising."""
         mock_client = MagicMock()
-        mock_client.generate.return_value = '{"what_was_checked": "Test"}'
+        mock_client.generate.return_value = '{"what_was_checked": "Test", "what_to_ask_doctor": "Is this normal?"}'
 
-        with pytest.raises(ValidationError, match="JSON keys mismatch"):
-            interpret_lab(
-                client=mock_client,
-                test_name="Test",
-                meaning_category="Normal"
-            )
+        result = interpret_lab(
+            client=mock_client,
+            test_name="Test",
+            meaning_category="Normal"
+        )
+        default = "Not specified \u2014 confirm with care team."
+        assert result["what_was_checked"] == "Test"
+        assert result["what_it_means"] == default
+        assert result["what_to_ask_doctor"] == "Is this normal?"
 
     def test_raises_on_too_many_sentences_in_what_was_checked(self):
         """Test validation of sentence count in what_was_checked."""

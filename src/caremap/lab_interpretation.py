@@ -9,6 +9,7 @@ from .prompt_loader import fill_prompt, load_prompt
 from .validators import (
     parse_json_strict,
     require_exact_keys,
+    require_keys_with_defaults,
     require_max_sentences,
     require_one_question,
 )
@@ -49,7 +50,7 @@ def interpret_lab(
     obj = parse_json_strict(raw)
 
     # Strict schema
-    require_exact_keys(obj, LAB_OUT_KEYS)
+    require_keys_with_defaults(obj, LAB_OUT_KEYS)
 
     # Constraints aligned to your input_output_rules.md
     require_max_sentences(obj.get("what_was_checked", ""), "what_was_checked", max_sentences=1)
@@ -106,7 +107,7 @@ def interpret_lab_v2_experimental(
     try:
         obj = parse_json_strict(raw)
         # Strict schema (but no sentence limits!)
-        require_exact_keys(obj, LAB_V2_OUT_KEYS)
+        require_keys_with_defaults(obj, LAB_V2_OUT_KEYS)
         return obj
     except Exception as e:
         if debug:

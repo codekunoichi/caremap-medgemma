@@ -71,7 +71,7 @@ def pick_dtype(device: torch.device) -> torch.dtype:
     Only CUDA can safely use float16.
     """
     if device.type == "cuda":
-        return torch.float16
+        return torch.bfloat16
     # MPS and CPU need float32 for numerical stability
     return torch.float32
 
@@ -85,9 +85,10 @@ class GenerationConfig:
       - The 'probability tensor contains inf/nan' error you saw is often triggered by
         sampling on some backends (especially MPS) with certain temperature/top_p values.
       - For v1, default to greedy decoding (do_sample=False).
-      - max_new_tokens increased to 512 to support richer V2 experimental outputs.
+      - max_new_tokens increased to 1024 to support V3 grounded prompts
+        (chain-of-thought reasoning + JSON output).
     """
-    max_new_tokens: int = 512
+    max_new_tokens: int = 1024
     do_sample: bool = False
     temperature: float = 0.0
     top_p: float = 1.0
@@ -175,15 +176,10 @@ class MedGemmaClient:
         if not PIL_AVAILABLE:
             raise RuntimeError("Multimodal support requires PIL (pillow)")
 
-        device_str = "cuda" if self.device.type == "cuda" else "cpu"
-        if self.device.type == "mps":
-            device_str = "cpu"
-
         self._multimodal_pipe = hf_pipeline(
             "image-text-to-text",
-            model=self.model_id,
-            torch_dtype=self.dtype,
-            device=device_str,
+            model=self.model,
+            tokenizer=self.processor if self.is_v15 else self.tokenizer,
         )
 
     @property

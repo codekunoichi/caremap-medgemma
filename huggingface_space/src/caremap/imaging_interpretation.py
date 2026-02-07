@@ -20,6 +20,7 @@ from .prompt_loader import fill_prompt, load_prompt
 from .validators import (
     parse_json_strict,
     require_exact_keys,
+    require_keys_with_defaults,
     require_max_sentences,
     require_one_question,
 )
@@ -63,7 +64,7 @@ def interpret_imaging_report(
     obj = parse_json_strict(raw)
 
     # Strict schema validation
-    require_exact_keys(obj, IMAGING_OUT_KEYS)
+    require_keys_with_defaults(obj, IMAGING_OUT_KEYS)
 
     # Safety constraints
     # Note: Golden specs allow 2-3 sentences for key_finding in imaging reports
@@ -137,7 +138,7 @@ The flag for this result is: {flag}
         obj = parse_json_strict(raw)
 
         # Validate output
-        require_exact_keys(obj, IMAGING_OUT_KEYS)
+        require_keys_with_defaults(obj, IMAGING_OUT_KEYS)
         require_max_sentences(obj.get("what_was_done", ""), "what_was_done", max_sentences=1)
         require_max_sentences(obj.get("key_finding", ""), "key_finding", max_sentences=3)
         require_one_question(obj.get("what_to_ask_doctor", ""), "what_to_ask_doctor")
@@ -222,7 +223,7 @@ def interpret_imaging_v2_experimental(
     try:
         obj = parse_json_strict(raw)
         # Strict schema (but no sentence limits!)
-        require_exact_keys(obj, IMAGING_V2_OUT_KEYS)
+        require_keys_with_defaults(obj, IMAGING_V2_OUT_KEYS)
         return obj
     except Exception as e:
         if debug:
@@ -284,7 +285,7 @@ def interpret_imaging_v3_grounded(
     try:
         obj = parse_json_strict(raw)
         # Strict schema (same as V2)
-        require_exact_keys(obj, IMAGING_V3_OUT_KEYS)
+        require_keys_with_defaults(obj, IMAGING_V3_OUT_KEYS)
         return obj, raw
     except Exception as e:
         if debug:

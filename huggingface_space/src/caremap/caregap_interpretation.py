@@ -9,6 +9,7 @@ from .prompt_loader import fill_prompt, load_prompt
 from .validators import (
     parse_json_strict,
     require_exact_keys,
+    require_keys_with_defaults,
     require_max_sentences,
 )
 
@@ -48,7 +49,7 @@ def interpret_caregap(
     obj = parse_json_strict(raw)
 
     # Strict schema
-    require_exact_keys(obj, CARE_OUT_KEYS)
+    require_keys_with_defaults(obj, CARE_OUT_KEYS)
 
     # Keep action_item short and scannable
     require_max_sentences(obj.get("action_item", ""), "action_item", max_sentences=1)
@@ -106,7 +107,7 @@ def interpret_caregap_v2_experimental(
     try:
         obj = parse_json_strict(raw)
         # Strict schema (but no sentence limits!)
-        require_exact_keys(obj, CARE_V2_OUT_KEYS)
+        require_keys_with_defaults(obj, CARE_V2_OUT_KEYS)
         return obj
     except Exception as e:
         if debug:
