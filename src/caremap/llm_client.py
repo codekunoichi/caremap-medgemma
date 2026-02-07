@@ -2,6 +2,8 @@
 MedGemma client for CareMap.
 
 Supports both text-only and multimodal (image + text) generation.
+Version-aware: auto-detects MedGemma 1.0 vs 1.5 from model_id and
+uses the appropriate HuggingFace API for each.
 """
 from __future__ import annotations
 
@@ -12,18 +14,30 @@ from typing import Optional, List, Union
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+# MedGemma 1.5 uses a different model class + processor
+try:
+    from transformers import AutoModelForImageTextToText, AutoProcessor
+    V15_AVAILABLE = True
+except ImportError:
+    V15_AVAILABLE = False
+
 # Optional multimodal imports (may not be available in all environments)
 try:
-    from transformers import AutoProcessor, pipeline as hf_pipeline
-    MULTIMODAL_AVAILABLE = True
+    from transformers import pipeline as hf_pipeline
+    PIPELINE_AVAILABLE = True
 except ImportError:
-    MULTIMODAL_AVAILABLE = False
+    PIPELINE_AVAILABLE = False
 
 try:
     from PIL import Image
     PIL_AVAILABLE = True
 except ImportError:
     PIL_AVAILABLE = False
+
+
+def _is_v15(model_id: str) -> bool:
+    """Detect MedGemma 1.5 from model_id string."""
+    return "1.5" in model_id
 
 
 def pick_device(prefer: Optional[str] = None) -> torch.device:
@@ -83,16 +97,16 @@ class MedGemmaClient:
     """
     Minimal, reliable Hugging Face client for MedGemma.
 
-    Supports two modes:
-    - Text-only: Uses AutoModelForCausalLM (default, works everywhere)
-    - Multimodal: Uses pipeline("image-text-to-text") for image + text input
+    Version-aware: auto-detects v1 vs v1.5 from model_id.
+      - v1  (google/medgemma-4b-it):     AutoModelForCausalLM + AutoTokenizer
+      - v1.5 (google/medgemma-1.5-4b-it): AutoModelForImageTextToText + AutoProcessor
 
-    The same model_id (google/medgemma-4b-it) works for both modes.
+    The generate(prompt) interface is identical for both versions.
     """
 
     def __init__(
         self,
-        model_id: str = "google/medgemma-4b-it",
+        model_id: str = "google/medgemma-1.5-4b-it",
         device: Optional[str] = None,
         gen_cfg: Optional[GenerationConfig] = None,
         enable_multimodal: bool = False,
@@ -101,7 +115,7 @@ class MedGemmaClient:
         Initialize the MedGemma client.
 
         Args:
-            model_id: HuggingFace model ID (default: google/medgemma-4b-it)
+            model_id: HuggingFace model ID (auto-detects v1 vs v1.5)
             device: Preferred device ("cuda", "mps", "cpu", or None for auto)
             gen_cfg: Generation configuration
             enable_multimodal: If True, also load multimodal pipeline for image processing
@@ -110,35 +124,58 @@ class MedGemmaClient:
         self.device = pick_device(device)
         self.dtype = pick_dtype(self.device)
         self.gen_cfg = gen_cfg or GenerationConfig()
-        self.multimodal_enabled = enable_multimodal and MULTIMODAL_AVAILABLE and PIL_AVAILABLE
+        self.is_v15 = _is_v15(model_id)
 
-        # Text-only model (always loaded)
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, use_fast=True)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.model_id,
-            torch_dtype=self.dtype,
-            device_map=None,  # keep explicit control
-        ).to(self.device)
-        self.model.eval()
-
-        # Pad token safety: use EOS as pad if not defined.
-        if self.tokenizer.pad_token_id is None and self.tokenizer.eos_token_id is not None:
-            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+        if self.is_v15:
+            self._init_v15()
+        else:
+            self._init_v1()
 
         # Multimodal pipeline (optional, loaded only if requested)
+        self.multimodal_enabled = enable_multimodal and PIPELINE_AVAILABLE and PIL_AVAILABLE
         self._multimodal_pipe = None
         if self.multimodal_enabled:
             self._init_multimodal_pipeline()
 
+    def _init_v1(self) -> None:
+        """Load MedGemma v1 with AutoModelForCausalLM + AutoTokenizer."""
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_id, use_fast=True)
+        self.processor = None
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.model_id,
+            torch_dtype=self.dtype,
+            device_map=None,
+        ).to(self.device)
+        self.model.eval()
+
+        if self.tokenizer.pad_token_id is None and self.tokenizer.eos_token_id is not None:
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+
+    def _init_v15(self) -> None:
+        """Load MedGemma v1.5 with AutoModelForImageTextToText + AutoProcessor."""
+        if not V15_AVAILABLE:
+            raise RuntimeError(
+                "MedGemma 1.5 requires transformers >= 4.50.0 with "
+                "AutoModelForImageTextToText support. "
+                "Run: pip install -U transformers"
+            )
+        self.processor = AutoProcessor.from_pretrained(self.model_id, use_fast=True)
+        self.tokenizer = self.processor  # alias so pad_token_id access works
+        self.model = AutoModelForImageTextToText.from_pretrained(
+            self.model_id,
+            dtype=self.dtype,
+            device_map=None,
+        ).to(self.device)
+        self.model.eval()
+
     def _init_multimodal_pipeline(self) -> None:
         """Initialize the multimodal pipeline for image + text processing."""
-        if not MULTIMODAL_AVAILABLE:
+        if not PIPELINE_AVAILABLE:
             raise RuntimeError("Multimodal support requires transformers with pipeline support")
         if not PIL_AVAILABLE:
             raise RuntimeError("Multimodal support requires PIL (pillow)")
 
         device_str = "cuda" if self.device.type == "cuda" else "cpu"
-        # Note: MPS not fully supported by all pipelines, fall back to CPU
         if self.device.type == "mps":
             device_str = "cpu"
 
@@ -159,9 +196,15 @@ class MedGemmaClient:
         """
         Run text generation and return the model's response text.
 
-        Uses the model's chat template for proper formatting with instruction-tuned models.
+        Uses the model's chat template for proper formatting.
+        Works identically for both MedGemma v1 and v1.5.
         """
-        # Format prompt using chat template for instruction-tuned models
+        if self.is_v15:
+            return self._generate_v15(prompt)
+        return self._generate_v1(prompt)
+
+    def _generate_v1(self, prompt: str) -> str:
+        """Text generation for MedGemma v1 (AutoModelForCausalLM)."""
         messages = [{"role": "user", "content": prompt}]
         formatted_prompt = self.tokenizer.apply_chat_template(
             messages,
@@ -172,38 +215,70 @@ class MedGemmaClient:
         inputs = self.tokenizer(formatted_prompt, return_tensors="pt")
         inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-        # Build generation kwargs based on device and config
-        # For MPS (Apple Silicon), force greedy decoding for stability
-        if self.device.type == "mps":
-            gen_kwargs = dict(
-                max_new_tokens=self.gen_cfg.max_new_tokens,
-                do_sample=False,
-                num_beams=1,
-                pad_token_id=self.tokenizer.eos_token_id,
-            )
-        else:
-            gen_kwargs = dict(
-                max_new_tokens=self.gen_cfg.max_new_tokens,
-                do_sample=self.gen_cfg.do_sample,
-                pad_token_id=self.tokenizer.eos_token_id,
-            )
-            if self.gen_cfg.do_sample:
-                gen_kwargs["temperature"] = self.gen_cfg.temperature
-                gen_kwargs["top_p"] = self.gen_cfg.top_p
-
+        gen_kwargs = self._build_gen_kwargs()
         outputs = self.model.generate(**inputs, **gen_kwargs)
 
-        # Decode full output (skip_special_tokens removes chat markers)
         text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
 
         # Extract model response (after the "model" turn marker)
-        # Chat template produces: "user\n{prompt}\nmodel\n{response}"
         if "model" in text.lower():
             parts = text.split("model")
             if len(parts) > 1:
                 text = parts[-1].strip()
 
         return text.strip()
+
+    def _generate_v15(self, prompt: str) -> str:
+        """Text generation for MedGemma v1.5 (AutoModelForImageTextToText)."""
+        messages = [
+            {"role": "user", "content": [{"type": "text", "text": prompt}]}
+        ]
+
+        inputs = self.processor.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            tokenize=True,
+            return_dict=True,
+            return_tensors="pt",
+        ).to(self.device)
+
+        if "pixel_values" in inputs:
+            inputs["pixel_values"] = inputs["pixel_values"].to(self.dtype)
+
+        input_len = inputs["input_ids"].shape[-1]
+
+        gen_kwargs = self._build_gen_kwargs()
+        output_ids = self.model.generate(**inputs, **gen_kwargs)
+        generated = output_ids[0][input_len:]
+
+        return self.processor.decode(generated, skip_special_tokens=True).strip()
+
+    def _build_gen_kwargs(self) -> dict:
+        """Build generation kwargs, forcing greedy decoding on MPS."""
+        eos_id = (
+            self.processor.tokenizer.eos_token_id
+            if self.is_v15 and hasattr(self.processor, "tokenizer")
+            else getattr(self.tokenizer, "eos_token_id", None)
+        )
+
+        if self.device.type == "mps":
+            return dict(
+                max_new_tokens=self.gen_cfg.max_new_tokens,
+                do_sample=False,
+                num_beams=1,
+                pad_token_id=eos_id,
+            )
+
+        gen_kwargs = dict(
+            max_new_tokens=self.gen_cfg.max_new_tokens,
+            do_sample=self.gen_cfg.do_sample,
+            pad_token_id=eos_id,
+        )
+        if self.gen_cfg.do_sample:
+            gen_kwargs["temperature"] = self.gen_cfg.temperature
+            gen_kwargs["top_p"] = self.gen_cfg.top_p
+
+        return gen_kwargs
 
     def generate_with_images(
         self,
@@ -241,42 +316,31 @@ class MedGemmaClient:
                 if path.exists():
                     loaded_images.append(Image.open(path))
                 elif str(img).startswith(("http://", "https://")):
-                    # URL - let pipeline handle it
                     loaded_images.append(str(img))
                 else:
                     raise FileNotFoundError(f"Image not found: {img}")
             else:
-                # Assume PIL Image
                 loaded_images.append(img)
 
         # Build messages for the pipeline
         content = []
-
-        # Add images to content
         for img in loaded_images:
-            if isinstance(img, str):  # URL
+            if isinstance(img, str):
                 content.append({"type": "image", "url": img})
-            else:  # PIL Image
+            else:
                 content.append({"type": "image", "image": img})
-
-        # Add text prompt
         content.append({"type": "text", "text": prompt})
 
         messages = []
-
-        # Add system prompt if provided
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
-
         messages.append({"role": "user", "content": content})
 
-        # Run pipeline
         output = self._multimodal_pipe(
             text=messages,
             max_new_tokens=self.gen_cfg.max_new_tokens,
         )
 
-        # Extract generated text
         return output[0]["generated_text"][-1]["content"]
 
 

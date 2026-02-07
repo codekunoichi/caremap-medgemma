@@ -312,7 +312,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.Image")
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -356,7 +356,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.Image")
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -388,7 +388,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.Image")
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -422,7 +422,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.Image")
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -450,7 +450,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.Image")
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -491,7 +491,7 @@ class TestGenerateWithImages:
 
     @patch("caremap.llm_client.PIL_AVAILABLE", False)
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
     @patch("caremap.llm_client.pick_device")
@@ -521,7 +521,7 @@ class TestGenerateWithImages:
 class TestInitMultimodalPipeline:
     """Tests for _init_multimodal_pipeline method."""
 
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", False)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", False)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
     @patch("caremap.llm_client.pick_device")
@@ -546,7 +546,7 @@ class TestInitMultimodalPipeline:
         with pytest.raises(RuntimeError, match="Multimodal support requires transformers"):
             client._init_multimodal_pipeline()
 
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", False)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -573,7 +573,7 @@ class TestInitMultimodalPipeline:
             client._init_multimodal_pipeline()
 
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -605,7 +605,7 @@ class TestInitMultimodalPipeline:
         )
 
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
@@ -636,7 +636,7 @@ class TestInitMultimodalPipeline:
         )
 
     @patch("caremap.llm_client.hf_pipeline")
-    @patch("caremap.llm_client.MULTIMODAL_AVAILABLE", True)
+    @patch("caremap.llm_client.PIPELINE_AVAILABLE", True)
     @patch("caremap.llm_client.PIL_AVAILABLE", True)
     @patch("caremap.llm_client.AutoTokenizer")
     @patch("caremap.llm_client.AutoModelForCausalLM")
