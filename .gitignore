@@ -221,3 +221,6 @@ feedback/
 
 # Claude Code
 .claude/
+
+# Kaggle dataset zip (large, rebuilt from source)
+kaggle_dataset/
