@@ -36,6 +36,9 @@ PYTHONPATH=src pytest tests/integration/test_golden_labs.py::TestGoldenLabs::tes
 
 # Run a module directly (e.g., medication interpretation demo)
 PYTHONPATH=src python -m caremap.medication_interpretation
+
+# Build Kaggle dataset zip (~10MB, 77 files)
+./build_kaggle_dataset.sh
 ```
 
 ## Architecture
@@ -60,11 +63,15 @@ Fridge Sheet JSON (capped by BuildLimits: 8 meds, 3 labs, 2 actions/bucket)
 
 | Module | Purpose |
 |--------|---------|
-| `llm_client.py` | MedGemma client with device detection (CUDA/MPS/CPU), dtype selection, text + multimodal support |
+| `llm_client.py` | Version-aware MedGemma client (v1 + v1.5), device detection (CUDA/MPS/CPU), text + multimodal support |
 | `prompt_loader.py` | Loads templates from `prompts/`, uses `{{VARNAME}}` substitution |
 | `*_interpretation.py` | Domain-specific interpreters (meds, labs, caregaps, imaging) |
 | `assemble_fridge_sheet.py` | Orchestrates all interpreters, applies BuildLimits |
-| `validators.py` | JSON extraction, schema validation, constraint checking |
+| `radiology_triage.py` | AI-assisted X-ray prioritization (STAT/SOON/ROUTINE) with multimodal MedGemma |
+| `hl7_triage.py` | HL7 ORU message triage with priority classification |
+| `fridge_sheet_html.py` | Generates 5 printable HTML pages (8.5x11") from fridge sheet JSON |
+| `html_translator.py` | DOM-based HTML translation using lxml, preserves safety-critical elements |
+| `validators.py` | JSON extraction, schema validation, `require_keys_with_defaults` for resilient validation |
 | `safety_validator.py` | Forbidden terms, jargon detection, negation preservation checks |
 | `translation.py` | NLLB-200 translator with back-translation validation |
 | `multilingual_fridge_sheet.py` | Generates fridge sheets in multiple languages |
@@ -77,7 +84,16 @@ Uses Pydantic + `outlines` library for guaranteed valid JSON via token-level con
 
 ### HuggingFace Space (`huggingface_space/`)
 
-Gradio web app for interactive demo. Contains copied core modules for standalone deployment.
+Gradio web app for interactive demo. Contains copied core modules for standalone deployment. Changes to `src/caremap/` must be manually synced here.
+
+### Kaggle Submission
+
+- **Notebook**: `notebooks/caremap_kaggle_submission.ipynb` (the competition deliverable)
+- **Local notebook**: `notebooks/caremap_final_submission.ipynb` (for Mac development)
+- **Dataset build**: `./build_kaggle_dataset.sh` → `kaggle_dataset/caremap-medgemma-dataset.zip`
+- **Environment**: Python 3.12, T4 GPU (16GB VRAM), `kaggle_secrets` for HF auth
+- **GPU budget**: ~29 min for full evaluation (61 MedGemma calls across 4 modules)
+- **OOM prevention**: Notebook deletes NLLB translator before loading multimodal client to free ~1.2GB GPU memory
 
 ### Prompt Templates (`prompts/`)
 
@@ -97,22 +113,31 @@ Versions: V1 (constrained), V2 (experimental), V3 (grounded with chain-of-though
 
 ## MedGemma Integration
 
+The client auto-detects v1 vs v1.5 from the `model_id` string (checks for "1.5"):
+- **v1**: `AutoModelForCausalLM` + `AutoTokenizer`
+- **v1.5**: `AutoModelForImageTextToText` + `AutoProcessor` (requires `transformers>=4.50.0`)
+
 ```python
 from caremap import MedGemmaClient
 
 client = MedGemmaClient(
-    model_id="google/medgemma-4b-it",  # Gated model - requires HuggingFace auth
+    model_id="google/medgemma-1.5-4b-it",  # Default; gated model - requires HuggingFace auth
     device=None,  # Auto-detects CUDA > MPS > CPU
-    enable_multimodal=False  # Set True for image support
+    enable_multimodal=False  # Set True for image support (radiology triage)
 )
 ```
 
-**Device-specific behavior:**
-- CUDA: float16 for speed
-- MPS (Apple Silicon): float32 + greedy decoding for numerical stability
-- CPU: float32
+**Device-specific dtype behavior:**
+- CUDA: `bfloat16` (not float16 — float16 causes empty output on MedGemma 1.5)
+- MPS (Apple Silicon): `float32` (bfloat16/float16 cause NaN issues)
+- CPU: `float32`
 
-**Note:** LLM outputs are non-deterministic. Integration tests may have variable results between runs.
+**Important notes:**
+- `max_new_tokens` defaults to 1024 — v3 grounded prompts (reasoning + JSON) truncate at 512
+- Multimodal pipeline passes `model=self.model` (not `model=self.model_id`) to avoid loading a second copy (OOM on T4 16GB)
+- v1.5 wraps JSON in markdown fences — `extract_first_json_object` in `validators.py` handles this
+- v1.5 may omit JSON keys non-deterministically — `require_keys_with_defaults()` fills missing keys with safe defaults
+- LLM outputs are non-deterministic; integration tests may have variable results between runs
 
 ## Key Documentation
 
@@ -120,3 +145,12 @@ client = MedGemmaClient(
 - `INPUT_OUTPUT_RULES.md` - Deterministic transformation rules
 - `FRIDGE_SHEET_SCHEMA.md` - Output schema (locked)
 - `SAFETY_AND_LIMITATIONS.md` - Explicit non-goals and safeguards
+- `CHANGELOG.md` - All notable changes
+- `INTENT.md` - Project intent and vision
+- `ROADMAP.md` - Feature roadmap
+- `TEST_CASES.md` - Test case documentation
+
+## Git Tags
+
+- `v1.0-medgemma-final` - MedGemma 1.0 baseline
+- `v1.5-medgemma-ready` - MedGemma 1.5 migration complete
