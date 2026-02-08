@@ -598,10 +598,9 @@ class TestInitMultimodalPipeline:
 
         assert client.supports_multimodal is True
         mock_pipeline.assert_called_once_with(
-            "image-text-to-text",
-            model="test/model",
-            torch_dtype=torch.float32,
-            device="cpu",
+            task="image-text-to-text",
+            model=mock_model.to.return_value,
+            tokenizer=mock_tokenizer,
         )
 
     @patch("caremap.llm_client.hf_pipeline")
@@ -629,10 +628,9 @@ class TestInitMultimodalPipeline:
         client = MedGemmaClient(model_id="test/model", device="cuda", enable_multimodal=True)
 
         mock_pipeline.assert_called_once_with(
-            "image-text-to-text",
-            model="test/model",
-            torch_dtype=torch.float16,
-            device="cuda",
+            task="image-text-to-text",
+            model=mock_model.to.return_value,
+            tokenizer=mock_tokenizer,
         )
 
     @patch("caremap.llm_client.hf_pipeline")
@@ -659,12 +657,10 @@ class TestInitMultimodalPipeline:
 
         client = MedGemmaClient(model_id="test/model", device="mps", enable_multimodal=True)
 
-        # MPS should fall back to CPU for pipeline
         mock_pipeline.assert_called_once_with(
-            "image-text-to-text",
-            model="test/model",
-            torch_dtype=torch.float16,
-            device="cpu",
+            task="image-text-to-text",
+            model=mock_model.to.return_value,
+            tokenizer=mock_tokenizer,
         )
 
 
