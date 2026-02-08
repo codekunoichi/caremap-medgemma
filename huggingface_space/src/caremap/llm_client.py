@@ -176,11 +176,16 @@ class MedGemmaClient:
         if not PIL_AVAILABLE:
             raise RuntimeError("Multimodal support requires PIL (pillow)")
 
-        self._multimodal_pipe = hf_pipeline(
-            "image-text-to-text",
+        pipe_kwargs = dict(
+            task="image-text-to-text",
             model=self.model,
-            tokenizer=self.processor if self.is_v15 else self.tokenizer,
         )
+        if self.is_v15:
+            pipe_kwargs["processor"] = self.processor
+        else:
+            pipe_kwargs["tokenizer"] = self.tokenizer
+
+        self._multimodal_pipe = hf_pipeline(**pipe_kwargs)
 
     @property
     def supports_multimodal(self) -> bool:
