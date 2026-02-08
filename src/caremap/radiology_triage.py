@@ -29,9 +29,66 @@ class TriageResult:
     ground_truth_findings: Optional[str] = None
 
 
+def _parse_text_response(text: str) -> dict | None:
+    """Parse key-value text response from MedGemma multimodal pipeline.
+
+    Handles responses like:
+        FINDINGS:
+        - Cardiomegaly
+        - Pulmonary edema
+        PRIMARY IMPRESSION:
+        Some text
+        PRIORITY:
+        SOON
+        CONFIDENCE:
+        0.8
+    """
+    result = {}
+
+    # Extract FINDINGS (bulleted list)
+    findings_match = re.search(
+        r'FINDINGS:\s*\n((?:\s*-\s*.+\n?)+)', text, re.IGNORECASE
+    )
+    if findings_match:
+        result["findings"] = [
+            line.strip().lstrip("- ").strip()
+            for line in findings_match.group(1).strip().split("\n")
+            if line.strip()
+        ]
+
+    # Extract single-value fields
+    for key, json_key in [
+        ("PRIMARY IMPRESSION", "primary_impression"),
+        ("PRIORITY", "priority"),
+        ("PRIORITY REASON", "priority_reason"),
+        ("CONFIDENCE", "confidence"),
+    ]:
+        match = re.search(
+            rf'{key}:\s*\n?\s*(.+?)\s*(?:\n\n|\n[A-Z]|\Z)', text, re.IGNORECASE
+        )
+        if match:
+            result[json_key] = match.group(1).strip()
+
+    if not result:
+        return None
+
+    # Normalize confidence to float
+    if "confidence" in result:
+        try:
+            result["confidence"] = float(result["confidence"])
+        except (ValueError, TypeError):
+            result["confidence"] = 0.0
+
+    # Normalize priority to uppercase
+    if "priority" in result:
+        result["priority"] = result["priority"].strip().upper()
+
+    return result
+
+
 def extract_json_from_response(text: str) -> dict:
-    """Extract JSON object from LLM response."""
-    # Try to find JSON block
+    """Extract structured data from LLM response (JSON or plain text)."""
+    # Try JSON first
     json_match = re.search(r'\{[\s\S]*\}', text)
     if json_match:
         try:
@@ -39,7 +96,12 @@ def extract_json_from_response(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
-    # Return default if parsing fails
+    # Try plain-text key-value format (MedGemma 1.5 multimodal)
+    parsed = _parse_text_response(text)
+    if parsed:
+        return parsed
+
+    # Return default if all parsing fails
     return {
         "findings": ["Unable to parse findings"],
         "primary_impression": "Analysis incomplete",
