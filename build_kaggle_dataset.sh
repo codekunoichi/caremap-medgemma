@@ -31,6 +31,7 @@ zip -r "$ZIP_PATH" \
   src/caremap/llm_client.py \
   src/caremap/medication_interpretation.py \
   src/caremap/multilingual_fridge_sheet.py \
+  src/caremap/priority_rules.py \
   src/caremap/prompt_loader.py \
   src/caremap/radiology_triage.py \
   src/caremap/safety_validator.py \
@@ -39,6 +40,7 @@ zip -r "$ZIP_PATH" \
   prompts/ \
   examples/ \
   data/nih_chest_xray/demo_images/ \
+  data/nih_chest_xray/radiology_priority_rules.csv \
   data/nih_chest_xray/sample_manifest.csv \
   requirements.txt
 
