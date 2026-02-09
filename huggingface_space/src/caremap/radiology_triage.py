@@ -27,6 +27,8 @@ class TriageResult:
     patient_age: int
     patient_gender: str
     ground_truth_findings: Optional[str] = None
+    model_priority: Optional[str] = None
+    matched_rules: Optional[list[str]] = None
 
 
 def _parse_text_response(text: str) -> dict | None:
@@ -116,6 +118,7 @@ def analyze_xray(
     image_path: str,
     patient_age: int,
     patient_gender: str,
+    apply_rules: bool = True,
 ) -> dict:
     """
     Analyze a single chest X-ray image.
@@ -125,9 +128,10 @@ def analyze_xray(
         image_path: Path to the X-ray image
         patient_age: Patient age in years
         patient_gender: M or F
+        apply_rules: Whether to apply rule-based priority override (default True)
 
     Returns:
-        Dictionary with findings, priority, and confidence
+        Dictionary with findings, priority, confidence, and rule metadata
     """
     template = load_prompt("radiology_triage.txt")
     prompt = fill_prompt(template, {
@@ -136,14 +140,39 @@ def analyze_xray(
     })
 
     response = client.generate_with_images(prompt, images=[image_path])
-    return extract_json_from_response(response)
+    result = extract_json_from_response(response)
+
+    if apply_rules:
+        from .priority_rules import apply_priority_rules, get_default_rules
+
+        findings = result.get("findings", [])
+        model_priority = result.get("priority", "STAT")
+        rules = get_default_rules()
+
+        final_priority, override_reason, matched_rule_names = apply_priority_rules(
+            findings, model_priority, rules
+        )
+
+        result["model_priority"] = model_priority
+        result["matched_rules"] = matched_rule_names
+        result["priority"] = final_priority
+
+        if override_reason:
+            existing_reason = result.get("priority_reason", "")
+            result["priority_reason"] = (
+                f"{existing_reason} | {override_reason}" if existing_reason
+                else override_reason
+            )
+
+    return result
 
 
 def triage_batch(
     client: MedGemmaClient,
     manifest_path: str,
     images_base_dir: str,
-    progress_callback=None
+    progress_callback=None,
+    apply_rules: bool = True,
 ) -> list[TriageResult]:
     """
     Process a batch of images from a manifest file.
@@ -191,7 +220,8 @@ def triage_batch(
                 client,
                 str(image_path),
                 int(row['patient_age']),
-                row['patient_gender']
+                row['patient_gender'],
+                apply_rules=apply_rules,
             )
 
             results.append(TriageResult(
@@ -203,7 +233,9 @@ def triage_batch(
                 confidence=analysis.get('confidence', 0.0),
                 patient_age=int(row['patient_age']),
                 patient_gender=row['patient_gender'],
-                ground_truth_findings=ground_truth_findings
+                ground_truth_findings=ground_truth_findings,
+                model_priority=analysis.get('model_priority'),
+                matched_rules=analysis.get('matched_rules'),
             ))
         except Exception as e:
             print(f"Error analyzing {image_id}: {e}")
