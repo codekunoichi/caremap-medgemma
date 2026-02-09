@@ -26,9 +26,9 @@ User research contributors: Dr. Vinodhini Sriram (Primary Care Physician, US), D
 
 On the **provider side**, India has one radiologist per 100,000 patients. Average X-ray report turnaround is 72 hours. Critical findings — pulmonary edema, pneumothorax — wait in the same queue as normal studies. Clinical labs generate 1,000+ HL7 messages per day; a potassium of 6.5 (life-threatening) can sit unread behind routine results.
 
-**Applicability beyond India.** CareMap works wherever good EHR data exists. In the US, **Senior Assisted Living facilities** face the same caregiver rotation problem — CNAs change shifts, residents have complex regimens, and handoff quality varies. For **provider-side triage**, large US institutions like Sharp, Scripps, and Rendr have massive HL7 ORU volumes with dedicated departments for review. CareMap's triage modules help these teams prioritize life-threatening scenarios first.
+**Applicability beyond India.** CareMap works wherever good EHR data exists — US Senior Assisted Living facilities face the same caregiver rotation problem, and large institutions like Sharp, Scripps, and Rendr have massive HL7 ORU volumes that CareMap's triage modules can help prioritize.
 
-**Impact potential:** India has 80+ million family caregivers; the US has 53 million and 28,900 assisted living facilities. CareMap targets two leverage points:
+**Impact potential:** India has 80+ million family caregivers; the US has 53 million. CareMap targets two leverage points:
 
 1. **Caregiver medication errors** — the #1 preventable cause of hospital readmission. A fridge sheet that survives caregiver turnover eliminates the verbal handoff problem.
 2. **Triage queue prioritization** — routing critical cases to the front of a 500-study radiology queue or 1,000-message HL7 inbox means treatment in hours instead of days.
@@ -49,7 +49,7 @@ MedGemma interprets medications, labs, care gaps, and imaging reports, transform
 - Page 4: Imaging findings explained simply (for family)
 - Page 5: How medications, labs, and actions connect (for both)
 
-MedGemma generates "Ask the Doctor" prompts so families know *what questions to ask* — addressing the gap Dr. Mishra identified: families don't know what they don't know. For example, for a high INR result, MedGemma generates: *"Ask the doctor: Has the blood thinner dose been adjusted based on this result?"* Multilingual translation via Meta's NLLB-200 (separate from MedGemma) supports Bengali, Hindi, and 8 other languages, preserving medication names and doses as safety-critical untranslated elements. Translation includes automated back-translation validation that flags content loss — particularly for medication warnings and negation words. The translation layer is lightweight and intentionally decoupled — it demonstrates how MedGemma's plain-language output can be effectively extended for maximum impact across the patient's entire caregiving circle, regardless of language.
+MedGemma generates "Ask the Doctor" prompts so families know *what questions to ask* — addressing the gap Dr. Mishra identified: families don't know what they don't know. For example, for a high INR result, MedGemma generates: *"Ask the doctor: How often should this blood test be repeated?"* Multilingual translation via Meta's NLLB-200 (separate from MedGemma) supports Bengali, Hindi, and 8 other languages, preserving medication names and doses as safety-critical untranslated elements. Translation includes automated back-translation validation that flags content loss — particularly for medication warnings and negation words. The translation layer is lightweight and intentionally decoupled — it demonstrates how MedGemma's plain-language output can be effectively extended for maximum impact across the patient's entire caregiving circle, regardless of language.
 
 **Module 2: Radiology Triage (Provider Side — Multimodal)**
 
@@ -67,7 +67,7 @@ MedGemma triages incoming lab results by urgency, surfacing critical values (e.g
 
 ### Technical Details
 
-**Architecture:** All three modules share a single `MedGemmaClient` that auto-detects MedGemma v1 vs v1.5 and selects the optimal dtype per device (bfloat16 for CUDA, float32 for MPS/CPU). Prompt templates use domain-specific JSON schemas with deterministic validation. A `SafetyValidator` enforces forbidden terms (no diagnosis, no jargon, no raw numeric values) on every output.
+**Architecture:** All three modules share a single `MedGemmaClient` that auto-detects MedGemma v1 vs v1.5 and selects the optimal dtype per device (bfloat16 for CUDA, float32 for MPS/CPU). Prompt templates use domain-specific JSON schemas with deterministic validation. A `SafetyValidator` enforces forbidden terms (no diagnosis, no jargon, no raw numeric values) on every output. The codebase includes 226+ unit tests with mocked MedGemma calls, golden test specifications for each module, and a modular architecture where each interpreter is independently testable.
 
 **Proof-of-Architecture Validation (Kaggle T4 GPU):**
 
@@ -93,7 +93,7 @@ Total: 62 MedGemma inference calls across 4 modules in ~29 minutes on T4.
 - **Printable HTML** — the actual deliverable to caregivers; no app required, no internet required, works on any printer
 
 **Deployment challenges and mitigations:**
-1. *GPU cost:* MedGemma 1.5 4B runs on a single T4 (16GB VRAM). Batch processing takes ~10 minutes — feasible for discharge workflow.
+1. *Runtime:* On a T4 GPU, batch processing takes ~10 minutes. In practice, healthcare settings have natural wait times between patient checkout and departure — fridge sheet generation runs as a background job during this window. Near-realtime is not required for the use case, and production deployments on higher-powered GPUs would be significantly faster.
 2. *Model non-determinism:* Resilient validation with safe defaults ensures output always renders, even when MedGemma omits keys.
 3. *Offline use:* The final artifact is static HTML. Once printed, it requires zero technology.
 
