@@ -5,6 +5,13 @@ All notable changes to CareMap will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Rule-based priority override for radiology triage** (`priority_rules.py`): physician-auditable CSV maps finding patterns to minimum priority levels; rules only escalate, never downgrade
+  - 13 clinical rules (4 STAT, 7 SOON, 2 ROUTINE) in `radiology_priority_rules.csv`
+  - "No Finding" / "Normal" / "Unremarkable" forces ROUTINE to fix SOON over-prediction
+  - `TriageResult` now tracks `model_priority` and `matched_rules` for diagnostic transparency
+  - 20 unit tests covering escalation, case-insensitive matching, and no-finding override
+- **Rule override diagnostic cell** in Kaggle notebook: shows which rules fired on each misclassified case with per-rule misclassification counts
+- **Design insight markdown cell** in Kaggle notebook: explains the divide-and-conquer architecture (MedGemma for detection, rules for priority) and the evolution from 42% to ~50% accuracy with 100% STAT recall
 - **Quantitative evaluation tables** in Kaggle notebook: batch evaluation across all 4 modules
   - Radiology triage: 25-image confusion matrix with STAT recall
   - HL7 triage: 20-message confusion matrix with STAT recall
