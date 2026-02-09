@@ -1,401 +1,207 @@
-# CareMap (MedGemma)
+# CareMap
 
-CareMap turns complex health information into **clear, actionable next steps** for patients and caregivers using **MedGemma**, with digital explainers and a printable, PHI‑minimized **one‑page “fridge sheet”** designed for real‑world caregiving.
+**One model, three modules, maximum impact on both sides of healthcare.**
 
-This project is part of the **MedGemma Impact Challenge (Kaggle Hackathon)** and is intentionally focused on *applied, human‑centered AI* rather than model tuning or benchmarking.
+CareMap uses **MedGemma 1.5 4B-IT** to serve both patients and providers — transforming complex health data into plain-language fridge sheets for caregivers, and triaging radiology and lab queues for clinicians.
 
----
+Built for the [Kaggle "Solve for India with Gemini"](https://www.kaggle.com/competitions/solve-for-india-with-gemini) competition.
 
-## Why CareMap Exists
-
-Modern healthcare systems generate enormous amounts of data, but caregivers are left to manage:
-- multiple medications
-- overlapping chronic conditions
-- missed follow‑ups and screenings
-- fragmented instructions across portals and paper
-
-Under stress, memory fails. Phones die. Portals overwhelm.
-
-CareMap is designed for the moment when a caregiver stands in the kitchen, tired, responsible, and unsure what matters *right now*.
-
----
-
-## What CareMap Does
-
-CareMap takes health data (labs, medications, care gaps, and instructions) and produces:
-
-### 1. A Caregiver‑Friendly Fridge Sheet (Primary Output)
-A single printable page that:
-- prioritizes **what to do today, this week, and later**
-- explains **why medications matter** in plain language
-- highlights **pending care gaps with clear next steps**
-- provides **who to call** when help is needed
-- avoids unnecessary medical or technical detail
-
-### 2. Digital Explainability (Supporting Output)
-Clear, high‑level explanations of labs and care actions written at an accessible reading level, designed to reduce confusion rather than increase anxiety.
-
----
-
-## What CareMap Is *Not*
-
-CareMap is intentionally constrained.
-
-It does **not**:
-- diagnose conditions
-- recommend treatment changes
-- calculate or adjust medication dosages
-- replace clinicians or clinical judgment
-- function as a full medical record
-
-CareMap favors **silence over speculation** when information is missing or uncertain.
-
----
-
-## Who This Is For
-
-- Family caregivers managing complex care
-- Patients who want clarity without clinical jargon
-- Care teams exploring safer patient communication patterns
-- Designers and engineers interested in responsible health AI
-
-CareMap is **caregiver‑first**, not clinician‑first.
-
----
-
-## Why MedGemma
-
-CareMap uses **MedGemma** to:
-- translate medical concepts into plain language
-- generate high‑level, uncertainty‑aware explanations
-- adapt output to caregiver‑appropriate reading levels
-
-MedGemma is used where medical grounding matters and avoided where deterministic rules are safer.
-
----
-
-## Design Principles
-
-- One page, always
-- Action > information
-- Plain language over precision
-- Cognitive load awareness
-- Safety through constraint
-- Offline‑friendly by design
-
----
-
-## Project Status
-
-Current focus:
-- Finalizing the one‑page fridge sheet schema
-- Defining strict input → output rules
-- Establishing golden test cases
-
-Recently added:
-- Localization and multilingual support (Bengali, Hindi, Spanish, and more via NLLB-200)
-
-Future work:
-- Agentic workflows
-- Interactive caregiver tools
-
----
-
-## Repository Guide
-
-- `INTENT.md` – project purpose and ethical grounding
-- `FRIDGE_SHEET_SCHEMA.md` – locked one‑page caregiver schema
-- `INPUT_OUTPUT_RULES.md` – deterministic transformation rules
-- `SAFETY_AND_LIMITATIONS.md` – explicit non‑goals and safeguards
-- `TEST_CASES.md` – golden test cases and quality gates
-- `ROADMAP.md` – scoped future directions
-
----
----
-
-## One‑Time Setup: Hugging Face Access for MedGemma
-
-MedGemma models are **license‑gated** on Hugging Face.  
-You must complete the following steps **once** before running CareMap with MedGemma.
-
-### 1) Create / sign in to a Hugging Face account
-- Go to: https://huggingface.co
-- Sign in (or create an account)
-
-(Optional but recommended)
-- Link your GitHub account under **Settings → Linked Accounts**
-  - This helps with identity verification for gated models
-
----
-
-### 2) Generate a Hugging Face access token
-
-1. Visit: https://huggingface.co/settings/tokens  
-2. Click **New token**
-3. Select **Read** access (this is sufficient)
-4. Create the token and **copy it** (you won’t see it again)
-
----
-
-### 3) Log in from the command line (inside your virtual environment)
-
-With the virtual environment activated:
-
-```bash
-huggingface-cli login
 ```
-
-Paste your access token when prompted.
-
-If `huggingface-cli` is not on your PATH, use:
-
-```bash
-python -m huggingface_hub.cli login
-```
-
-To verify login:
-
-```bash
-python -c "from huggingface_hub import whoami; print(whoami())"
+                          CareMap
+                            |
+            +---------------+---------------+
+            |               |               |
+      Fridge Sheet    Radiology Triage   HL7 Triage
+      (Patient Side)  (Provider Side)    (Provider Side)
+      Text Reasoning  Multimodal         Text Reasoning
+            |               |               |
+    +-------+-------+  MedGemma 1.5    MedGemma 1.5
+    |   |   |   |   |  finds findings   triages labs
+   Meds Labs Gaps Img      |               |
+    |   |   |   |   |  Rule Engine      Priority
+    v   v   v   v   v  (CSV-auditable)  Classification
+  5 Printable Pages     |               |
+    8.5 x 11"      STAT/SOON/ROUTINE  STAT/SOON/ROUTINE
+        |
+   NLLB-200 Translation (10 languages)
 ```
 
 ---
 
-### 4) Accept the MedGemma model license
+## Three Modules
 
-While logged in on Hugging Face, visit the MedGemma model page:
+### Module 1: Fridge Sheet Generator (Patient Side)
 
-- https://huggingface.co/google/medgemma-4b-it
+MedGemma interprets medications, labs, care gaps, and imaging reports into plain language at a 6th-grade reading level. Output: **five printable 8.5x11" pages** designed for the kitchen wall.
 
-If prompted, click **“Agree and access”** to accept the license.
+| Page | Content | Audience |
+|------|---------|----------|
+| 1 | Medication schedule with time/food badges | Caregiver |
+| 2 | Lab results in plain language | Family |
+| 3 | Care actions: Today / This Week / Later | Family |
+| 4 | Imaging findings explained simply | Family |
+| 5 | How meds, labs, and actions connect | Both |
 
-> Without accepting the license, downloads will fail with a `403` or
-> “You are trying to access a gated repo” error.
+Multilingual translation via **NLLB-200** supports Bengali, Hindi, Spanish, and 7 other languages — preserving medication names and doses as safety-critical untranslated elements.
 
----
+### Module 2: Radiology Triage (Provider Side)
 
-### 5) Run the MedGemma demo
+MedGemma's multimodal capability analyzes chest X-rays and detects findings. A **physician-auditable rule engine** (single CSV file) maps findings to priority levels.
 
-After login and license acceptance:
-
-```bash
-python src/hello_world_medgemma.py --mode med --name "Metformin"
+```
+MedGemma (multimodal) --> findings list
+        |
+Rule Engine (CSV) --> rule_priority
+        |
+Final = max(model, rules)    <-- only escalates, never downgrades
+        |
+"No Finding" --> force ROUTINE
 ```
 
-The first run will download model weights and may take several minutes,
-especially on Apple Silicon.
+Result: **100% STAT recall** (3/3) on evaluation set.
+
+### Module 3: HL7 Message Triage (Provider Side)
+
+MedGemma triages incoming HL7 ORU lab results by urgency — surfacing critical values (Troponin elevation, dangerous potassium) above routine results.
+
+Result: **85% accuracy** on 20-message evaluation set.
 
 ---
 
-### Notes
+## Architecture
 
-- MedGemma 4B is a large model; expect high memory usage and slower startup.
-- If you encounter memory issues:
-  - Close other applications
-  - Reduce `--max-new-tokens`
-  - Consider CPU execution for testing
+```
+src/caremap/
+  |
+  |-- llm_client.py            MedGemma client (v1 + v1.5), auto device/dtype
+  |-- medication_interpretation.py   Medication --> plain language
+  |-- lab_interpretation.py          Lab results --> plain language
+  |-- caregap_interpretation.py      Care gaps --> action items
+  |-- imaging_interpretation.py      Imaging reports --> plain language
+  |-- assemble_fridge_sheet.py       Orchestrator (all 4 interpreters)
+  |-- fridge_sheet_html.py           JSON --> 5 printable HTML pages
+  |-- radiology_triage.py            X-ray triage (STAT/SOON/ROUTINE)
+  |-- priority_rules.py              CSV-based rule engine for radiology
+  |-- hl7_triage.py                  HL7 ORU message triage
+  |-- translation.py                 NLLB-200 with back-translation validation
+  |-- html_translator.py             DOM-based HTML translation (lxml)
+  |-- validators.py                  JSON extraction, schema validation
+  |-- safety_validator.py            Forbidden terms, jargon detection
+  |-- prompt_loader.py               Template loading (prompts/)
 
-This setup is required **once per machine**. Subsequent runs will use the
-cached model files.
+prompts/                    Task-scoped prompt templates (V1, V2, V3)
+examples/                   Sample patient data + golden test specs
+data/nih_chest_xray/        NIH demo images + priority rules CSV
+tests/                      231 unit tests (mocked MedGemma)
+tests/integration/          Golden tests (real MedGemma, slow)
+notebooks/                  Kaggle + local notebooks
+huggingface_space/          Gradio demo (standalone copy)
+```
 
 ---
 
+## Quickstart
 
-## Quickstart: Install + Run MedGemma Hello World
+### Prerequisites
 
-Follow these steps **in order**.  
-Changing the order may cause pip to fail on macOS/Homebrew Python with an
-`externally-managed-environment` error.
+- Python 3.10+
+- [HuggingFace account](https://huggingface.co) with MedGemma license accepted
+- GPU recommended (T4 16GB for full pipeline; MPS on Apple Silicon for development)
 
-These steps run the minimal MedGemma demo script located at
-`src/hello_world_medgemma.py`.
-
-### 1) Create a virtual environment (one time)
-
-From the root of the repo:
+### Setup
 
 ```bash
+# Create and activate virtual environment
 python3 -m venv .venv
-```
-
-### 2) Activate the virtual environment (required)
-
-```bash
 source .venv/bin/activate
-```
 
-You should now see `(.venv)` in your shell prompt.  
-If you **do not** see this, stop — pip installs will fail.
-
-### 3) Upgrade pip *inside* the virtual environment
-
-Once the virtual environment is active:
-
-```bash
-python -m pip install --upgrade pip
-```
-
-> On macOS, Homebrew-managed Python blocks global pip installs.  
-> Upgrading pip is only allowed **inside** a virtual environment.
-
-### 4) Install Python dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
+
+# Log in to HuggingFace (one time)
+huggingface-cli login
+
+# Accept the MedGemma license at:
+# https://huggingface.co/google/medgemma-1.5-4b-it
 ```
 
-> Note: `torch` installation can vary by OS/GPU.  
-> If Torch fails to install, install it using the official PyTorch selector
-> for your machine, then re-run the command above.
-
-### 5) Run the MedGemma hello world script
-
-Medication explanation:
+### Run Tests
 
 ```bash
-python src/hello_world_medgemma.py --mode med --name "Metformin"
+# All unit tests (fast, mocked MedGemma)
+PYTHONPATH=src pytest tests/ --ignore=tests/integration/
+
+# Single test file
+PYTHONPATH=src pytest tests/test_priority_rules.py -v
+
+# Integration tests (requires real MedGemma model)
+PYTHONPATH=src pytest tests/integration/ -v
 ```
 
-Lab explanation:
+### Run a Module
 
 ```bash
-python src/hello_world_medgemma.py --mode lab --name "Hemoglobin" --flag low
-```
+# Medication interpretation demo
+PYTHONPATH=src python -m caremap.medication_interpretation
 
-### 6) (Optional) Set the MedGemma model id
-
-If you need to use a different MedGemma model id, set it once:
-
-```bash
-export MEDGEMMA_MODEL_ID="google/medgemma-2b-it"
-```
-
-Or pass it directly:
-
-```bash
-python src/hello_world_medgemma.py --model "google/medgemma-2b-it" --mode med --name "Metformin"
-```
-
-### Troubleshooting
-
-If you see this error:
-
-```
-error: externally-managed-environment
-```
-
-It means the virtual environment is **not activated**.  
-Activate it with:
-
-```bash
-source .venv/bin/activate
-```
-
-Then retry the command.
-
----
-
-## Running the Jupyter Notebook (Local)
-
-This repository includes a Jupyter Notebook intended for interactive exploration and as a Kaggle-style, judge-facing artifact.
-
-Follow these steps to run the notebook locally.
-
-### 1) Activate the virtual environment
-
-From the project root:
-
-```bash
-source .venv/bin/activate
-```
-
-Verify that Python points to the virtual environment:
-
-```bash
-which python
-```
-
-You should see a path ending in `.venv/bin/python`.
-
----
-
-### 2) Register the virtual environment as a Jupyter kernel (one time)
-
-Run this **once** to make the virtual environment selectable inside Jupyter:
-
-```bash
-python -m ipykernel install --user \
-  --name caremap-medgemma \
-  --display-name "CareMap (venv)"
+# Build Kaggle dataset zip
+./build_kaggle_dataset.sh
 ```
 
 ---
 
-### 3) Start the Jupyter server
+## Evaluation Results (Kaggle T4 GPU)
 
-You may use either interface:
+Proof-of-architecture validation across 62 MedGemma inference calls (~29 min on T4):
 
-**JupyterLab (recommended):**
-```bash
-jupyter lab
-```
+| Module | N | Primary Metric | Score |
+|--------|---|----------------|-------|
+| Radiology Triage | 26 chest X-rays | STAT Recall | **100%** (3/3) |
+| Radiology Triage | 26 chest X-rays | Overall Accuracy | 50% |
+| HL7 Triage | 20 ORU messages | Overall Accuracy | **85%** |
+| Medication Interp. | 8 medications | Safety Pass Rate | **100%** |
+| Lab Interp. | 8 golden scenarios | No Forbidden Terms | **100%** |
 
-**Classic Notebook:**
-```bash
-jupyter notebook
-```
-
-Your browser will open with a file explorer. Open the `.ipynb` notebook from there.
+Radiology over-triage is deliberate — a false STAT is an inconvenience; a missed STAT is a death.
 
 ---
 
-### 4) Select the correct kernel inside the notebook
+## Safety by Design
 
-In the notebook UI:
-- Click the kernel selector (top-right), or
-- Use **Kernel → Change Kernel**
+CareMap **never** diagnoses, recommends treatment, or displays raw lab values. It fails closed — omitting information rather than speculating. Emergency contacts and "call 911" instructions are hardcoded, never model-generated.
 
-Choose:
-
-**`CareMap (venv)`**
+See [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) for full details.
 
 ---
 
-### 5) Sanity check (optional but recommended)
+## Deployments
 
-Run the following cell to confirm the kernel is correct:
-
-```python
-import sys
-print(sys.executable)
-```
-
-Expected output should point to `.venv/bin/python`.
-
-You can also verify PyTorch and Apple Silicon support:
-
-```python
-import torch
-print(torch.__version__)
-print(torch.backends.mps.is_available())
-```
+| Platform | Purpose | Link |
+|----------|---------|------|
+| **Kaggle Notebook** | Competition deliverable (end-to-end) | `notebooks/caremap_kaggle_submission.ipynb` |
+| **HuggingFace Spaces** | Interactive Gradio demo | [codekunoichi/caremap-medgemma](https://huggingface.co/spaces/codekunoichi/caremap-medgemma) |
+| **Printable HTML** | The actual caregiver deliverable | No app, no internet — works on any printer |
 
 ---
 
-### Notes
+## Key Documentation
 
-- Kernel setup is required **only for local use**.
-- Kaggle Notebooks manage kernels automatically; you do not need to perform these steps on Kaggle.
-- Always ensure the correct kernel is selected to avoid missing-package or model-loading errors.
+| File | Purpose |
+|------|---------|
+| [`WRITEUP.md`](WRITEUP.md) | Competition writeup |
+| [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) | Non-goals and safeguards |
+| [`CANONICAL_SCHEMA.md`](CANONICAL_SCHEMA.md) | v1.1 EHR input schema |
+| [`FRIDGE_SHEET_SCHEMA.md`](FRIDGE_SHEET_SCHEMA.md) | Output schema (locked) |
+| [`INPUT_OUTPUT_RULES.md`](INPUT_OUTPUT_RULES.md) | Deterministic transformation rules |
+| [`CHANGELOG.md`](CHANGELOG.md) | All notable changes |
+| [`INTENT.md`](INTENT.md) | Project purpose and vision |
 
 ---
 
 ## License
 
-This project is released under the **Apache License 2.0**.
+Apache License 2.0
 
 ---
 
 CareMap is built with the belief that **clarity is care**.
-
----
