@@ -5,6 +5,7 @@ All notable changes to CareMap will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Competition writeup** (`WRITEUP.md`): 3-page writeup covering personal motivation, WHO $42B impact stat, three-module architecture, proof-of-architecture evaluation, SaMD regulatory positioning, and NLLB-200 as decoupled translation layer
 - **Rule-based priority override for radiology triage** (`priority_rules.py`): physician-auditable CSV maps finding patterns to minimum priority levels; rules only escalate, never downgrade
   - 13 clinical rules (4 STAT, 7 SOON, 2 ROUTINE) in `radiology_priority_rules.csv`
   - "No Finding" / "Normal" / "Unremarkable" forces ROUTINE to fix SOON over-prediction
