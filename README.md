@@ -194,7 +194,6 @@ See [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) for full details.
 | [`FRIDGE_SHEET_SCHEMA.md`](FRIDGE_SHEET_SCHEMA.md) | Output schema (locked) |
 | [`INPUT_OUTPUT_RULES.md`](INPUT_OUTPUT_RULES.md) | Deterministic transformation rules |
 | [`CHANGELOG.md`](CHANGELOG.md) | All notable changes |
-| [`INTENT.md`](INTENT.md) | Project purpose and vision |
 
 ---
 
