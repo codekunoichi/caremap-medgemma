@@ -76,12 +76,6 @@ Fridge Sheet JSON (capped by BuildLimits: 8 meds, 3 labs, 2 actions/bucket)
 | `translation.py` | NLLB-200 translator with back-translation validation |
 | `multilingual_fridge_sheet.py` | Generates fridge sheets in multiple languages |
 
-### Alternative: Structured Output (`src/caremap_structured/`)
-
-Uses Pydantic + `outlines` library for guaranteed valid JSON via token-level constraints:
-- `schemas/` - Pydantic models for each domain (medication, lab, imaging, caregap)
-- `generators/structured_generator.py` - StructuredMedGemmaClient with schema-constrained generation
-
 ### HuggingFace Space (`huggingface_space/`)
 
 Gradio web app for interactive demo. Contains copied core modules for standalone deployment. Changes to `src/caremap/` must be manually synced here.

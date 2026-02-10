@@ -6,7 +6,7 @@ This canonical schema is the **contract** between:
 - ingestion adapters (CCDA/FHIR/PDF/manual entry)
 - CareMap’s deterministic rules (`INPUT_OUTPUT_RULES.md`)
 - the one-page output (`FRIDGE_SHEET_SCHEMA.md`)
-- the golden tests (`TEST_CASES.md`)
+- the golden tests (`examples/golden_*.json`)
 
 For reproducibility, this repo includes sample canonical JSON fixtures that anyone can run locally.
 
@@ -185,7 +185,7 @@ This canonical schema is the **contract** between:
 - deterministic rules (`INPUT_OUTPUT_RULES.md`)
 - prompt outputs (`prompts/*.txt`)
 - the one-page fridge sheet layout (`FRIDGE_SHEET_SCHEMA.md`)
-- golden tests (`TEST_CASES.md`)
+- golden tests (`examples/golden_*.json`)
 
 For reproducibility, this repo includes sample canonical JSON fixtures that anyone can run locally.
 
