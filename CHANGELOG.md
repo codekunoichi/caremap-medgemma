@@ -34,7 +34,7 @@ All notable changes to CareMap will be documented in this file.
   - Sets HTML `lang` attribute for accessibility
 - **Bengali translation demo** in notebook (Section 1.8): Translates medication and care gap pages with progress bars
 - **Language dropdown** in HuggingFace app: Translate fridge sheets to Bengali, Hindi, Spanish, and more
-- **Physician feedback demo** (`fake_demo/`): 7 HTML pages comparing one-page vs multi-page fridge sheet concepts for user research
+- **User research prototypes** (`user_research/`): HTML concept mockups (A/B/C) used in physician and caregiver interviews, plus interview summary and question set
 - **View mode toggle** in HuggingFace app: Detailed (full AI output) vs Brief (printable)
 - **Multilingual support**: Output in 10 languages (English, Spanish, Chinese, Hindi, Arabic, Portuguese, French, German, Japanese, Korean)
 - **HuggingFace Spaces app** for interactive demo with Gradio
