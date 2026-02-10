@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "source": "CCDA",
+    "generated_on": "2026-02-10",
+    "language": "en"
+  },
+  "patient": {
+    "nickname": "Amma",
+    "age_range": "70s",
+    "sex": "F",
+    "conditions_display": ["Alzheimer's disease", "Diabetes", "Hypertension", "Hyperlipidemia", "Acute Anemia"]
+  },
+  "problem_list": [
+    { "display": "Alzheimer's disease, moderate stage", "status": "Active", "onset_date": "2020-03-15" },
+    { "display": "Type 2 diabetes mellitus", "status": "Active", "onset_date": "2014-06-01" },
+    { "display": "Essential hypertension", "status": "Active", "onset_date": "2012-01-10" },
+    { "display": "Hyperlipidemia", "status": "Active", "onset_date": "2015-09-20" },
+    { "display": "Iron deficiency anemia", "status": "Active", "onset_date": "2025-08-05" }
+  ],
+  "medications": [
+    {
+      "medication_name": "Donepezil",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "dose": "10 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "at bedtime",
+      "status": "Active",
+      "clinician_notes": "For Alzheimer's cognitive support. Monitor for nausea or vivid dreams.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Memantine",
+      "sig_text": "Take 1 tablet by mouth twice daily",
+      "dose": "10 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening",
+      "status": "Active",
+      "clinician_notes": "Added for moderate Alzheimer's. Works with Donepezil.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Metformin",
+      "sig_text": "Take 1 tablet by mouth twice daily with meals",
+      "dose": "500 mg",
+      "route": "PO",
+      "frequency": "BID",
+      "timing": "morning and evening, with food",
+      "status": "Active",
+      "clinician_notes": "Monitor kidney function every 6 months.",
+      "interaction_notes": "Take with food to reduce stomach upset. Hold 48 hours before and after any CT scan with contrast dye."
+    },
+    {
+      "medication_name": "Glimepiride",
+      "sig_text": "Take 1 tablet by mouth daily with breakfast",
+      "dose": "2 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning, with breakfast",
+      "status": "Active",
+      "clinician_notes": "Added because Metformin alone was not controlling blood sugar.",
+      "interaction_notes": "Can cause low blood sugar. Keep glucose tablets or juice nearby. Do not skip meals."
+    },
+    {
+      "medication_name": "Amlodipine",
+      "sig_text": "Take 1 tablet by mouth daily in the morning",
+      "dose": "5 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "For blood pressure control.",
+      "interaction_notes": "May cause ankle swelling. Rise slowly from sitting to avoid dizziness."
+    },
+    {
+      "medication_name": "Losartan",
+      "sig_text": "Take 1 tablet by mouth daily",
+      "dose": "50 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning",
+      "status": "Active",
+      "clinician_notes": "Added for blood pressure and kidney protection with diabetes.",
+      "interaction_notes": "Can raise potassium levels. Avoid potassium-rich salt substitutes."
+    },
+    {
+      "medication_name": "Atorvastatin",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "dose": "20 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "at bedtime",
+      "status": "Active",
+      "clinician_notes": "For cholesterol control. Check liver function yearly.",
+      "interaction_notes": "Avoid grapefruit juice. Report any unexplained muscle pain."
+    },
+    {
+      "medication_name": "Ferrous Sulfate",
+      "sig_text": "Take 1 tablet by mouth daily on empty stomach",
+      "dose": "325 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "morning, 1 hour before breakfast",
+      "status": "Active",
+      "clinician_notes": "For iron deficiency anemia. Recheck hemoglobin in 3 months.",
+      "interaction_notes": "Take on empty stomach with orange juice for better absorption. Separate from calcium, antacids, and Metformin by at least 2 hours. May cause constipation or dark stools — this is normal."
+    },
+    {
+      "medication_name": "Aspirin",
+      "sig_text": "Take 1 tablet by mouth daily with food",
+      "dose": "81 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "with breakfast",
+      "status": "Active",
+      "clinician_notes": "Low-dose for cardiovascular protection.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Omeprazole",
+      "sig_text": "Take 1 capsule by mouth daily 30 minutes before breakfast",
+      "dose": "20 mg",
+      "route": "PO",
+      "frequency": "Daily",
+      "timing": "30 minutes before breakfast",
+      "status": "Active",
+      "clinician_notes": "To protect stomach from Aspirin and iron supplement.",
+      "interaction_notes": "Separate from iron supplement by at least 2 hours — reduces iron absorption."
+    }
+  ],
+  "results": [
+    {
+      "test_name": "Hemoglobin",
+      "meaning_category": "Needs follow-up",
+      "flag": "low",
+      "result_date": "2026-01-20",
+      "source_note": "Below normal — iron deficiency anemia being treated"
+    },
+    {
+      "test_name": "Ferritin (Iron Stores)",
+      "meaning_category": "Needs follow-up",
+      "flag": "low",
+      "result_date": "2026-01-20",
+      "source_note": "Low iron stores — continue iron supplement"
+    },
+    {
+      "test_name": "Hemoglobin A1c (3-Month Blood Sugar Average)",
+      "meaning_category": "Needs follow-up",
+      "flag": "high",
+      "result_date": "2026-01-15",
+      "source_note": "Above target — Glimepiride added at last visit"
+    },
+    {
+      "test_name": "Fasting Blood Sugar",
+      "meaning_category": "Slightly off",
+      "flag": "high",
+      "result_date": "2026-01-15",
+      "source_note": "Slightly above goal — monitor with new medication"
+    },
+    {
+      "test_name": "Total Cholesterol",
+      "meaning_category": "Slightly off",
+      "flag": "high",
+      "result_date": "2026-01-15",
+      "source_note": "Above target despite Atorvastatin — discuss diet at next visit"
+    },
+    {
+      "test_name": "Kidney Function (eGFR)",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-20",
+      "source_note": "Stable — safe to continue Metformin"
+    },
+    {
+      "test_name": "Potassium Level",
+      "meaning_category": "Normal",
+      "flag": "normal",
+      "result_date": "2026-01-20",
+      "source_note": "Within normal range — monitoring due to Losartan"
+    }
+  ],
+  "care_gaps": [
+    {
+      "item_text": "Hemoglobin recheck due in 3 months to track anemia treatment",
+      "next_step": "Schedule lab for April",
+      "time_bucket": "Later",
+      "source": "Lab Follow-up"
+    },
+    {
+      "item_text": "Diabetic eye exam overdue",
+      "next_step": "Schedule appointment with eye doctor",
+      "time_bucket": "This Week",
+      "source": "Health Maintenance"
+    },
+    {
+      "item_text": "Neurology follow-up for Alzheimer's medication review",
+      "next_step": "Call neurologist to schedule 6-month check",
+      "time_bucket": "This Week",
+      "source": "After Visit Summary"
+    },
+    {
+      "item_text": "Blood sugar log review — bring log to next visit",
+      "next_step": "Record fasting blood sugar daily",
+      "time_bucket": "Today",
+      "source": "Care Plan"
+    },
+    {
+      "item_text": "Annual flu shot not received",
+      "next_step": "Ask pharmacy about flu shot availability",
+      "time_bucket": "Today",
+      "source": "Immunizations"
+    }
+  ],
+  "care_team": {
+    "primary_clinician": "Primary Care",
+    "specialists": ["Neurology", "Endocrinology"],
+    "notes": ""
+  },
+  "contacts": {
+    "clinic_name": "Kolkata Family Medicine",
+    "clinic_phone": "033-2555-0100",
+    "pharmacy_name": "Apollo Pharmacy",
+    "pharmacy_phone": "033-2555-0200",
+    "pharmacy_address": "Salt Lake Sector V, Kolkata, West Bengal"
+  }
+}
