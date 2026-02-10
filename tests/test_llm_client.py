@@ -77,15 +77,15 @@ class TestPickDtype:
         dtype = pick_dtype(device)
         assert dtype == torch.float32
 
-    def test_returns_float16_for_cuda(self):
+    def test_returns_bfloat16_for_cuda(self):
         device = torch.device("cuda")
         dtype = pick_dtype(device)
-        assert dtype == torch.float16
+        assert dtype == torch.bfloat16
 
-    def test_returns_float16_for_mps(self):
+    def test_returns_float32_for_mps(self):
         device = torch.device("mps")
         dtype = pick_dtype(device)
-        assert dtype == torch.float16
+        assert dtype == torch.float32
 
 
 class TestGenerationConfig:
@@ -93,7 +93,7 @@ class TestGenerationConfig:
 
     def test_default_values(self):
         config = GenerationConfig()
-        assert config.max_new_tokens == 220
+        assert config.max_new_tokens == 1024
         assert config.do_sample is False
         assert config.temperature == 0.0
         assert config.top_p == 1.0
@@ -166,7 +166,7 @@ class TestMedGemmaClient:
     @patch("caremap.llm_client.pick_device")
     @patch("caremap.llm_client.pick_dtype")
     def test_generate_strips_prompt_echo(self, mock_pick_dtype, mock_pick_device, mock_model_cls, mock_tokenizer_cls):
-        """Test that generate strips echoed prompt from output."""
+        """Test that generate strips echoed prompt via 'model' turn marker."""
         mock_pick_device.return_value = torch.device("cpu")
         mock_pick_dtype.return_value = torch.float32
 
@@ -175,7 +175,7 @@ class TestMedGemmaClient:
         mock_tokenizer.eos_token_id = 1
         mock_tokenizer.return_tensors = "pt"
         mock_tokenizer.return_value = {"input_ids": torch.tensor([[1, 2, 3]])}
-        mock_tokenizer.decode.return_value = "Test prompt Response text"
+        mock_tokenizer.decode.return_value = "user\nTest prompt\nmodel\nResponse text"
         mock_tokenizer_cls.from_pretrained.return_value = mock_tokenizer
 
         mock_model = MagicMock()

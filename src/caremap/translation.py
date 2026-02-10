@@ -72,7 +72,6 @@ NEGATION_PATTERNS = [
 WARNING_INDICATORS = [
     "warning",
     "caution",
-    "important",
     "alert",
     "danger",
     "risk",
