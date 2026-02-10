@@ -339,6 +339,191 @@ EXAMPLE_PATIENT = '''{
 }'''
 
 
+AMMA_PATIENT = '''{
+  "patient": {
+    "nickname": "Amma",
+    "age_range": "70s",
+    "conditions_display": [
+      "Alzheimer's disease",
+      "Diabetes",
+      "Hypertension",
+      "Hyperlipidemia",
+      "Acute Anemia"
+    ]
+  },
+  "medications": [
+    {
+      "medication_name": "Donepezil",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "timing": "at bedtime",
+      "clinician_notes": "For Alzheimer's cognitive support. Monitor for nausea or vivid dreams.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Memantine",
+      "sig_text": "Take 1 tablet by mouth twice daily",
+      "timing": "morning and evening",
+      "clinician_notes": "Added for moderate Alzheimer's. Works with Donepezil.",
+      "interaction_notes": ""
+    },
+    {
+      "medication_name": "Metformin",
+      "sig_text": "Take 1 tablet by mouth twice daily with meals",
+      "timing": "morning and evening, with food",
+      "clinician_notes": "Monitor kidney function every 6 months.",
+      "interaction_notes": "Take with food to reduce stomach upset. Hold 48 hours before and after any CT scan with contrast dye."
+    },
+    {
+      "medication_name": "Glimepiride",
+      "sig_text": "Take 1 tablet by mouth daily with breakfast",
+      "timing": "morning, with breakfast",
+      "clinician_notes": "Added because Metformin alone was not controlling blood sugar.",
+      "interaction_notes": "Can cause low blood sugar. Keep glucose tablets or juice nearby. Do not skip meals."
+    },
+    {
+      "medication_name": "Amlodipine",
+      "sig_text": "Take 1 tablet by mouth daily in the morning",
+      "timing": "morning",
+      "clinician_notes": "For blood pressure control.",
+      "interaction_notes": "May cause ankle swelling. Rise slowly from sitting to avoid dizziness."
+    },
+    {
+      "medication_name": "Losartan",
+      "sig_text": "Take 1 tablet by mouth daily",
+      "timing": "morning",
+      "clinician_notes": "Added for blood pressure and kidney protection with diabetes.",
+      "interaction_notes": "Can raise potassium levels. Avoid potassium-rich salt substitutes."
+    },
+    {
+      "medication_name": "Atorvastatin",
+      "sig_text": "Take 1 tablet by mouth daily at bedtime",
+      "timing": "at bedtime",
+      "clinician_notes": "For cholesterol control. Check liver function yearly.",
+      "interaction_notes": "Avoid grapefruit juice. Report any unexplained muscle pain."
+    },
+    {
+      "medication_name": "Ferrous Sulfate",
+      "sig_text": "Take 1 tablet by mouth daily on empty stomach",
+      "timing": "morning, 1 hour before breakfast",
+      "clinician_notes": "For iron deficiency anemia. Recheck hemoglobin in 3 months.",
+      "interaction_notes": "Take on empty stomach with orange juice for better absorption. Separate from calcium, antacids, and Metformin by at least 2 hours. May cause constipation or dark stools."
+    }
+  ],
+  "results": [
+    {
+      "test_name": "Hemoglobin",
+      "meaning_category": "Needs follow-up",
+      "source_note": "Below normal — iron deficiency anemia being treated"
+    },
+    {
+      "test_name": "Ferritin (Iron Stores)",
+      "meaning_category": "Needs follow-up",
+      "source_note": "Low iron stores — continue iron supplement"
+    },
+    {
+      "test_name": "Hemoglobin A1c (3-Month Blood Sugar Average)",
+      "meaning_category": "Needs follow-up",
+      "source_note": "Above target — Glimepiride added at last visit"
+    },
+    {
+      "test_name": "Fasting Blood Sugar",
+      "meaning_category": "Slightly off",
+      "source_note": "Slightly above goal — monitor with new medication"
+    },
+    {
+      "test_name": "Total Cholesterol",
+      "meaning_category": "Slightly off",
+      "source_note": "Above target despite Atorvastatin — discuss diet at next visit"
+    },
+    {
+      "test_name": "Kidney Function (eGFR)",
+      "meaning_category": "Normal",
+      "source_note": "Stable — safe to continue Metformin"
+    },
+    {
+      "test_name": "Potassium Level",
+      "meaning_category": "Normal",
+      "source_note": "Within normal range — monitoring due to Losartan"
+    }
+  ],
+  "care_gaps": [
+    {
+      "item_text": "Blood sugar log review — bring log to next visit",
+      "next_step": "Record fasting blood sugar daily",
+      "time_bucket": "Today"
+    },
+    {
+      "item_text": "Annual flu shot not received",
+      "next_step": "Ask pharmacy about flu shot availability",
+      "time_bucket": "Today"
+    },
+    {
+      "item_text": "Diabetic eye exam overdue",
+      "next_step": "Schedule appointment with eye doctor",
+      "time_bucket": "This Week"
+    },
+    {
+      "item_text": "Neurology follow-up for Alzheimer's medication review",
+      "next_step": "Call neurologist to schedule 6-month check",
+      "time_bucket": "This Week"
+    },
+    {
+      "item_text": "Hemoglobin recheck due in 3 months to track anemia treatment",
+      "next_step": "Schedule lab for April",
+      "time_bucket": "Later"
+    }
+  ],
+  "contacts": {
+    "clinic_name": "Kolkata Family Medicine",
+    "clinic_phone": "033-2555-0100",
+    "pharmacy_name": "Apollo Pharmacy",
+    "pharmacy_phone": "033-2555-0200"
+  }
+}'''
+
+
+PATIENT_CHOICES = {
+    "Dadu — Complex Cardiac (80s M)": {"json": EXAMPLE_PATIENT, "dir": "dadu"},
+    "Amma — Alzheimer's & Anemia (70s F)": {"json": AMMA_PATIENT, "dir": "amma"},
+}
+
+STATIC_DIR = Path(__file__).parent / "static"
+
+STATIC_BANNER = '''<div style="background:#f0f7ff; border:1px solid #b3d4fc;
+  border-radius:8px; padding:12px 16px; margin:12px 0; font-size:14px; color:#1a56db;">
+  &#x2139;&#xfe0f; These pages were pre-generated on a Kaggle T4 GPU for demonstration purposes.
+  Click "Regenerate with MedGemma" below to generate live output (requires GPU).
+</div>'''
+
+
+def load_static_demo(patient_label):
+    """Load pre-generated HTML for selected patient."""
+    choice = PATIENT_CHOICES.get(patient_label)
+    if not choice:
+        return ("",) * 5 + (EXAMPLE_PATIENT,)
+
+    patient_dir = STATIC_DIR / choice["dir"]
+    pages = []
+    for filename in [
+        "1_medications.html",
+        "2_labs.html",
+        "3_care_gaps.html",
+        "4_imaging.html",
+        "5_connections.html",
+    ]:
+        filepath = patient_dir / filename
+        if filepath.exists():
+            html = filepath.read_text()
+            pages.append(STATIC_BANNER + html)
+        else:
+            pages.append(
+                "<p style='padding:2rem; color:#999;'>Pre-generated HTML not yet available. "
+                "Run the Kaggle notebook to generate.</p>"
+            )
+
+    return tuple(pages) + (choice["json"],)
+
+
 # Example HL7 ORU messages for demo
 EXAMPLE_HL7_MESSAGES = [
     {
@@ -1045,7 +1230,14 @@ with gr.Blocks(
 
             with gr.Row():
                 with gr.Column(scale=1):
-                    input_json = gr.Textbox(label="Patient JSON", lines=15, value=EXAMPLE_PATIENT)
+                    patient_dropdown = gr.Dropdown(
+                        label="Select Patient",
+                        choices=list(PATIENT_CHOICES.keys()),
+                        value=list(PATIENT_CHOICES.keys())[0],
+                        info="Choose a patient to view pre-generated fridge sheets"
+                    )
+                    with gr.Accordion("Patient JSON (editable)", open=False):
+                        input_json = gr.Textbox(label="Patient JSON", lines=15, value=EXAMPLE_PATIENT)
                     xray_upload = gr.Image(label="Upload X-ray (optional, for Imaging page)", type="filepath", height=150)
                     language_dropdown = gr.Dropdown(
                         label="Language (Medications & Care Actions)",
@@ -1053,25 +1245,40 @@ with gr.Blocks(
                         value="english",
                         info="Translates Medication Schedule and Care Actions pages using NLLB-200"
                     )
-                    generate_all_btn = gr.Button("🖨️ Generate All 5 Pages", variant="primary", size="lg")
+                    generate_all_btn = gr.Button("Regenerate with MedGemma (requires GPU)", variant="secondary", size="lg")
 
                 with gr.Column(scale=2):
                     with gr.Tabs() as page_tabs:
                         with gr.TabItem("💊 Medications", id="tab-meds"):
-                            meds_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create the Medication Schedule</p>")
+                            meds_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
                         with gr.TabItem("🔬 Labs", id="tab-labs"):
-                            labs_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Lab Results</p>")
+                            labs_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
                         with gr.TabItem("✅ Care Actions", id="tab-gaps"):
-                            gaps_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Care Actions</p>")
+                            gaps_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
                         with gr.TabItem("🫁 Imaging", id="tab-imaging"):
-                            imaging_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Imaging page</p>")
+                            imaging_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
                         with gr.TabItem("🔗 Connections", id="tab-connections"):
-                            connections_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Click 'Generate All 5 Pages' to create Connections</p>")
+                            connections_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
 
+            # Wire dropdown to load static demo pages + update JSON textbox
+            patient_dropdown.change(
+                fn=load_static_demo,
+                inputs=[patient_dropdown],
+                outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output, input_json],
+            )
+
+            # Wire regenerate button to generate live with MedGemma
             generate_all_btn.click(
                 fn=generate_all_concept_b_pages,
                 inputs=[input_json, xray_upload, language_dropdown],
                 outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output],
+            )
+
+            # Load static demo on page load
+            demo.load(
+                fn=load_static_demo,
+                inputs=[patient_dropdown],
+                outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output, input_json],
             )
 
             gr.Markdown("""
