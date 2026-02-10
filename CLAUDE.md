@@ -146,9 +146,7 @@ client = MedGemmaClient(
 - `FRIDGE_SHEET_SCHEMA.md` - Output schema (locked)
 - `SAFETY_AND_LIMITATIONS.md` - Explicit non-goals and safeguards
 - `CHANGELOG.md` - All notable changes
-- `INTENT.md` - Project intent and vision
-- `ROADMAP.md` - Feature roadmap
-- `TEST_CASES.md` - Test case documentation
+- `WRITEUP.md` - Competition writeup
 
 ## Git Tags
 
