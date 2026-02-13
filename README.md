@@ -4,7 +4,7 @@
 
 CareMap uses **MedGemma 1.5 4B-IT** to serve both patients and providers — transforming complex health data into plain-language fridge sheets for caregivers, and triaging radiology and lab queues for clinicians.
 
-Built for the [Kaggle "Solve for India with Gemini"](https://www.kaggle.com/competitions/solve-for-india-with-gemini) competition.
+Built for the [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge).
 
 ```
                           CareMap

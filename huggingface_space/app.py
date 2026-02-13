@@ -1377,7 +1377,7 @@ with gr.Blocks(
 
     ---
 
-    Built for [Kaggle Solve for India with Gemini](https://www.kaggle.com/competitions/solve-for-india-gemini) |
+    Built for [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge) |
     Powered by Google's MedGemma |
     Demo only - Not for clinical use
     """)
