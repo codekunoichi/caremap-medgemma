@@ -78,7 +78,7 @@
 
 *[Flash the scorecard — 3 seconds]*
 
-> "Radiology triage: [X]% accuracy, [X]% STAT recall. HL7 triage: [X]% STAT recall. Medication safety: [X]% pass rate."
+> "100% STAT recall on both triage modules — zero critical cases missed. HL7 triage: 80% overall accuracy. Medication safety: 90% pass rate across all 10 medications."
 
 ---
 
@@ -125,14 +125,14 @@
 - **Total word count: ~480 words.** At natural speaking pace (170 words/min), this fits 3 minutes with comfortable pauses.
 - **The hardest moment** is "Until we lost her" followed by the bridge. Practice this transition 10+ times. Take a full breath after "lost her." The silence is powerful — don't rush past it.
 - **Bengali page is your India moment.** Linger on it for 5-6 seconds. For the MedGemma Impact Challenge, this single visual — a professional medical document an ayah in Kolkata can actually read — says more than any architecture diagram.
-- **Eval numbers:** Fill in `[X]%` placeholders after the Kaggle run. Say them quickly and confidently — specific numbers signal rigor without eating time.
+- **Eval numbers are locked in.** Say them quickly and confidently — specific numbers signal rigor without eating time.
 - **Don't memorize word-for-word.** Internalize the arc: pill crate -> pain -> bridge -> demo (Bengali!) -> provider + numbers -> safety line -> vision -> emotional close. The words will come.
 - **"Until we lost her"** — if on a given take this feels too hard, you can also say "for years, until her care ended." Both work. Use whatever lets you stay steady.
 
 ## Recording Checklist
 
-- [ ] Run Kaggle notebook end-to-end, note scorecard numbers
-- [ ] Fill in `[X]%` placeholders in this script with actual numbers
+- [x] Run Kaggle notebook end-to-end, note scorecard numbers
+- [x] Fill in eval numbers in script (100% STAT recall, 80% HL7, 90% med safety)
 - [ ] Deploy HuggingFace app, test that Amma demo loads with Bengali page
 - [ ] Prepare screen: HuggingFace tab open, Kaggle results tab ready
 - [ ] Record screen demo first (QuickTime > File > New Screen Recording)
