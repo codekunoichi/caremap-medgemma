@@ -1,1 +1,385 @@
-<html><body><p style="padding:2rem; color:#999; font-family:sans-serif;">Pre-generated HTML not yet available. Run the Kaggle notebook to generate this page.</p></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareMap: Medication Schedule - Dadu</title>
+    <style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f5;
+    color: #333;
+    line-height: 1.4;
+}
+
+.page {
+    max-width: 8.5in;
+    min-height: 11in;
+    margin: 1rem auto;
+    background: white;
+    padding: 0.4in;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: relative;
+}
+
+@media print {
+    body { background: white; }
+    .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 0.3in;
+        max-width: 100%;
+        min-height: auto;
+    }
+}
+
+.page-header {
+    border-bottom: 4px solid #276749;
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.page-header h1 {
+    font-size: 24px;
+    color: #276749;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-header .subtitle {
+    font-size: 14px;
+    color: #718096;
+    margin-top: 0.2rem;
+}
+
+.patient-bar {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 13px;
+}
+
+.patient-bar .name {
+    font-weight: bold;
+    color: #276749;
+    font-size: 16px;
+}
+
+.audience-tag {
+    background: #276749;
+    color: white;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.complete-badge {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 0.3in;
+    left: 0.4in;
+    right: 0.4in;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 0.3rem;
+    font-size: 10px;
+    color: #718096;
+    display: flex;
+    justify-content: space-between;
+}
+
+.medgemma-badge {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    vertical-align: middle;
+}
+
+.medgemma-badge::before {
+    content: "🧠";
+    font-size: 10px;
+}
+
+
+.legend {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 11px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.time-icon {
+    font-size: 16px;
+    margin-right: 2px;
+}
+
+.med-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 0.5rem;
+}
+
+.med-grid th {
+    background: #276749;
+    color: white;
+    padding: 0.4rem 0.5rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.med-grid td {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.med-grid tr:nth-child(even) {
+    background: #f7fafc;
+}
+
+.med-name {
+    font-weight: bold;
+    color: #2d3748;
+    font-size: 13px;
+}
+
+.med-dose {
+    color: #718096;
+    font-size: 11px;
+}
+
+.time-badge {
+    display: inline-block;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 0.1rem 0.1rem 0.1rem 0;
+}
+
+.time-badge.morning { background: #fef3c7; color: #92400e; }
+.time-badge.afternoon { background: #fed7e2; color: #97266d; }
+.time-badge.evening { background: #e9d8fd; color: #553c9a; }
+.time-badge.bedtime { background: #c4b5fd; color: #4c1d95; }
+
+.food-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.food-badge.with-food { background: #d1fae5; color: #065f46; }
+.food-badge.no-food { background: #fee2e2; color: #991b1b; }
+.food-badge.optional { background: #f3f4f6; color: #4b5563; }
+
+.warning { color: #c53030; font-weight: 500; font-size: 11px; }
+.why-matters { font-size: 11px; color: #4a5568; line-height: 1.4; }
+
+.med-grid th.medgemma-col {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #cbd5e0;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="page-header">
+            <h1>💊 Medication Schedule</h1>
+            <div class="subtitle">Daily reference for giving medicines</div>
+        </div>
+
+        <div class="patient-bar">
+            <div>
+                <span class="name">Dadu</span>
+                <span style="margin-left: 1rem;">80s</span>
+            </div>
+            <div>
+                <span class="audience-tag">👤 For: Ayah / Helper</span>
+                <span class="complete-badge" style="margin-left: 0.5rem;">✓ All 8 Medicines Shown</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><span class="time-icon">☀️</span> Morning</div>
+            <div class="legend-item"><span class="time-icon">🌤️</span> Afternoon</div>
+            <div class="legend-item"><span class="time-icon">🌅</span> Evening</div>
+            <div class="legend-item"><span class="time-icon">🌙</span> Bedtime</div>
+            <div class="legend-item"><span class="food-badge with-food">🍽️</span> With Food</div>
+            <div class="legend-item"><span class="food-badge no-food">🚫🍽️</span> Empty Stomach</div>
+            <div class="legend-item"><span class="warning">⚠️</span> Warning</div>
+            <div class="legend-item"><span class="medgemma-badge">MedGemma</span> AI-Generated</div>
+        </div>
+
+        <table class="med-grid">
+            <thead>
+                <tr>
+                    <th style="width: 4%">✓</th>
+                    <th style="width: 14%">Medicine</th>
+                    <th style="width: 11%">When</th>
+                    <th style="width: 12%">How to Give</th>
+                    <th style="width: 30%" class="medgemma-col">Why It Matters <span class="medgemma-badge" style="margin-left: 0.3rem;">AI</span></th>
+                    <th style="width: 29%">Watch For</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Metformin</div>
+                    <div class="med-dose">500mg</div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span><br><span class="time-icon">🌅</span> <span class="time-badge evening">Evening</span></td>
+                <td class="instruction"><span class="food-badge with-food">🍽️ With Food</span></td>
+                <td class="why-matters">This medication helps lower blood sugar levels. It makes it easier for your body to use the sugar in your blood for energy.</td>
+                <td><span class="warning">⚠️ Stop taking this medication if a kidney test shows a low number (below 30). Stop taking this medication 2 days (48 hours) before and after any CT scan that uses contrast dye. Tell the doctor if you have a CT scan.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Warfarin</div>
+                    <div class="med-dose"></div>
+                </td>
+                <td><span class="time-icon">🌅</span> <span class="time-badge evening">Evening</span></td>
+                <td class="instruction"><span class="food-badge optional">🍽️ Optional</span></td>
+                <td class="why-matters">This medication helps prevent dangerous blood clots. It is often called a &#39;blood thinner&#39; because it makes the blood take longer to clot.</td>
+                <td><span class="warning">⚠️ Keep your blood test result (INR) between 2.0 and 3.0. This is important for your heart condition (AFib). You need to have your blood test (INR) checked every week. Do not take pain relievers like ibuprofen or aspirin unless your doctor tells you it is safe. Try to eat the same amount of leafy green vegetables (like spinach or kale) each week. Don&#39;t suddenly eat much more or much less.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Furosemide</div>
+                    <div class="med-dose">40mg</div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span><br><span class="time-icon">🌤️</span> <span class="time-badge afternoon">Afternoon</span></td>
+                <td class="instruction"><span class="food-badge optional">🍽️ Optional</span></td>
+                <td class="why-matters">This medication is a water pill that helps your body remove extra water, often used to manage fluid buildup in conditions like heart failure.</td>
+                <td><span class="warning">⚠️ This medication can lower your potassium levels. Take potassium pills or liquid exactly as prescribed by your doctor. Watch for signs of low potassium, such as muscle weakness or irregular heartbeat.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Potassium Chloride</div>
+                    <div class="med-dose"></div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span></td>
+                <td class="instruction"><span class="food-badge with-food">🍽️ With Food</span></td>
+                <td class="why-matters">This medicine helps replace potassium that your body might be losing, especially if you are taking a medicine called Lasix (furosemide).</td>
+                <td><span class="warning">⚠️ Take it with food or a snack to help prevent stomach upset. Do not break or crush the tablets. Take them whole.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Carvedilol</div>
+                    <div class="med-dose">5mg</div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span><br><span class="time-icon">🌅</span> <span class="time-badge evening">Evening</span></td>
+                <td class="instruction"><span class="food-badge with-food">🍽️ With Food</span></td>
+                <td class="why-matters">This heart medicine helps the heart work better and slows down the heart rate.</td>
+                <td><span class="warning">⚠️ May make you feel dizzy. Stand up slowly from sitting or lying down. Do not stop taking this medicine suddenly without talking to your doctor.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Lisinopril</div>
+                    <div class="med-dose">10mg</div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span></td>
+                <td class="instruction"><span class="food-badge optional">🍽️ Optional</span></td>
+                <td class="why-matters">This medication helps protect your heart and kidneys. It is often used to treat high blood pressure.</td>
+                <td><span class="warning">⚠️ Some people may get a dry cough. It can also sometimes raise potassium levels in the blood, which needs to be checked with blood tests.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Levothyroxine</div>
+                    <div class="med-dose">75mcg</div>
+                </td>
+                <td><span class="time-icon">☀️</span> <span class="time-badge morning">Morning</span></td>
+                <td class="instruction"><span class="food-badge no-food">🚫🍽️ Empty Stomach</span></td>
+                <td class="why-matters">This medicine helps treat a condition where your thyroid gland doesn&#39;t make enough thyroid hormone.</td>
+                <td><span class="warning">⚠️ Do not take this medicine with calcium supplements, iron supplements, or antacids (like Tums). Wait at least 4 hours between taking this medicine and these other things. This helps your body absorb the medicine properly.</span></td>
+            </tr>
+        
+            <tr>
+                <td><div class="checkmark"></div></td>
+                <td>
+                    <div class="med-name">Acetaminophen</div>
+                    <div class="med-dose">650mg</div>
+                </td>
+                <td><span class="time-badge">as needed</span></td>
+                <td class="instruction"><span class="food-badge optional">🍽️ Optional</span></td>
+                <td class="why-matters">This medication helps relieve pain.</td>
+                <td><span class="warning">⚠️ Do not take more than 3000mg in 24 hours. Do not take other pain relievers like ibuprofen, naproxen, or aspirin. These can be dangerous when taken with warfarin.</span></td>
+            </tr>
+        
+            </tbody>
+        </table>
+
+        <div class="page-footer">
+            <div>CareMap | For information only | Updated: Feb 13, 2026</div>
+            <div>Page 1 of 5: Medications (Ayah Reference)</div>
+        </div>
+    </div>
+</body>
+</html>
