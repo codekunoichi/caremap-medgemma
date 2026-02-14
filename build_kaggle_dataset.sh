@@ -34,6 +34,7 @@ zip -r "$ZIP_PATH" \
   src/caremap/priority_rules.py \
   src/caremap/prompt_loader.py \
   src/caremap/radiology_triage.py \
+  src/caremap/reading_level.py \
   src/caremap/safety_validator.py \
   src/caremap/translation.py \
   src/caremap/validators.py \
