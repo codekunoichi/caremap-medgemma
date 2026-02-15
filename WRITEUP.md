@@ -2,7 +2,7 @@
 
 **CareMap** uses a single MedGemma model to serve both sides of healthcare — caregivers who need plain-language medication guides, and providers who need intelligent triage queues.
 
-**Team:** Ruma Giri (Solo developer) | User research: Dr. Vinodhini Sriram (PCP), Dr. Manini Moudgal (Pediatrician, India), Dr. Gaurav Mishra (Psychiatrist, Geriatric), Sunayana Mann (Family Caregiver)
+**Team:** Rumpa Giri (Solo developer) | User research: Dr. Vinodhini Sriram (Family Medicine), Dr. Manini Moudgal (Pediatrician, India), Dr. Gaurav Mishra (Psychiatrist, Geriatric), Sunayana Mann (Family Caregiver)
 
 ---
 
@@ -14,7 +14,7 @@
 
 **What users told us:** We interviewed four healthcare professionals and caregivers. Their feedback directly shaped CareMap:
 
-> *"All they need is that first page — medication, 8:00 a.m., 12 p.m., with food. This page is the valuable page."* — **Dr. Vinodhini Sriram**, PCP
+> *"All they need is that first page — medication, 8:00 a.m., 12 p.m., with food. This page is the valuable page."* — **Dr. Vinodhini Sriram**, Family Medicine
 
 > *"I peel the fridge magnet and say these are the medications she has."* — **Sunayana Mann**, Caregiver
 
