@@ -61,6 +61,18 @@
 
 ---
 
+## Acknowledgements
+
+**Family.** My father, whose insights shaped the concept. My mother, whose encouragement to keep moving forward lives on in this work.
+
+**User Research Partners.** [Dr. Vinodhini Sriram](https://www.pihhealth.org/find-a-doctor/physician-profile-advanced/vinodhini-sriram/) (Family Medicine), [Dr. Gaurav Mishra](https://www.linkedin.com/in/gaurav-mishra-md-mba-dfapa-99213a5/) (Psychiatrist), Dr. Manini Moudgal (Pediatrician, India), [Sunayana Mann](https://www.linkedin.com/in/sunayana-mann/) (Digital Health & Caregiver).
+
+**LLM Council.** Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google) — thought partners, devil's advocates, and research aids. **Claude Code** — for orchestrating the implementation and making a solo developer brave enough to attempt this competition.
+
+**Kaggle & Google.** For hosting this challenge and the opportunity to learn MedGemma by building with it.
+
+---
+
 **Source Code:** [github.com/codekunoichi/caremap-medgemma](https://github.com/codekunoichi/caremap-medgemma)
 **Live Demo:** [HuggingFace Spaces](https://huggingface.co/spaces/rgiri2025/caremap-medgemma)
 **Video Demo:** [link TBD]
