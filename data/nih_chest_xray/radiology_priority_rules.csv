@@ -6,9 +6,9 @@ hemothorax,STAT,Hemothorax Rule,Blood in pleural space requires urgent eval
 consolidation,SOON,Consolidation Rule,Suggests infection same-day evaluation
 infiltrat,SOON,Infiltration Rule,Pulmonary infiltrates same-day eval
 mass,SOON,Mass Rule,Rule out malignancy
-nodule,SOON,Nodule Rule,Evaluate for malignancy
+nodule,ROUTINE,Nodule Rule,Evaluate for malignancy
 pneumonia,SOON,Pneumonia Rule,Same-day antibiotic initiation
-atelectasis,SOON,Atelectasis Rule,May require intervention
+atelectasis,ROUTINE,Atelectasis Rule,May require intervention
 effusion,SOON,Effusion Rule,Pleural effusion same-day eval
 cardiomegaly,ROUTINE,Cardiomegaly Rule,Chronic finding routine follow-up
 emphysema,ROUTINE,Emphysema Rule,Chronic finding routine management
