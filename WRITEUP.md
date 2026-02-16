@@ -2,7 +2,7 @@
 
 **CareMap** uses a single MedGemma model to serve both sides of healthcare — caregivers who need plain-language medication guides, and providers who need intelligent triage queues.
 
-**Team:** Rumpa Giri (Solo developer) | User research: Dr. Vinodhini Sriram (Family Medicine), Dr. Manini Moudgal (Pediatrician, India), Dr. Gaurav Mishra (Psychiatrist, Geriatric), Sunayana Mann (Family Caregiver)
+**Team:** [Rumpa Giri](https://www.linkedin.com/in/rgiri/) (Solo developer) | User research: Dr. Vinodhini Sriram (Family Medicine), Dr. Manini Moudgal (Pediatrician, India), Dr. Gaurav Mishra (Psychiatrist, Geriatric), Sunayana Mann (Family Caregiver)
 
 ---
 
