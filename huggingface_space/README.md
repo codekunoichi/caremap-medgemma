@@ -16,9 +16,21 @@ models:
 
 **One Model. Three Modules. Better Outcomes.**
 
+<p align="center">
+  <img src="docs/images/MaAndBapi.PNG" alt="Bapi feeding Ma - the inspiration behind CareMap" width="400">
+</p>
+
+<p align="center"><em>Bapi feeding Ma. CareMap was built in her honor.</em></p>
+
 CareMap enhances existing Electronic Health Records with clinical AI - it doesn't replace your system, it makes it smarter. Powered by Google's **MedGemma 1.5 4B-IT** foundation model.
 
 ## The Problem
+
+<p align="center">
+  <img src="docs/images/MaPillBox.png" alt="A typical Indian medicine box" width="400">
+</p>
+
+<p align="center"><em>Dozens of pills, handwritten notes, no clear instructions. The Ayah changes every week - how do you hand off care?</em></p>
 
 Healthcare systems generate overwhelming amounts of data that's hard to act on:
 - **Caregivers** receive dense clinical notes, unexplained lab values, and scattered follow-up tasks
@@ -61,6 +73,14 @@ Analyzes incoming HL7 ORU messages (labs, radiology reports) and prioritizes the
 - Detects critical values (K⁺ >6.5, elevated troponin, tension pneumothorax)
 - Flags abnormal results needing same-day attention (supratherapeutic INR)
 - Routes normal results for routine review
+
+### The Deliverable: On the Fridge
+
+<p align="center">
+  <img src="docs/images/fridgesheet.png" alt="CareMap fridge sheets printed and posted on the kitchen cabinet" width="500">
+</p>
+
+<p align="center"><em>Printed. On the fridge. The Ayah walks in Monday morning, the sheet is right there. Zero technology required.</em></p>
 
 ## Safety by Design
 
