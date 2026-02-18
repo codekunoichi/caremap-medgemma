@@ -14,13 +14,13 @@
 
 **What users told us:** We interviewed four healthcare professionals and caregivers. Their feedback directly shaped CareMap:
 
-> *"All they need is that first page - medication, 8:00 a.m., 12 p.m., with food. This page is the valuable page."* - **Dr. Vinodhini Sriram**, Family Medicine
+> *"All they need is that first page - medication, 8:00 a.m., 12 p.m., with food. This page is the valuable page."* - **Dr. Vinodhini Sriram**, Family Medicine, US
 
-> *"I peel the fridge magnet and say these are the medications she has."* - **Sunayana Mann**, Caregiver
+> *"I peel the fridge magnet and say these are the medications she has."* - **Sunayana Mann**, Caregiver, US
 
-> *"Even a basic printed list would be a great help... Keep it one page, very impactful."* - **Dr. Manini Moudgal**, Pediatrician, Bangalore
+> *"Even a basic printed list would be a great help... Keep it one page, very impactful."* - **Dr. Manini Moudgal**, Pediatrician, India
 
-> *"The ayah changes every week. How do you hand off care?"* - **Dr. Gaurav Mishra**, Psychiatrist
+> *"The ayah changes every week. How do you hand off care?"* - **Dr. Gaurav Mishra**, Psychiatrist, US
 
 ---
 
@@ -42,7 +42,7 @@
 
 ## Technical Details + Evaluation
 
-**Architecture:** All modules share a single `MedGemmaClient` (auto-detects v1/v1.5, optimal dtype per device). Prompt templates enforce domain-specific JSON schemas. A `SafetyValidator` blocks forbidden terms, jargon, and raw numeric values on every output. CareMap never diagnoses, never recommends treatment, never displays raw lab values. It fails closed, omitting rather than speculating. Emergency contacts are hardcoded, never model-generated. CareMap is a caregiver support aid, not a SaMD; all outputs require human review.
+**Architecture:** All modules share a single `MedGemmaClient` (auto-detects v1/v1.5, optimal dtype per device). Prompt templates enforce domain-specific JSON schemas. A `SafetyValidator` blocks forbidden terms, jargon, and raw numeric values on every output. CareMap never diagnoses, never recommends treatment, never displays raw lab values. It fails closed, omitting rather than speculating. Emergency contacts are data-driven from the patient JSON, never model-generated. CareMap is a caregiver support aid, not a SaMD; all outputs require human review.
 
 **Proof-of-Architecture Validation (Kaggle T4 GPU, ~29 min):**
 
@@ -50,9 +50,10 @@
 |--------|---|----------------|-------|
 | Radiology Triage | 26 X-rays | STAT Recall | **100%** (3/3) |
 | Radiology Triage | 26 X-rays | Overall Accuracy | 50% (deliberate over-triage) |
-| HL7 Triage | 20 ORU messages | Overall Accuracy | **85%** |
-| Medication Interp. | 8 medications | Safety Pass Rate | **100%** |
-| Lab Interp. | 8 golden scenarios | No Forbidden Terms | **100%** |
+| HL7 Triage | 20 ORU messages | STAT Recall | **100%** |
+| HL7 Triage | 20 ORU messages | Overall Accuracy | **80%** |
+| Medication Interp. | 10 medications | Safety Pass Rate | **90%** |
+| Lab Interp. | 8 golden scenarios | No Forbidden Terms | **88%** |
 | Reading Level | 16 med explanations | Flesch-Kincaid Grade | **5.5** (target: 6.0) |
 
 **Honest limitations:** Radiology overall accuracy is 50% due to deliberate over-triage; the rule engine escalates ambiguous cases. The rule CSV includes a diagnostic view showing which rules fired on each misclassified case, making iterative clinician refinement transparent. LLM outputs are non-deterministic; scores represent a single pass. Sample sizes are small; the contribution is the *framework* (divide-and-conquer, physician-auditable rules, safety-first validation), not benchmark numbers. MedGemma 1.5 sometimes omits JSON keys non-deterministically; `require_keys_with_defaults()` fills missing keys with safe fallback text, ensuring the fridge sheet always renders.
@@ -65,7 +66,7 @@
 
 **Family.** My father, whose insights shaped the concept. My mother, whose encouragement to keep moving forward lives on in this work.
 
-**User Research Partners.** [Dr. Vinodhini Sriram](https://www.pihhealth.org/find-a-doctor/physician-profile-advanced/vinodhini-sriram/) (Family Medicine), [Dr. Gaurav Mishra](https://www.linkedin.com/in/gaurav-mishra-md-mba-dfapa-99213a5/) (Child, Adolescent and Adult Psychiatrist), Dr. Manini Moudgal (Pediatrician, India), [Sunayana Mann](https://www.linkedin.com/in/sunayana-mann/) (Digital Health & Caregiver).
+**User Research Partners.** [Dr. Vinodhini Sriram](https://www.pihhealth.org/find-a-doctor/physician-profile-advanced/vinodhini-sriram/) (Family Medicine, US), [Dr. Gaurav Mishra](https://www.linkedin.com/in/gaurav-mishra-md-mba-dfapa-99213a5/) (Psychiatrist, US), Dr. Manini Moudgal (Pediatrician, India), [Sunayana Mann](https://www.linkedin.com/in/sunayana-mann/) (Digital Health & Caregiver, US).
 
 **LLM Council.** Claude (Anthropic), ChatGPT (OpenAI), Gemini (Google) - thought partners, devil's advocates, and research aids. **Claude Code** - for orchestrating the implementation and making a solo developer brave enough to attempt this competition.
 
