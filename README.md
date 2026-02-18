@@ -2,7 +2,13 @@
 
 **One model, three modules, maximum impact on both sides of healthcare.**
 
-CareMap uses **MedGemma 1.5 4B-IT** to serve both patients and providers — transforming complex health data into plain-language fridge sheets for caregivers, and triaging radiology and lab queues for clinicians.
+<p align="center">
+  <img src="docs/images/MaAndBapi.PNG" alt="Bapi feeding Ma - the inspiration behind CareMap" width="400">
+</p>
+
+<p align="center"><em>Bapi feeding Ma. CareMap was built in her honor.</em></p>
+
+CareMap uses **MedGemma 1.5 4B-IT** to serve both patients and providers - transforming complex health data into plain-language fridge sheets for caregivers, and triaging radiology and lab queues for clinicians.
 
 Built for the [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge).
 
@@ -28,6 +34,16 @@ Built for the [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competit
 
 ---
 
+## The Problem
+
+<p align="center">
+  <img src="docs/images/MaPillBox.png" alt="A typical Indian medicine box - dozens of pills, no clear instructions" width="400">
+</p>
+
+<p align="center"><em>A typical medicine box. Dozens of pills, handwritten notes, no clear instructions. The Ayah changes every week - how do you hand off care?</em></p>
+
+---
+
 ## Three Modules
 
 ### Module 1: Fridge Sheet Generator (Patient Side)
@@ -42,7 +58,7 @@ MedGemma interprets medications, labs, care gaps, and imaging reports into plain
 | 4 | Imaging findings explained simply | Family |
 | 5 | How meds, labs, and actions connect | Both |
 
-Multilingual translation via **NLLB-200** supports Bengali, Hindi, Spanish, and 7 other languages — preserving medication names and doses as safety-critical untranslated elements.
+Multilingual translation via **NLLB-200** supports Bengali, Hindi, Spanish, and 7 other languages -preserving medication names and doses as safety-critical untranslated elements.
 
 ### Module 2: Radiology Triage (Provider Side)
 
@@ -62,9 +78,17 @@ Result: **100% STAT recall** (3/3) on evaluation set.
 
 ### Module 3: HL7 Message Triage (Provider Side)
 
-MedGemma triages incoming HL7 ORU lab results by urgency — surfacing critical values (Troponin elevation, dangerous potassium) above routine results.
+MedGemma triages incoming HL7 ORU lab results by urgency -surfacing critical values (Troponin elevation, dangerous potassium) above routine results.
 
 Result: **85% accuracy** on 20-message evaluation set.
+
+### The Deliverable: On the Fridge
+
+<p align="center">
+  <img src="docs/images/fridgesheet.png" alt="CareMap fridge sheets printed and posted on the kitchen cabinet" width="500">
+</p>
+
+<p align="center"><em>The actual deliverable. Printed. On the fridge. The Ayah walks in Monday morning, the sheet is right there. Zero technology required.</em></p>
 
 ---
 
@@ -162,13 +186,13 @@ Proof-of-architecture validation across 62 MedGemma inference calls (~29 min on 
 | Medication Interp. | 8 medications | Safety Pass Rate | **100%** |
 | Lab Interp. | 8 golden scenarios | No Forbidden Terms | **100%** |
 
-Radiology over-triage is deliberate — a false STAT is an inconvenience; a missed STAT is a death.
+Radiology over-triage is deliberate -a false STAT is an inconvenience; a missed STAT is a death.
 
 ---
 
 ## Safety by Design
 
-CareMap **never** diagnoses, recommends treatment, or displays raw lab values. It fails closed — omitting information rather than speculating. Emergency contacts and "call 911" instructions are hardcoded, never model-generated.
+CareMap **never** diagnoses, recommends treatment, or displays raw lab values. It fails closed - omitting information rather than speculating. Emergency contacts are data-driven from the patient JSON, never model-generated.
 
 See [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) for full details.
 
@@ -179,8 +203,8 @@ See [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) for full details.
 | Platform | Purpose | Link |
 |----------|---------|------|
 | **Kaggle Notebook** | Competition deliverable (end-to-end) | `notebooks/caremap_kaggle_submission.ipynb` |
-| **HuggingFace Spaces** | Interactive Gradio demo | [codekunoichi/caremap-medgemma](https://huggingface.co/spaces/codekunoichi/caremap-medgemma) |
-| **Printable HTML** | The actual caregiver deliverable | No app, no internet — works on any printer |
+| **HuggingFace Spaces** | Interactive Gradio demo | [rgiri2025/caremap-medgemma](https://huggingface.co/spaces/rgiri2025/caremap-medgemma) |
+| **Printable HTML** | The actual caregiver deliverable | No app, no internet - works on any printer |
 
 ---
 
