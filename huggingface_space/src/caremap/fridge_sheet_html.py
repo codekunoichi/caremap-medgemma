@@ -1547,6 +1547,7 @@ def generate_connections_page(
     clinic_phone = contacts.get('clinic_phone', '')
     pharmacy_name = contacts.get('pharmacy_name', 'Your Pharmacy')
     pharmacy_phone = contacts.get('pharmacy_phone', '')
+    emergency_contact = contacts.get('emergency_contact', '911')
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1592,7 +1593,7 @@ def generate_connections_page(
         <div class="contacts-bar">
             <div><strong>📞 Clinic:</strong> {escape_html(clinic_name)} - {escape_html(clinic_phone)}</div>
             <div><strong>💊 Pharmacy:</strong> {escape_html(pharmacy_name)} - {escape_html(pharmacy_phone)}</div>
-            <div><strong>🚨 Emergency:</strong> 911</div>
+            <div><strong>🚨 Emergency:</strong> {escape_html(emergency_contact)}</div>
         </div>
 
         <div class="page-footer">
