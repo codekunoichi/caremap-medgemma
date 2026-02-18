@@ -29,7 +29,7 @@ Built for the [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competit
   5 Printable Pages     |               |
     8.5 x 11"      STAT/SOON/ROUTINE  STAT/SOON/ROUTINE
         |
-   NLLB-200 Translation (10 languages)
+   NLLB-200 Translation (600+ languages)
 ```
 
 ---
@@ -58,7 +58,7 @@ MedGemma interprets medications, labs, care gaps, and imaging reports into plain
 | 4 | Imaging findings explained simply | Family |
 | 5 | How meds, labs, and actions connect | Both |
 
-Multilingual translation via **NLLB-200** supports Bengali, Hindi, Spanish, and 7 other languages -preserving medication names and doses as safety-critical untranslated elements.
+Multilingual translation via **NLLB-200** (600+ languages) supports Bengali, Hindi, Spanish, Farsi, Turkish, Chinese, and many more - preserving medication names and doses as safety-critical untranslated elements.
 
 ### Module 2: Radiology Triage (Provider Side)
 

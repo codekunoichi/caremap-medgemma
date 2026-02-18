@@ -58,7 +58,7 @@ Transforms patient health data into **5 printable 8.5×11" pages**, each designe
 | 🫁 Imaging | Family | X-ray findings with AI interpretation |
 | 🔗 Connections | Both | How meds, labs, and actions work together |
 
-**Multilingual support:** Medication Schedule and Care Actions pages can be translated into 10 languages using NLLB-200 (Spanish, Hindi, Bengali, Chinese, Portuguese, Tamil, Telugu, Marathi).
+**Multilingual support:** Medication Schedule and Care Actions pages can be translated using NLLB-200 (600+ languages supported) - preserving medication names as safety-critical untranslated elements.
 
 ### 🔬 Radiology Triage - AI-Assisted X-ray Prioritization
 
