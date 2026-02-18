@@ -222,6 +222,7 @@
     "clinic_phone": "033-2555-0100",
     "pharmacy_name": "Apollo Pharmacy",
     "pharmacy_phone": "033-2555-0200",
-    "pharmacy_address": "Salt Lake Sector V, Kolkata, West Bengal"
+    "pharmacy_address": "Salt Lake Sector V, Kolkata, West Bengal",
+    "emergency_contact": "0334420007 (Bapi)"
   }
 }
