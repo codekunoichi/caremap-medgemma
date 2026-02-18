@@ -176,15 +176,16 @@ PYTHONPATH=src python -m caremap.medication_interpretation
 
 ## Evaluation Results (Kaggle T4 GPU)
 
-Proof-of-architecture validation across 62 MedGemma inference calls (~29 min on T4):
+Proof-of-architecture validation across 64 MedGemma inference calls (~29 min on T4):
 
 | Module | N | Primary Metric | Score |
 |--------|---|----------------|-------|
 | Radiology Triage | 26 chest X-rays | STAT Recall | **100%** (3/3) |
 | Radiology Triage | 26 chest X-rays | Overall Accuracy | 50% |
-| HL7 Triage | 20 ORU messages | Overall Accuracy | **85%** |
-| Medication Interp. | 8 medications | Safety Pass Rate | **100%** |
-| Lab Interp. | 8 golden scenarios | No Forbidden Terms | **100%** |
+| HL7 Triage | 20 ORU messages | STAT Recall | **100%** |
+| HL7 Triage | 20 ORU messages | Overall Accuracy | **80%** |
+| Medication Interp. | 10 medications | Safety Pass Rate | **90%** |
+| Lab Interp. | 8 golden scenarios | No Forbidden Terms | **88%** |
 
 Radiology over-triage is deliberate -a false STAT is an inconvenience; a missed STAT is a death.
 
