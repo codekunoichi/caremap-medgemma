@@ -218,6 +218,10 @@ data/*
 !data/nih_chest_xray/
 data/nih_chest_xray/*
 !data/nih_chest_xray/radiology_priority_rules.csv
+!data/nih_chest_xray/sample_manifest.csv
+!data/nih_chest_xray/demo_images/
+data/nih_chest_xray/demo_images/*
+!data/nih_chest_xray/demo_images/**
 
 # Feedback exports
 feedback/

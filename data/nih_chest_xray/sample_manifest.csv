@@ -1,0 +1,27 @@
+image_id,priority,findings,patient_age,patient_gender
+00000032_001.png,STAT,Cardiomegaly|Edema|Effusion,55,F
+00003989_020.png,STAT,Cardiomegaly|Edema,58,F
+00004344_037.png,STAT,Cardiomegaly|Edema,48,F
+00000013_026.png,SOON,Cardiomegaly|Emphysema,57,M
+00000116_013.png,SOON,Cardiomegaly|Consolidation,75,F
+00000116_032.png,SOON,Cardiomegaly|Consolidation,75,F
+00000116_040.png,SOON,Cardiomegaly|Consolidation,75,F
+00000432_000.png,SOON,Cardiomegaly|Emphysema,72,F
+00000790_000.png,SOON,Cardiomegaly|Effusion,34,F
+00001075_046.png,SOON,Cardiomegaly|Effusion,58,F
+00001096_001.png,SOON,Cardiomegaly|Effusion,62,F
+00000017_001.png,ROUTINE,No Finding,77,M
+00000042_002.png,ROUTINE,No Finding,71,M
+00000057_001.png,ROUTINE,No Finding,71,M
+00000061_019.png,ROUTINE,No Finding,77,M
+00000080_005.png,ROUTINE,No Finding,67,F
+00000083_000.png,ROUTINE,No Finding,56,F
+00000099_006.png,ROUTINE,No Finding,58,F
+00000121_004.png,ROUTINE,No Finding,54,M
+00000165_008.png,ROUTINE,No Finding,78,M
+00000188_001.png,ROUTINE,No Finding,45,M
+00000194_004.png,ROUTINE,No Finding,84,F
+00000206_000.png,ROUTINE,No Finding,30,M
+00000231_005.png,ROUTINE,No Finding,56,F
+00000239_003.png,ROUTINE,No Finding,49,F
+00000246_003.png,ROUTINE,No Finding,51,M
