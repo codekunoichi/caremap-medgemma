@@ -24,6 +24,12 @@ models:
 
 CareMap enhances existing Electronic Health Records with clinical AI - it doesn't replace your system, it makes it smarter. Powered by Google's **MedGemma 1.5 4B-IT** foundation model.
 
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=iCwVuBD-tv8">📺 Video Demo</a> &nbsp;|&nbsp;
+  <a href="https://huggingface.co/spaces/rgiri2025/caremap-medgemma">🤗 HuggingFace Space</a> &nbsp;|&nbsp;
+  <a href="https://www.kaggle.com/code/codekunoichi/caremap-medgemma-competition-v8">📓 Kaggle Notebook</a>
+</p>
+
 ## The Problem
 
 <p align="center">
