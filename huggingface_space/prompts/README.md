@@ -1,102 +1,84 @@
 # CareMap Prompts
 
-This folder contains the **source-of-truth prompt templates** used by CareMap.
-Each prompt is designed to do **one job** and to emit **structured JSON** so the fridge sheet can be rendered as a deterministic table.
+Task-scoped prompt templates for MedGemma 1.5. Each prompt does **one job** and emits **structured JSON**.
 
-## Design intent
+## Design Principles
 
-CareMap intentionally avoids a “mega prompt” that generates the entire fridge sheet.
-Instead, prompts are **task-scoped** to reduce clinical risk, improve consistency, and make behavior testable.
+CareMap avoids a "mega prompt" — prompts are scoped by domain to reduce clinical risk, improve consistency, and make behavior testable.
 
-Common principles across all prompts:
-- **JSON-only output** (no markdown, no commentary)
+Common guardrails across all prompts:
+- **JSON-only output** — no markdown, no commentary (MedGemma 1.5 may wrap in fences; `extract_first_json_object` handles this)
 - **One item in → one JSON object out**
-- **Plain language** (caregiver-friendly)
-- **No clinical decision-making** (no diagnosis, no treatment recommendations)
-- **Fail closed**: prefer omission or “Not specified — confirm with care team” over guessing
-
-## How these prompts are used
-
-At runtime:
-1. EHR-derived data is mapped into a **Canonical JSON** structure.
-2. The app calls the relevant prompt(s) to generate safe, plain-language text fields.
-3. Outputs are validated (schema + constraints) and assembled into the one-page fridge sheet.
-
-The prompt files are loaded by the notebook/app so judges can review them directly.
+- **Plain language** — 6th-grade reading level
+- **No clinical decision-making** — no diagnosis, no treatment recommendations
+- **Fail closed** — prefer "Not specified — confirm with care team" over guessing
 
 ---
 
-## `medication_prompt_v1.txt`
+## Fridge Sheet Prompts (Patient Side)
 
-**Purpose:** Create one caregiver-safe medication row for the fridge sheet.
+### Medication Prompts
+| File | Version | Description |
+|------|---------|-------------|
+| `medication_prompt_v1.txt` | V1 | Constrained: one medication → plain-language fridge row |
+| `medication_prompt_v2_experimental.txt` | V2 | Experimental: broader context, less constrained output |
+| `medication_prompt_v3_grounded.txt` | V3 | Grounded: chain-of-thought reasoning before JSON — best quality, requires `max_new_tokens=1024` |
 
-**Input fields (provided to the prompt):**
-- `medication_name` (normalized)
-- `when_to_give` (dose + frequency + timing pulled from the EHR)
-- `clinician_notes` (optional)
-- `interaction_notes` (optional; verified interactions only)
+**Output keys:** `medication`, `why_it_matters`, `when_to_give`, `important_note`
 
-**Output JSON keys (exact):**
-- `medication`
-- `why_it_matters` (one sentence; purpose, not mechanism)
-- `when_to_give` (must be explicit; if missing → `Not specified — confirm with care team`)
-- `important_note` (one sentence max; only if explicitly supported by notes)
+### Lab Prompts
+| File | Version | Description |
+|------|---------|-------------|
+| `lab_prompt_v1.txt` | V1 | Constrained: one lab result → plain-language explanation |
+| `lab_prompt_v2_experimental.txt` | V2 | Experimental |
+| `lab_prompt_v3_grounded.txt` | V3 | Grounded with chain-of-thought |
 
-**Guardrails:**
-- No dosage calculations or changes
-- No treatment recommendations
-- No speculative interaction warnings (only use provided `interaction_notes`)
-- No mechanism-of-action explanations
+**Output keys:** `what_was_checked`, `what_it_means`, `what_to_ask_doctor`
+**Guardrails:** No raw numeric values, no reference ranges
 
----
+### Care Gap Prompts
+| File | Version | Description |
+|------|---------|-------------|
+| `caregap_prompt_v1.txt` | V1 | Constrained: one care gap → calm, actionable explanation |
+| `caregap_prompt_v2_experimental.txt` | V2 | Experimental |
+| `caregap_prompt_v3_grounded.txt` | V3 | Grounded with chain-of-thought |
 
-## `lab_prompt_v1.txt`
+**Output keys:** `care_gap`, `why_it_matters`, `next_step`
+**Guardrails:** No fear-based language, no outcome prediction
 
-**Purpose:** Create one high-level lab/test insight item (max 3 total on the fridge sheet).
+### Imaging Prompts
+| File | Version | Description |
+|------|---------|-------------|
+| `imaging_prompt_v1.txt` | V1 | Constrained: one radiology report → plain-language summary |
+| `imaging_prompt_v2_experimental.txt` | V2 | Experimental |
+| `imaging_prompt_v3_grounded.txt` | V3 | Grounded with chain-of-thought |
 
-**Input fields (provided to the prompt):**
-- `test_name` (plain name)
-- `result_flag` (e.g., Normal / Slightly off / Needs follow-up)
-- Optional supporting context from the canonical record (non-numeric)
-
-**Output JSON keys (exact):**
-- `what_was_checked` (plain-language description; one short sentence max)
-- `what_it_means` (starts with: `Normal` / `Slightly off` / `Needs follow-up`, followed by a brief explanation)
-- `what_to_ask_doctor` (exactly one question)
-
-**Guardrails:**
-- No raw numeric values
-- No reference ranges or thresholds
-- No urgency escalation unless explicitly provided by source data
-- Uncertainty-aware wording when appropriate (“ask your clinician…”)
+**Output keys:** `study_type`, `what_was_found`, `what_it_means`, `what_to_ask_doctor`
+**Guardrails:** No diagnosis, no urgency escalation
 
 ---
 
-## `caregap_prompt_v1.txt`
+## Provider-Side Prompts
 
-**Purpose:** Explain why a care gap / follow-up task matters, without fear-based language.
+### `radiology_triage.txt`
+**Used by:** `radiology_triage.py` (multimodal pipeline)
+**Input:** Chest X-ray image + patient age/gender
+**Task:** Detect findings and suggest priority — MedGemma's output feeds the rule engine (not used directly for final priority)
+**Output keys:** `findings`, `primary_impression`, `suggested_priority`, `confidence`
+**Note:** MedGemma alone achieves 0% STAT recall; the CSV rule engine (`radiology_priority_rules.csv`) is what produces 100% STAT recall. This prompt handles perception; rules handle prioritization.
 
-**Input fields (provided to the prompt):**
-- `care_gap` (the item name)
-- `next_step` (the concrete action to take)
-- Optional context if explicitly provided by the source record
-
-**Output JSON keys (exact):**
-- `care_gap`
-- `why_it_matters` (2–3 short sentences; calm, supportive)
-- `next_step` (copy the provided next step)
-
-**Guardrails:**
-- No diagnosis or outcome prediction
-- No fear-based or urgent language unless explicitly provided by source data
-- Focus on organization and follow-through, not clinical claims
+### `hl7_oru_triage.txt`
+**Used by:** `hl7_triage.py`
+**Input:** HL7 ORU message fields (message type, patient age/gender, clinical context, observations)
+**Task:** Classify incoming lab/clinical result as STAT / SOON / ROUTINE
+**Output keys:** `priority`, `reasoning`, `key_findings`, `recommended_action`
+**Priority definitions:**
+- `STAT` — critical values, immediate action (< 1 hour)
+- `SOON` — abnormal, same-day review (< 24 hours)
+- `ROUTINE` — normal/minor (48–72 hours)
 
 ---
 
 ## Versioning
 
-Prompts are versioned with a `_vN` suffix.
-When updating a prompt:
-- add a new version file (e.g., `_v2`)
-- keep older versions for traceability during judging and testing
-- update the notebook/app to reference the intended version
+Prompts use `_vN` suffix. V3 grounded prompts are the production default — they produce higher quality output via chain-of-thought reasoning but require `max_new_tokens=1024` (truncates at 512). V1 prompts are kept for regression testing.

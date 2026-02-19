@@ -1,45 +1,57 @@
-# CareMap Examples Directory
+# CareMap Examples
 
-This directory contains golden test files for demonstrating and validating MedGemma's plain-language interpretation capabilities.
+Synthetic patient data and golden test specifications. All patient data is fully synthetic — no real PHI.
 
-## File Organization
+---
 
-### Canonical Patient Files (INPUT to MedGemma)
-These files follow `CANONICAL_SCHEMA.md v1.1` exactly - they represent structured EHR data that MedGemma will process:
+## Canonical Patient Files (EHR Input)
+
+These follow `CANONICAL_SCHEMA.md v1.1` — structured EHR data fed into the CareMap pipeline.
 
 | File | Description |
 |------|-------------|
-| `canonical_tc01.json` | Original TC-01 test case - simple diabetic patient |
+| `canonical_amma.json` | Primary demo patient — "Amma", 70s, Alzheimer's + Diabetes + Hypertension + Anemia, 10 medications, Bengali-speaking family. Used in HuggingFace Space and Kaggle notebook demos. |
+| `canonical_tc01.json` | TC-01 test case — simple diabetic patient |
 | `canonical_tc02.json` | TC-02 test case |
-| `golden_patient_complex.json` | Complex elderly patient (80s, "Dadu") with 7 comorbidities, 8 medications |
-| `golden_patient_simple.json` | Simpler patient for baseline testing |
+| `golden_patient_complex.json` | Complex elderly patient ("Dadu"), 7 comorbidities, 8 medications — used in integration tests |
+| `golden_patient_simple.json` | Simple patient for baseline unit testing |
+| `sample_patient_01.json` | Alternate demo patient for smoke testing |
 
-### MedGemma Output Specification Files (Expected OUTPUT)
-These files document **expected MedGemma behavior** for specific medical domains. They contain:
-- Raw medical content (radiology reports, detailed lab context)
-- Expected plain language output at 6th grade reading level
-- Forbidden terms that should not appear in output
+---
+
+## Golden Test Specifications (Expected MedGemma Output)
+
+These define **expected behavior** for MedGemma interpretation — used by `tests/integration/` golden tests. Each file contains input content, expected output shape, and forbidden terms that must not appear.
+
+| File | Scenarios | Domain |
+|------|-----------|--------|
+| `golden_labs.json` | 8 scenarios | Lab interpretation: A1c, eGFR, INR, BNP, CBC, LFTs, TSH, lipids |
+| `golden_caregaps.json` | 10 scenarios | Care gap explanations: mammogram, colonoscopy, eye exam, flu shot, etc. |
+| `golden_imaging_ct.json` | 5 scenarios | CT report simplification |
+| `golden_imaging_mri.json` | 5 scenarios | MRI report simplification |
+| `golden_drug_interactions.json` | 7 scenarios | Drug interaction warnings: warfarin, NSAIDs, statins, etc. |
+
+---
+
+## HL7 Sample Messages
 
 | File | Description |
 |------|-------------|
-| `golden_labs.json` | 8 lab result interpretation scenarios (A1c, eGFR, INR, BNP, etc.) |
-| `golden_imaging_ct.json` | 5 CT scan report simplification scenarios |
-| `golden_imaging_mri.json` | 5 MRI report simplification scenarios |
-| `golden_caregaps.json` | 10 care gap explanation scenarios |
-| `golden_drug_interactions.json` | 7 drug interaction warning scenarios |
+| `sample_oru_messages.json` | 20 synthetic HL7 ORU messages used for HL7 triage validation — covers STAT (critical K+, troponin), SOON (elevated INR, worsening renal function), and ROUTINE cases |
 
-## Why Two Types of Files?
-
-**Canonical patient files** represent structured EHR data (medications list, lab flags, care gaps) that feeds into CareMap's interpretation pipeline.
-
-**Output specification files** test MedGemma's ability to interpret raw medical content that wouldn't normally appear in structured EHR fields - like full radiology report text or detailed lab interpretation context.
+---
 
 ## Usage
 
-1. **For end-to-end testing**: Use canonical patient files as input
-2. **For module-specific testing**: Use output specification files to validate MedGemma's interpretation of specific content types
-3. **For competition demos**: Use `golden_patient_complex.json` to show complex real-world scenarios
+```bash
+# Run end-to-end fridge sheet with Amma demo patient
+PYTHONPATH=src python -m caremap.assemble_fridge_sheet examples/canonical_amma.json
 
-## Schema Reference
+# Run integration golden tests
+PYTHONPATH=src pytest tests/integration/ -v
 
-See `CANONICAL_SCHEMA.md` (v1.1) for the full field definitions.
+# Run unit tests (mocked MedGemma, fast)
+PYTHONPATH=src pytest tests/ --ignore=tests/integration/
+```
+
+See `CANONICAL_SCHEMA.md` for full field definitions.
