@@ -204,13 +204,13 @@ PYTHONPATH=src python -m caremap.medication_interpretation
 4. Under **Add-ons → Secrets**, add secret: key = `HUGGINGFACE_TOKEN`, value = your HF token
    - Requires MedGemma license accepted at [huggingface.co/google/medgemma-1.5-4b-it](https://huggingface.co/google/medgemma-1.5-4b-it)
 5. Under **Settings**, set Accelerator to **GPU T4 x1**
-6. **Run All** — full pipeline takes ~29 minutes on T4
+6. **Run All** — full notebook takes ~41 minutes on T4 (~29 min for evaluation cells)
 
 ### Step 4: Make Notebook Public
 
 Settings → Sharing → **Public** — required for competition submission.
 
-> **GPU budget note:** Full evaluation uses ~29 min of the 30hr/week Kaggle GPU quota.
+> **GPU budget note:** Full notebook run (all cells) takes ~41 minutes on T4 — ~29 min for the evaluation section alone. Plan accordingly against the 30hr/week Kaggle GPU quota.
 
 ---
 
