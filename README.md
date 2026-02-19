@@ -12,6 +12,12 @@ CareMap uses **MedGemma 1.5 4B-IT** to serve both patients and providers - trans
 
 Built for the [Kaggle MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge).
 
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=iCwVuBD-tv8">📺 Video Demo</a> &nbsp;|&nbsp;
+  <a href="https://huggingface.co/spaces/rgiri2025/caremap-medgemma">🤗 HuggingFace Space</a> &nbsp;|&nbsp;
+  <a href="https://www.kaggle.com/code/codekunoichi/caremap-medgemma-competition-v8">📓 Kaggle Notebook</a>
+</p>
+
 ```
                           CareMap
                             |
