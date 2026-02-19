@@ -5,6 +5,20 @@ All notable changes to CareMap will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **YouTube video demo**: 4-minute competition walkthrough published and linked across README, WRITEUP, and HuggingFace Space README
+- **Kaggle notebook public**: `caremap-medgemma-competition-v8` published and linked across all docs
+- **Pencil sketch + fridge photo**: Personal images (`MaAndBapi.PNG`, `MaPillBox.png`, `fridgesheet.png`) added to `docs/images/` and embedded in README and HuggingFace Space README
+- **Acknowledgements section**: Credits for user research partners, LLM council, and Kaggle/Google added to README and WRITEUP
+
+### Changed
+- **README Deployments table**: Kaggle notebook row updated from local path to public URL; Video Demo row added
+- **WRITEUP.md**: Kaggle notebook linked; Video Demo link updated from `[link TBD]` to YouTube URL
+- **HuggingFace Space README**: Kaggle notebook "Coming Soon" replaced with public URL; YouTube video link added; em-dashes replaced with hyphens; radiology timing updated to match writeup (STAT = intervene now, SOON = < 1 hour, ROUTINE = < 24 hours); Ayah context added
+- **NLLB-200 language count**: Updated from numbered list to "600+ languages" across all docs
+
+## [v1.5-medgemma-ready]
+
+### Added
 - **Competition writeup** (`WRITEUP.md`): 3-page writeup covering personal motivation, WHO $42B impact stat, three-module architecture, proof-of-architecture evaluation, SaMD regulatory positioning, and NLLB-200 as decoupled translation layer
 - **Rule-based priority override for radiology triage** (`priority_rules.py`): physician-auditable CSV maps finding patterns to minimum priority levels; rules only escalate, never downgrade
   - 13 clinical rules (4 STAT, 7 SOON, 2 ROUTINE) in `radiology_priority_rules.csv`
