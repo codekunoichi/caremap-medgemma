@@ -203,7 +203,7 @@ See [`SAFETY_AND_LIMITATIONS.md`](SAFETY_AND_LIMITATIONS.md) for full details.
 
 | Platform | Purpose | Link |
 |----------|---------|------|
-| **Kaggle Notebook** | Competition deliverable (end-to-end) | `notebooks/caremap_kaggle_submission.ipynb` |
+| **Kaggle Notebook** | Competition deliverable (end-to-end) | [caremap-medgemma-competition-v8](https://www.kaggle.com/code/codekunoichi/caremap-medgemma-competition-v8) |
 | **HuggingFace Spaces** | Interactive Gradio demo | [rgiri2025/caremap-medgemma](https://huggingface.co/spaces/rgiri2025/caremap-medgemma) |
 | **Video Demo** | Competition video walkthrough | [YouTube](https://www.youtube.com/watch?v=iCwVuBD-tv8) |
 | **Printable HTML** | The actual caregiver deliverable | No app, no internet - works on any printer |

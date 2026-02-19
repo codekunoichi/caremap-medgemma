@@ -58,7 +58,7 @@
 
 **Honest limitations:** Radiology overall accuracy is 50% due to deliberate over-triage; the rule engine escalates ambiguous cases. The rule CSV includes a diagnostic view showing which rules fired on each misclassified case, making iterative clinician refinement transparent. LLM outputs are non-deterministic; scores represent a single pass. Sample sizes are small; the contribution is the *framework* (divide-and-conquer, physician-auditable rules, safety-first validation), not benchmark numbers. MedGemma 1.5 sometimes omits JSON keys non-deterministically; `require_keys_with_defaults()` fills missing keys with safe fallback text, ensuring the fridge sheet always renders.
 
-**Deployment:** Kaggle notebook (reproducible end-to-end), [HuggingFace Spaces](https://huggingface.co/spaces/rgiri2025/caremap-medgemma) (interactive demo), and printable HTML; the actual deliverable requires zero technology once printed. CareMap requires structured clinical data as input; in India where paper records dominate, multimodal data extraction from pill strips and PDF reports is a natural next step.
+**Deployment:** [Kaggle notebook](https://www.kaggle.com/code/codekunoichi/caremap-medgemma-competition-v8) (reproducible end-to-end), [HuggingFace Spaces](https://huggingface.co/spaces/rgiri2025/caremap-medgemma) (interactive demo), and printable HTML; the actual deliverable requires zero technology once printed. CareMap requires structured clinical data as input; in India where paper records dominate, multimodal data extraction from pill strips and PDF reports is a natural next step.
 
 ---
 
