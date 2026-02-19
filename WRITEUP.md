@@ -76,4 +76,4 @@
 
 **Source Code:** [github.com/codekunoichi/caremap-medgemma](https://github.com/codekunoichi/caremap-medgemma)
 **Live Demo:** [HuggingFace Spaces](https://huggingface.co/spaces/rgiri2025/caremap-medgemma)
-**Video Demo:** [link TBD]
+**Video Demo:** [YouTube](https://www.youtube.com/watch?v=iCwVuBD-tv8)

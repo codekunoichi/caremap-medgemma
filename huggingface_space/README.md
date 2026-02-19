@@ -108,6 +108,7 @@ This app uses **MedGemma 1.5 4B-IT** from Google Health AI in both text and mult
 ## Links
 
 - [GitHub Repository](https://github.com/codekunoichi/caremap-medgemma)
+- [Video Demo](https://www.youtube.com/watch?v=iCwVuBD-tv8)
 - Kaggle Notebook - Coming Soon
 - [MedGemma Impact Challenge](https://www.kaggle.com/competitions/med-gemma-impact-challenge)
 
