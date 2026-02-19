@@ -180,6 +180,40 @@ PYTHONPATH=src python -m caremap.medication_interpretation
 
 ---
 
+## Kaggle Setup Guide
+
+### Step 1: Build the Dataset Zip
+
+```bash
+./build_kaggle_dataset.sh
+# Output: kaggle_dataset/caremap-medgemma-dataset.zip (~10MB, ~77 files)
+```
+
+### Step 2: Upload as a Kaggle Dataset
+
+1. Go to [kaggle.com/datasets](https://www.kaggle.com/datasets) → **New Dataset**
+2. Upload `kaggle_dataset/caremap-medgemma-dataset.zip`
+3. Name it **`caremap-medgemma`** (the notebook expects this exact name)
+4. Set visibility to **Public** → **Create**
+
+### Step 3: Create the Kaggle Notebook
+
+1. Go to [kaggle.com/code](https://www.kaggle.com/code) → **New Notebook**
+2. Upload `notebooks/caremap_kaggle_submission.ipynb`
+3. Under **Add-ons → Datasets**, search for `caremap-medgemma` and attach it
+4. Under **Add-ons → Secrets**, add secret: key = `HUGGINGFACE_TOKEN`, value = your HF token
+   - Requires MedGemma license accepted at [huggingface.co/google/medgemma-1.5-4b-it](https://huggingface.co/google/medgemma-1.5-4b-it)
+5. Under **Settings**, set Accelerator to **GPU T4 x1**
+6. **Run All** — full pipeline takes ~29 minutes on T4
+
+### Step 4: Make Notebook Public
+
+Settings → Sharing → **Public** — required for competition submission.
+
+> **GPU budget note:** Full evaluation uses ~29 min of the 30hr/week Kaggle GPU quota.
+
+---
+
 ## Evaluation Results (Kaggle T4 GPU)
 
 Proof-of-architecture validation across 64 MedGemma inference calls (~29 min on T4):
