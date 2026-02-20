@@ -1,10 +1,4 @@
 # CareMap HuggingFace Spaces Requirements
-# GPU Space required (T4 16GB recommended)
+# CPU-only: serves pre-generated static demo pages
 
-transformers>=4.39.0
-accelerate>=0.27.0
-huggingface-hub>=0.34.0,<1.0
-torch>=2.0.0
-sentencepiece
-pydantic>=2.6.0
 gradio>=4.0.0

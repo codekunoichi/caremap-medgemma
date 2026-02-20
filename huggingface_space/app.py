@@ -16,32 +16,38 @@ import re
 import tempfile
 import base64
 
-# Import CareMap modules
+# Import CareMap modules — GPU-dependent imports are conditional
 import sys
 sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from caremap.llm_client import MedGemmaClient
-from caremap.lab_interpretation import interpret_lab
-from caremap.medication_interpretation import interpret_medication_v3_grounded
-from caremap.imaging_interpretation import interpret_imaging_report
-from caremap.caregap_interpretation import interpret_caregap
-from caremap.prompt_loader import load_prompt, fill_prompt
-from caremap.translation import (
-    NLLBTranslator,
-    LANGUAGE_CODES,
-    LANGUAGE_NAMES,
-)
-from caremap.html_translator import translate_fridge_sheet_html
+GPU_AVAILABLE = False
+try:
+    import torch
+    GPU_AVAILABLE = torch.cuda.is_available()
+except ImportError:
+    pass
 
-# Import Concept B fridge sheet generators
-from caremap.fridge_sheet_html import (
-    generate_medications_page,
-    generate_labs_page,
-    generate_gaps_page,
-    generate_imaging_page,
-    generate_connections_page,
-    PatientInfo,
-)
+if GPU_AVAILABLE:
+    from caremap.llm_client import MedGemmaClient
+    from caremap.lab_interpretation import interpret_lab
+    from caremap.medication_interpretation import interpret_medication_v3_grounded
+    from caremap.imaging_interpretation import interpret_imaging_report
+    from caremap.caregap_interpretation import interpret_caregap
+    from caremap.prompt_loader import load_prompt, fill_prompt
+    from caremap.translation import (
+        NLLBTranslator,
+        LANGUAGE_CODES,
+        LANGUAGE_NAMES,
+    )
+    from caremap.html_translator import translate_fridge_sheet_html
+    from caremap.fridge_sheet_html import (
+        generate_medications_page,
+        generate_labs_page,
+        generate_gaps_page,
+        generate_imaging_page,
+        generate_connections_page,
+        PatientInfo,
+    )
 
 
 # ============================================================================
@@ -157,49 +163,44 @@ LANGUAGE_OPTIONS = [
 ]
 
 
-def get_medgemma():
-    """Lazy load the MedGemma client (text only)."""
-    global medgemma_client
-    if medgemma_client is None:
-        print("Loading MedGemma model (text)...")
-        medgemma_client = MedGemmaClient()
-        print("MedGemma loaded!")
-    return medgemma_client
+if GPU_AVAILABLE:
+    def get_medgemma():
+        """Lazy load the MedGemma client (text only)."""
+        global medgemma_client
+        if medgemma_client is None:
+            print("Loading MedGemma model (text)...")
+            medgemma_client = MedGemmaClient()
+            print("MedGemma loaded!")
+        return medgemma_client
 
+    def get_medgemma_multimodal():
+        """Lazy load the MedGemma client with multimodal support."""
+        global medgemma_multimodal_client
+        if medgemma_multimodal_client is None:
+            print("Loading MedGemma model (multimodal)...")
+            medgemma_multimodal_client = MedGemmaClient(enable_multimodal=True)
+            print("MedGemma multimodal loaded!")
+        return medgemma_multimodal_client
 
-def get_medgemma_multimodal():
-    """Lazy load the MedGemma client with multimodal support."""
-    global medgemma_multimodal_client
-    if medgemma_multimodal_client is None:
-        print("Loading MedGemma model (multimodal)...")
-        medgemma_multimodal_client = MedGemmaClient(enable_multimodal=True)
-        print("MedGemma multimodal loaded!")
-    return medgemma_multimodal_client
+    def get_translator():
+        """Lazy load the NLLB translator."""
+        global translator
+        if translator is None:
+            print("Loading NLLB translator...")
+            translator = NLLBTranslator()
+            print("Translator loaded!")
+        return translator
 
+    def translate_text(text: str, target_lang: str) -> str:
+        """Translate text to target language if not English."""
+        if target_lang == "english" or not text.strip():
+            return text
+        trans = get_translator()
+        target_code = LANGUAGE_CODES.get(target_lang, "eng_Latn")
+        return trans.translate_to(text, target_code)
 
-def get_translator():
-    """Lazy load the NLLB translator."""
-    global translator
-    if translator is None:
-        print("Loading NLLB translator...")
-        translator = NLLBTranslator()
-        print("Translator loaded!")
-    return translator
-
-
-def translate_text(text: str, target_lang: str) -> str:
-    """Translate text to target language if not English."""
-    if target_lang == "english" or not text.strip():
-        return text
-
-    trans = get_translator()
-    target_code = LANGUAGE_CODES.get(target_lang, "eng_Latn")
-    return trans.translate_to(text, target_code)
-
-
-# Keep old function name for compatibility
-def get_client():
-    return get_medgemma()
+    def get_client():
+        return get_medgemma()
 
 
 # Example patient data for Patient Portal (matches golden_patient_complex.json)
@@ -496,11 +497,20 @@ STATIC_BANNER = '''<div style="background:#f0f7ff; border:1px solid #b3d4fc;
 </div>'''
 
 
+BENGALI_BANNER = '''<div style="background:#fff3e0; border:1px solid #ffcc80;
+  border-radius:8px; padding:12px 16px; margin:12px 0; font-size:14px; color:#e65100;">
+  &#x1F30F; Bengali (&#x09AC;&#x09BE;&#x0982;&#x09B2&#x09BE;) translation generated by NLLB-200 on Kaggle T4 GPU.
+  Medication names are preserved in English for safety.
+</div>'''
+
+
 def load_static_demo(patient_label):
     """Load pre-generated HTML for selected patient."""
     choice = PATIENT_CHOICES.get(patient_label)
     if not choice:
-        return ("",) * 5 + (EXAMPLE_PATIENT,)
+        return ("",) * 8 + (EXAMPLE_PATIENT,)
+
+    summary_html = generate_patient_summary_html(choice["json"])
 
     patient_dir = STATIC_DIR / choice["dir"]
     pages = []
@@ -521,7 +531,168 @@ def load_static_demo(patient_label):
                 "Run the Kaggle notebook to generate.</p>"
             )
 
-    return tuple(pages) + (choice["json"],)
+    # Bengali translated pages
+    bengali_pages = []
+    for filename in ["1_medications_bn.html", "3_care_gaps_bn.html"]:
+        filepath = patient_dir / filename
+        if filepath.exists():
+            html = filepath.read_text()
+            bengali_pages.append(BENGALI_BANNER + html)
+        else:
+            bengali_pages.append(
+                "<p style='padding:2rem; color:#999;'>Bengali translation not yet available. "
+                "Run the Kaggle notebook to generate.</p>"
+            )
+
+    return (summary_html,) + tuple(pages) + tuple(bengali_pages) + (choice["json"],)
+
+
+def generate_patient_summary_html(json_str):
+    """Generate a clean HTML summary of the raw patient EHR data (input view)."""
+    try:
+        data = json.loads(json_str)
+    except (json.JSONDecodeError, TypeError):
+        return "<p style='padding:2rem; color:#999;'>Invalid or empty patient JSON.</p>"
+
+    patient = data.get("patient", {})
+    nickname = patient.get("nickname", "Patient")
+    age_range = patient.get("age_range", "")
+    conditions = patient.get("conditions_display", [])
+    medications = data.get("medications", [])
+    results = data.get("results", [])
+    care_gaps = data.get("care_gaps", [])
+    contacts = data.get("contacts", {})
+
+    # Condition badge colors
+    badge_colors = ["#e3f2fd", "#fce4ec", "#f3e5f5", "#e8f5e9", "#fff3e0", "#e0f7fa", "#fbe9e7"]
+
+    conditions_html = ""
+    for i, c in enumerate(conditions):
+        bg = badge_colors[i % len(badge_colors)]
+        conditions_html += (
+            f'<span style="display:inline-block; background:{bg}; border-radius:12px; '
+            f'padding:4px 12px; margin:2px 4px; font-size:13px;">{c}</span>'
+        )
+
+    # Medications table
+    meds_rows = ""
+    for med in medications:
+        name = med.get("medication_name", "")
+        sig = med.get("sig_text", "")
+        timing = med.get("timing", "")
+        clin = med.get("clinician_notes", "")
+        interact = med.get("interaction_notes", "")
+        meds_rows += (
+            f"<tr><td style='font-weight:600;'>{name}</td>"
+            f"<td>{sig}</td><td>{timing}</td>"
+            f"<td style='font-size:12px;'>{clin}</td>"
+            f"<td style='font-size:12px; color:#c62828;'>{interact}</td></tr>"
+        )
+
+    # Lab results table
+    flag_colors = {
+        "Normal": ("#2e7d32", "#e8f5e9"),
+        "Slightly off": ("#f57f17", "#fff8e1"),
+        "Needs follow-up": ("#c62828", "#ffebee"),
+    }
+    labs_rows = ""
+    for lab in results:
+        name = lab.get("test_name", "")
+        cat = lab.get("meaning_category", "Normal")
+        note = lab.get("source_note", "")
+        fg, bg = flag_colors.get(cat, ("#333", "#f5f5f5"))
+        labs_rows += (
+            f"<tr><td>{name}</td>"
+            f'<td style="background:{bg}; color:{fg}; font-weight:600; text-align:center; border-radius:4px;">{cat}</td>'
+            f"<td style='font-size:12px;'>{note}</td></tr>"
+        )
+
+    # Care gaps grouped by bucket
+    buckets = {"Today": [], "This Week": [], "Later": []}
+    for gap in care_gaps:
+        bucket = gap.get("time_bucket", "This Week")
+        buckets.setdefault(bucket, []).append(gap)
+
+    bucket_icons = {"Today": "🚨", "This Week": "📅", "Later": "📌"}
+    gaps_html = ""
+    for bucket_name in ["Today", "This Week", "Later"]:
+        items = buckets.get(bucket_name, [])
+        if not items:
+            continue
+        gaps_html += f"<h4 style='margin:12px 0 6px;'>{bucket_icons.get(bucket_name, '')} {bucket_name}</h4><ul style='margin:0;'>"
+        for gap in items:
+            gaps_html += f"<li><strong>{gap.get('item_text', '')}</strong> &rarr; {gap.get('next_step', '')}</li>"
+        gaps_html += "</ul>"
+
+    # Contacts
+    contacts_html = ""
+    if contacts.get("clinic_name"):
+        contacts_html += f"<p>🏥 <strong>{contacts['clinic_name']}</strong> &mdash; {contacts.get('clinic_phone', '')}</p>"
+    if contacts.get("pharmacy_name"):
+        contacts_html += f"<p>💊 <strong>{contacts['pharmacy_name']}</strong> &mdash; {contacts.get('pharmacy_phone', '')}</p>"
+
+    html = f"""
+    <div style="font-family: 'Inter', -apple-system, sans-serif; max-width:900px; margin:0 auto; padding:16px;">
+      <div style="background:linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-radius:12px; padding:20px 24px; margin-bottom:20px;">
+        <h2 style="margin:0 0 8px;">📋 {nickname}'s Health Record</h2>
+        <p style="margin:0 0 8px; color:#555;">Age range: <strong>{age_range}</strong></p>
+        <div>{conditions_html}</div>
+      </div>
+
+      <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:16px; margin-bottom:16px;">
+        <h3 style="margin:0 0 12px;">💊 Medications ({len(medications)})</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#f5f5f5; text-align:left;">
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Name</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Directions</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Timing</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Clinician Notes</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Interactions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {meds_rows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:16px; margin-bottom:16px;">
+        <h3 style="margin:0 0 12px;">🔬 Lab Results ({len(results)})</h3>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="background:#f5f5f5; text-align:left;">
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Test</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd; width:130px;">Status</th>
+                <th style="padding:8px; border-bottom:2px solid #ddd;">Source Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {labs_rows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:16px; margin-bottom:16px;">
+        <h3 style="margin:0 0 8px;">✅ Care Gaps ({len(care_gaps)})</h3>
+        {gaps_html}
+      </div>
+
+      <div style="background:#fff; border:1px solid #e0e0e0; border-radius:8px; padding:16px; margin-bottom:16px;">
+        <h3 style="margin:0 0 8px;">📞 Contacts</h3>
+        {contacts_html if contacts_html else "<p style='color:#999;'>No contacts listed.</p>"}
+      </div>
+
+      <p style="text-align:center; color:#999; font-size:12px; margin-top:16px;">
+        This is the <strong>raw EHR input data</strong>. The tabs to the right show what MedGemma generates from it.
+      </p>
+    </div>
+    """
+    return html
 
 
 # Example HL7 ORU messages for demo
@@ -585,6 +756,198 @@ EXAMPLE_HL7_MESSAGES = [
         ]
     }
 ]
+
+# Pre-generated demo results for CPU-only mode
+DEMO_HL7_BATCH_RESULT = """# 🏥 HL7 ORU Triage Queue
+
+**6 Messages Analyzed** | 🔴 3 STAT | 🟡 1 SOON | 🟢 2 ROUTINE
+
+---
+
+## 🔴 STAT - Critical (Intervene now)
+**ORU-001** | LAB | 67M | 95%
+- Potassium 6.8 mEq/L — critically elevated, risk of cardiac arrhythmia. Hold ACE inhibitor and K+-sparing diuretic...
+
+**ORU-002** | LAB | 45F | 97%
+- Troponin I 2.45 ng/mL (ref <0.04) — highly elevated, consistent with acute myocardial infarction...
+
+**ORU-005** | RADIOLOGY | 58M | 93%
+- Large left-sided pneumothorax with mediastinal shift — tension pneumothorax, emergent decompression required...
+
+## 🟡 SOON - Abnormal (Review < 1 hour)
+**ORU-003** | LAB | 55M | 88%
+- INR 4.2 (target 2.0-3.0) — supratherapeutic anticoagulation, increased bleeding risk. Hold warfarin dose...
+
+## 🟢 ROUTINE - Normal (Review < 24 hours)
+**ORU-004** | LAB | 42F | 92%
+- All values within normal limits. Fasting glucose 92, cholesterol 195 — no action needed...
+
+**ORU-006** | LAB | 35M | 95%
+- CBC within normal limits. WBC 7.2, Hgb 14.5, Plt 245 — cleared for employment physical...
+
+---
+⚠️ **Important:** AI prioritizes the message queue. Clinicians review ALL results.
+
+*Pre-generated with MedGemma 1.5 4B-IT on Kaggle T4 GPU*
+"""
+
+DEMO_HL7_SINGLE_RESULTS = {
+    "ORU-001": """# 🔴 HL7 Triage Result: STAT
+
+## Message: ORU-001
+**Type:** LAB | **Patient:** 67 M
+
+## Priority Reason
+Potassium 6.8 mEq/L is critically elevated (ref 3.5-5.0). This level poses immediate risk of fatal cardiac arrhythmia. Patient is on ACE inhibitor and potassium-sparing diuretic, which are likely contributing factors.
+
+## Key Findings
+- Critical hyperkalemia: K+ 6.8 mEq/L (HH flag)
+- Drug interaction risk: ACE inhibitor + K+-sparing diuretic
+- Immediate cardiac monitoring needed
+
+## Recommended Action
+STAT ECG, continuous cardiac monitoring. Hold ACE inhibitor and potassium-sparing diuretic. Consider IV calcium gluconate, insulin/glucose, and kayexalate. Notify attending physician immediately.
+
+## AI Confidence
+95%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+    "ORU-002": """# 🔴 HL7 Triage Result: STAT
+
+## Message: ORU-002
+**Type:** LAB | **Patient:** 45 F
+
+## Priority Reason
+Troponin I 2.45 ng/mL is markedly elevated (ref <0.04), strongly suggestive of acute myocardial injury. CK-MB 45 U/L (ref 0-25) further supports diagnosis. In context of chest pain, this is consistent with acute MI.
+
+## Key Findings
+- Troponin I critically elevated at 2.45 ng/mL (>60x upper limit)
+- CK-MB elevated at 45 U/L (1.8x upper limit)
+- Clinical presentation: chest pain — rule out MI
+
+## Recommended Action
+Activate STEMI/NSTEMI protocol. STAT 12-lead ECG, serial troponins q3h. Cardiology consult. Heparin drip, dual antiplatelet therapy per protocol. Consider emergent cardiac catheterization.
+
+## AI Confidence
+97%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+    "ORU-003": """# 🟡 HL7 Triage Result: SOON
+
+## Message: ORU-003
+**Type:** LAB | **Patient:** 55 M
+
+## Priority Reason
+INR 4.2 is above therapeutic range (target 2.0-3.0) for AFib patient on warfarin. Elevated bleeding risk but no evidence of active bleeding described.
+
+## Key Findings
+- INR 4.2 — supratherapeutic (target 2.0-3.0)
+- Patient on warfarin for AFib
+- No reported bleeding symptoms
+
+## Recommended Action
+Hold warfarin 1-2 doses. Recheck INR in 24-48 hours. Assess for signs of bleeding. Adjust warfarin dose when INR returns to range. No vitamin K needed unless active bleeding.
+
+## AI Confidence
+88%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+    "ORU-004": """# 🟢 HL7 Triage Result: ROUTINE
+
+## Message: ORU-004
+**Type:** LAB | **Patient:** 42 F
+
+## Priority Reason
+All laboratory values within normal reference ranges. Annual wellness exam results are reassuring.
+
+## Key Findings
+- Fasting glucose 92 mg/dL (ref 70-100) — normal
+- Total cholesterol 195 mg/dL (ref <200) — normal
+
+## Recommended Action
+File results. No urgent follow-up needed. Results can be reviewed at next scheduled visit.
+
+## AI Confidence
+92%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+    "ORU-005": """# 🔴 HL7 Triage Result: STAT
+
+## Message: ORU-005
+**Type:** RADIOLOGY | **Patient:** 58 M
+
+## Priority Reason
+Large left-sided pneumothorax with complete lung collapse and mediastinal shift indicates tension pneumothorax — a life-threatening emergency requiring immediate intervention.
+
+## Key Findings
+- Complete collapse of left lung
+- Mediastinal shift to the right (tension pneumothorax)
+- Clinical context: sudden onset dyspnea and chest pain
+
+## Recommended Action
+Emergent needle decompression followed by chest tube insertion. This is a surgical emergency. Notify thoracic surgery and attending physician immediately.
+
+## AI Confidence
+93%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+    "ORU-006": """# 🟢 HL7 Triage Result: ROUTINE
+
+## Message: ORU-006
+**Type:** LAB | **Patient:** 35 M
+
+## Priority Reason
+Complete blood count within normal limits. Pre-employment physical results are unremarkable.
+
+## Key Findings
+- WBC 7.2 (ref 4.5-11.0) — normal
+- Hemoglobin 14.5 g/dL (ref 13.5-17.5) — normal
+- Platelet count 245 (ref 150-400) — normal
+
+## Recommended Action
+File results. Patient cleared from hematologic standpoint for employment physical.
+
+## AI Confidence
+95%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All results MUST be reviewed by a clinician.
+""",
+}
+
+DEMO_RADIOLOGY_RESULT = """# 🔴 Triage Result: STAT
+
+## Priority Level
+**STAT** - Large left-sided pneumothorax with tension physiology requiring emergent intervention
+
+## Findings
+- Complete opacification/absence of lung markings in left hemithorax
+- Mediastinal shift to the right
+- Deep sulcus sign
+- Flattened left hemidiaphragm
+- Tracheal deviation to the right
+
+## Primary Impression
+Tension pneumothorax, left-sided, with complete lung collapse and mediastinal shift.
+
+## AI Confidence
+95%
+
+---
+⚠️ **Disclaimer:** AI-assisted triage for prioritization only. All images MUST be reviewed by a radiologist.
+
+*Pre-generated with MedGemma 1.5 4B-IT (multimodal) on Kaggle T4 GPU*
+"""
 
 
 def generate_fridge_sheet(patient_json: str, language: str = "english", view_mode: str = "detailed", progress=gr.Progress()) -> str:
@@ -984,9 +1347,9 @@ Patient Information:
 - Gender: {"Male" if patient_gender == "M" else "Female"}
 
 PRIORITY LEVELS:
-- STAT: Critical findings requiring immediate review (< 1 hour)
-- SOON: Abnormal findings requiring same-day review (< 24 hours)
-- ROUTINE: Normal or minor findings (48-72 hours)
+- STAT: Critical findings requiring immediate intervention (intervene now)
+- SOON: Abnormal findings requiring urgent review (< 1 hour)
+- ROUTINE: Normal or minor findings (< 24 hours)
 
 Respond ONLY with valid JSON:
 {{"findings": [...], "primary_impression": "...", "priority": "STAT/SOON/ROUTINE", "priority_reason": "...", "confidence": 0.0-1.0}}"""
@@ -1063,9 +1426,9 @@ OBSERVATIONS:
 {observations_text}
 
 PRIORITY LEVELS:
-- STAT: Life-threatening or critical values (< 1 hour) - e.g., K+ >6.5, troponin elevation, severe anemia
-- SOON: Abnormal results requiring same-day review (< 24 hours) - e.g., elevated INR, worsening renal
-- ROUTINE: Normal results or minor abnormalities (48-72 hours)
+- STAT: Life-threatening or critical values (intervene now) - e.g., K+ >6.5, troponin elevation, severe anemia
+- SOON: Abnormal results requiring urgent review (< 1 hour) - e.g., elevated INR, worsening renal
+- ROUTINE: Normal results or minor abnormalities (< 24 hours)
 
 Respond ONLY with valid JSON:
 {{"priority": "STAT/SOON/ROUTINE", "priority_reason": "...", "key_findings": [...], "recommended_action": "...", "confidence": 0.0-1.0}}"""
@@ -1164,18 +1527,18 @@ Respond with JSON: {{"priority": "STAT/SOON/ROUTINE", "priority_reason": "...", 
 
 ---
 
-## 🔴 STAT - Critical (Review < 1 hour)
+## 🔴 STAT - Critical (Intervene now)
 """
     for r in stat:
         output += f"**{r['message_id']}** | {r['message_type']} | {r['patient']} | {r['confidence']:.0%}\n"
         output += f"- {r['reason'][:80]}...\n\n"
 
-    output += "\n## 🟡 SOON - Abnormal (Review < 24 hours)\n"
+    output += "\n## 🟡 SOON - Abnormal (Review < 1 hour)\n"
     for r in soon:
         output += f"**{r['message_id']}** | {r['message_type']} | {r['patient']} | {r['confidence']:.0%}\n"
         output += f"- {r['reason'][:80]}...\n\n"
 
-    output += "\n## 🟢 ROUTINE - Normal (Review 48-72 hours)\n"
+    output += "\n## 🟢 ROUTINE - Normal (Review < 24 hours)\n"
     for r in routine:
         output += f"**{r['message_id']}** | {r['message_type']} | {r['patient']} | {r['confidence']:.0%}\n"
         output += f"- {r['reason'][:80]}...\n\n"
@@ -1195,8 +1558,54 @@ Respond with JSON: {{"priority": "STAT/SOON/ROUTINE", "priority_reason": "...", 
 # GRADIO INTERFACE
 # ============================================================================
 
+PRINT_CSS = """
+@media print {
+    /* Hide everything by default */
+    body * { visibility: hidden; height: 0; overflow: hidden; }
+
+    /* Keep the container chain visible so the printable sheet can render */
+    body, .gradio-container, .gradio-container > *,
+    .tabs, .tabitem, .tab-content {
+        visibility: visible !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Show only the printable sheet content */
+    .printable-sheet, .printable-sheet * {
+        visibility: visible !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Position printable content at top, full width */
+    .printable-sheet {
+        position: absolute;
+        left: 0; top: 0;
+        width: 100%;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Remove Gradio container constraints */
+    .gradio-container {
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    /* Hide tab navigation bar, buttons, dropdowns */
+    .tab-nav, button, select, .gradio-dropdown,
+    .gradio-button, .gradio-image, .gradio-textbox,
+    .gradio-accordion, footer, nav {
+        display: none !important;
+    }
+}
+"""
+
 with gr.Blocks(
     title="CareMap: EHR Enhancement Platform",
+    css=PRINT_CSS,
 ) as demo:
 
     gr.Markdown("""
@@ -1214,22 +1623,25 @@ with gr.Blocks(
         # TAB 1: PATIENT PORTAL - CONCEPT B FRIDGE SHEETS
         # ================================================================
         with gr.TabItem("👨‍👩‍👧 Patient Portal", id="patient-portal"):
-            gr.Markdown("""
-            ## 📋 Concept B: Printable Fridge Sheets
-
-            Generate **5 printable 8.5x11" pages** - each designed for a specific audience and purpose.
-
-            | Page | For | Content |
-            |------|-----|---------|
-            | 💊 Medications | Ayah/Helper | Daily schedule with timing & food instructions |
-            | 🔬 Labs | Family | Test results explained in plain language |
-            | ✅ Care Actions | Family | Tasks organized: Today / This Week / Coming Up |
-            | 🫁 Imaging | Family | X-ray findings with AI interpretation |
-            | 🔗 Connections | Both | How meds, labs, and actions work together |
-            """)
-
             with gr.Row():
-                with gr.Column(scale=1):
+                with gr.Column(scale=3):
+                    gr.Markdown("""
+                    ## Caregiver Fridge Sheets
+
+                    MedGemma transforms complex EHR data into **printable 8.5x11" pages** that caregivers can post on the fridge.
+
+                    | Page | For | Content |
+                    |------|-----|---------|
+                    | 📋 Patient Data | Judges/Devs | Raw EHR input — what MedGemma receives |
+                    | 💊 Medications | Ayah/Helper | Daily schedule with timing & food instructions |
+                    | 🔬 Labs | Family | Test results explained in plain language |
+                    | ✅ Care Actions | Family | Tasks organized: Today / This Week / Coming Up |
+                    | 🫁 Imaging | Family | X-ray findings with AI interpretation |
+                    | 🔗 Connections | Both | How meds, labs, and actions work together |
+                    | 🌏 Meds (বাংলা) | Ayah | Bengali medication schedule via NLLB-200 |
+                    | 🌏 Actions (বাংলা) | Ayah | Bengali care actions via NLLB-200 |
+                    """)
+                with gr.Column(scale=2):
                     patient_dropdown = gr.Dropdown(
                         label="Select Patient",
                         choices=list(PATIENT_CHOICES.keys()),
@@ -1247,24 +1659,29 @@ with gr.Blocks(
                     )
                     generate_all_btn = gr.Button("Regenerate with MedGemma (requires GPU)", variant="secondary", size="lg")
 
-                with gr.Column(scale=2):
-                    with gr.Tabs() as page_tabs:
-                        with gr.TabItem("💊 Medications", id="tab-meds"):
-                            meds_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
-                        with gr.TabItem("🔬 Labs", id="tab-labs"):
-                            labs_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
-                        with gr.TabItem("✅ Care Actions", id="tab-gaps"):
-                            gaps_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
-                        with gr.TabItem("🫁 Imaging", id="tab-imaging"):
-                            imaging_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
-                        with gr.TabItem("🔗 Connections", id="tab-connections"):
-                            connections_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>")
+            with gr.Tabs() as page_tabs:
+                with gr.TabItem("📋 Patient Data", id="tab-summary"):
+                    summary_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view their health record</p>", elem_classes="printable-sheet")
+                with gr.TabItem("💊 Medications", id="tab-meds"):
+                    meds_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>", elem_classes="printable-sheet")
+                with gr.TabItem("🔬 Labs", id="tab-labs"):
+                    labs_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>", elem_classes="printable-sheet")
+                with gr.TabItem("✅ Care Actions", id="tab-gaps"):
+                    gaps_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>", elem_classes="printable-sheet")
+                with gr.TabItem("🫁 Imaging", id="tab-imaging"):
+                    imaging_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>", elem_classes="printable-sheet")
+                with gr.TabItem("🔗 Connections", id="tab-connections"):
+                    connections_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view pre-generated pages</p>", elem_classes="printable-sheet")
+                with gr.TabItem("🌏 Meds (বাংলা)", id="tab-meds-bn"):
+                    meds_bn_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view Bengali translation</p>", elem_classes="printable-sheet")
+                with gr.TabItem("🌏 Actions (বাংলা)", id="tab-gaps-bn"):
+                    gaps_bn_output = gr.HTML(value="<p style='padding:2rem; color:#666;'>Select a patient to view Bengali translation</p>", elem_classes="printable-sheet")
 
             # Wire dropdown to load static demo pages + update JSON textbox
             patient_dropdown.change(
                 fn=load_static_demo,
                 inputs=[patient_dropdown],
-                outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output, input_json],
+                outputs=[summary_output, meds_output, labs_output, gaps_output, imaging_output, connections_output, meds_bn_output, gaps_bn_output, input_json],
             )
 
             # Wire regenerate button to generate live with MedGemma
@@ -1278,16 +1695,16 @@ with gr.Blocks(
             demo.load(
                 fn=load_static_demo,
                 inputs=[patient_dropdown],
-                outputs=[meds_output, labs_output, gaps_output, imaging_output, connections_output, input_json],
+                outputs=[summary_output, meds_output, labs_output, gaps_output, imaging_output, connections_output, meds_bn_output, gaps_bn_output, input_json],
             )
 
             gr.Markdown("""
             ---
             ### 🖨️ How to Print
             1. Click on a page tab above
-            2. Right-click the page → "Print" or use Ctrl/Cmd+P
-            3. Select "Save as PDF" or print directly
-            4. Each page is designed for 8.5x11" paper
+            2. Press **Ctrl+P** (Windows) or **Cmd+P** (Mac)
+            3. Only the fridge sheet content will print — Gradio controls are hidden automatically
+            4. Each page is designed for 8.5×11" paper
             """)
 
         # ================================================================
@@ -1299,21 +1716,35 @@ with gr.Blocks(
 
             MedGemma analyzes chest X-rays and prioritizes the review queue.
 
-            🔴 **STAT** < 1 hour | 🟡 **SOON** < 24 hours | 🟢 **ROUTINE** 48-72 hours
+            🔴 **STAT** Intervene now | 🟡 **SOON** < 1 hour | 🟢 **ROUTINE** < 24 hours
             """)
 
-            with gr.Row():
-                with gr.Column(scale=1):
-                    xray_input = gr.Image(label="Upload Chest X-ray", type="filepath", height=250)
-                    with gr.Row():
-                        patient_age = gr.Number(label="Age", value=55, minimum=0, maximum=120)
-                        patient_gender = gr.Radio(label="Gender", choices=[("M", "M"), ("F", "F")], value="M")
-                    analyze_btn = gr.Button("Analyze X-ray", variant="primary", size="lg")
+            if GPU_AVAILABLE:
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        xray_input = gr.Image(label="Upload Chest X-ray", type="filepath", height=250)
+                        with gr.Row():
+                            patient_age = gr.Number(label="Age", value=55, minimum=0, maximum=120)
+                            patient_gender = gr.Radio(label="Gender", choices=[("M", "M"), ("F", "F")], value="M")
+                        analyze_btn = gr.Button("Analyze X-ray", variant="primary", size="lg")
 
-                with gr.Column(scale=1):
-                    triage_output = gr.Markdown(value="*Upload an X-ray to see results*")
+                    with gr.Column(scale=1):
+                        triage_output = gr.Markdown(value="*Upload an X-ray to see results*")
 
-            analyze_btn.click(fn=analyze_single_xray, inputs=[xray_input, patient_age, patient_gender], outputs=[triage_output])
+                analyze_btn.click(fn=analyze_single_xray, inputs=[xray_input, patient_age, patient_gender], outputs=[triage_output])
+            else:
+                gr.Markdown("""
+                > **Demo Mode (CPU):** Live X-ray analysis requires GPU + MedGemma multimodal.
+                > Below is a pre-generated example from a Kaggle T4 GPU run.
+                """)
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### Sample Chest X-ray")
+                        gr.Markdown("*NIH Clinical Center ChestX-ray14 dataset — Patient 00000032*")
+                        gr.Image(value="static/demo_xray/stat_xray.png", label="Chest X-ray (STAT case)", height=400, interactive=False)
+                    with gr.Column(scale=1):
+                        gr.Markdown("### MedGemma Triage Result")
+                        gr.Markdown(DEMO_RADIOLOGY_RESULT)
 
         # ================================================================
         # TAB 3: HL7 ORU TRIAGE
@@ -1329,33 +1760,65 @@ with gr.Blocks(
             🟢 **ROUTINE** - Normal results
             """)
 
-            with gr.Row():
-                with gr.Column(scale=1):
-                    gr.Markdown("### Select a Message to Triage")
-                    message_dropdown = gr.Dropdown(
-                        label="Sample HL7 Messages",
-                        choices=[f"{m['message_id']} - {m['message_type']} - {m['clinical_context'][:40]}..." for m in EXAMPLE_HL7_MESSAGES],
-                        value=f"{EXAMPLE_HL7_MESSAGES[0]['message_id']} - {EXAMPLE_HL7_MESSAGES[0]['message_type']} - {EXAMPLE_HL7_MESSAGES[0]['clinical_context'][:40]}..."
-                    )
-                    triage_single_btn = gr.Button("Triage Selected Message", variant="primary", size="lg")
+            if GPU_AVAILABLE:
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### Select a Message to Triage")
+                        message_dropdown = gr.Dropdown(
+                            label="Sample HL7 Messages",
+                            choices=[f"{m['message_id']} - {m['message_type']} - {m['clinical_context'][:40]}..." for m in EXAMPLE_HL7_MESSAGES],
+                            value=f"{EXAMPLE_HL7_MESSAGES[0]['message_id']} - {EXAMPLE_HL7_MESSAGES[0]['message_type']} - {EXAMPLE_HL7_MESSAGES[0]['clinical_context'][:40]}..."
+                        )
+                        triage_single_btn = gr.Button("Triage Selected Message", variant="primary", size="lg")
 
-                    gr.Markdown("---")
-                    gr.Markdown("### Or Run Batch Triage")
-                    triage_batch_btn = gr.Button("Triage All 6 Messages", variant="secondary", size="lg")
+                        gr.Markdown("---")
+                        gr.Markdown("### Or Run Batch Triage")
+                        triage_batch_btn = gr.Button("Triage All 6 Messages", variant="secondary", size="lg")
 
-                with gr.Column(scale=1):
-                    gr.Markdown("### Triage Results")
-                    hl7_output = gr.Markdown(value="*Select a message or run batch triage*")
+                    with gr.Column(scale=1):
+                        gr.Markdown("### Triage Results")
+                        hl7_output = gr.Markdown(value="*Select a message or run batch triage*")
 
-            def triage_selected(selection):
-                msg_id = selection.split(" - ")[0]
-                for msg in EXAMPLE_HL7_MESSAGES:
-                    if msg['message_id'] == msg_id:
-                        return triage_single_hl7(msg)
-                return "Message not found"
+                def triage_selected(selection):
+                    msg_id = selection.split(" - ")[0]
+                    for msg in EXAMPLE_HL7_MESSAGES:
+                        if msg['message_id'] == msg_id:
+                            return triage_single_hl7(msg)
+                    return "Message not found"
 
-            triage_single_btn.click(fn=triage_selected, inputs=[message_dropdown], outputs=[hl7_output])
-            triage_batch_btn.click(fn=triage_batch_hl7, outputs=[hl7_output])
+                triage_single_btn.click(fn=triage_selected, inputs=[message_dropdown], outputs=[hl7_output])
+                triage_batch_btn.click(fn=triage_batch_hl7, outputs=[hl7_output])
+            else:
+                gr.Markdown("""
+                > **Demo Mode (CPU):** Live HL7 triage requires GPU + MedGemma.
+                > Below are pre-generated results from a Kaggle T4 GPU run.
+                """)
+
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        gr.Markdown("### Select a Message")
+                        demo_msg_dropdown = gr.Dropdown(
+                            label="Sample HL7 Messages",
+                            choices=[f"{m['message_id']} - {m['message_type']} - {m['clinical_context'][:40]}..." for m in EXAMPLE_HL7_MESSAGES],
+                            value=f"{EXAMPLE_HL7_MESSAGES[0]['message_id']} - {EXAMPLE_HL7_MESSAGES[0]['message_type']} - {EXAMPLE_HL7_MESSAGES[0]['clinical_context'][:40]}..."
+                        )
+                        demo_single_btn = gr.Button("View Triage Result", variant="primary", size="lg")
+                        gr.Markdown("---")
+                        demo_batch_btn = gr.Button("View All 6 Results", variant="secondary", size="lg")
+
+                    with gr.Column(scale=1):
+                        gr.Markdown("### Triage Results")
+                        demo_hl7_output = gr.Markdown(value=DEMO_HL7_SINGLE_RESULTS["ORU-001"])
+
+                def demo_triage_selected(selection):
+                    msg_id = selection.split(" - ")[0]
+                    return DEMO_HL7_SINGLE_RESULTS.get(msg_id, "Message not found")
+
+                def demo_triage_batch():
+                    return DEMO_HL7_BATCH_RESULT
+
+                demo_single_btn.click(fn=demo_triage_selected, inputs=[demo_msg_dropdown], outputs=[demo_hl7_output])
+                demo_batch_btn.click(fn=demo_triage_batch, outputs=[demo_hl7_output])
 
     gr.Markdown("""
     ---
