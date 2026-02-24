@@ -11,6 +11,8 @@ All notable changes to CareMap will be documented in this file.
 - **Acknowledgements section**: Credits for user research partners, LLM council, and Kaggle/Google added to README and WRITEUP
 
 ### Changed
+- **HuggingFace Space CPU fallback** (`huggingface_space/app.py`): All GPU-dependent imports (`MedGemmaClient`, `NLLBTranslator`, fridge sheet generators) are now conditional on CUDA availability; Space boots on CPU-only hardware without crashing
+- **HuggingFace Space requirements** (`huggingface_space/requirements.txt`): Stripped to `gradio>=4.0.0` only (CPU-only); torch/transformers/sentencepiece removed since live Space serves pre-generated static demo pages
 - **README Deployments table**: Kaggle notebook row updated from local path to public URL; Video Demo row added
 - **WRITEUP.md**: Kaggle notebook linked; Video Demo link updated from `[link TBD]` to YouTube URL
 - **HuggingFace Space README**: Kaggle notebook "Coming Soon" replaced with public URL; YouTube video link added; em-dashes replaced with hyphens; radiology timing updated to match writeup (STAT = intervene now, SOON = < 1 hour, ROUTINE = < 24 hours); Ayah context added
